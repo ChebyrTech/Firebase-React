@@ -1,6 +1,5 @@
 import { fromJS } from 'immutable';
 import expect from 'expect';
-
 import { selectLocationState } from 'containers/App/selectors';
 
 describe('selectLocationState', () => {

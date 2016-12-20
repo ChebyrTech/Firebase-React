@@ -1,7 +1,7 @@
 /* eslint-disable */
 /**
  * This script will extract the internationalization messages from all components
-   and package them in the translation json files in the translations file.
+ and package them in the translation json files in the translations file.
  */
 const fs = require('fs');
 const nodeGlob = require('glob');
@@ -76,7 +76,7 @@ for (const locale of locales) {
   }
 }
 
-const extractFromFile = async (fileName) => {
+const extractFromFile = async(fileName) => {
   try {
     const code = await readFile(fileName);
     // Use babel plugin to extract instances where react-intl is used
@@ -124,7 +124,7 @@ const extractFromFile = async (fileName) => {
       // Sort the translation JSON file so that git diffing is easier
       // Otherwise the translation messages will jump around every time we extract
       let messages = {};
-      Object.keys(localeMappings[locale]).sort().forEach(function(key) {
+      Object.keys(localeMappings[locale]).sort().forEach(function (key) {
         messages[key] = localeMappings[locale][key];
       });
 

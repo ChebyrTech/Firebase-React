@@ -1,7 +1,7 @@
 {
-  "name": "react-boilerplate",
-  "version": "3.3.3",
-  "description": "A highly scalable, offline-first foundation with the best DX and a focus on performance and best practices",
+  "name": "Firebase-React",
+  "version": "0.0.1",
+  "description": "",
   "repository": {
     "type": "git",
     "url": "git://github.com/mxstbr/react-boilerplate.git"
@@ -9,8 +9,8 @@
   "engines": {
     "npm": ">=3"
   },
-  "author": "Max Stoiber",
-  "license": "MIT",
+  "author": "",
+  "license": "",
   "scripts": {
     "analyze:clean": "rimraf stats.json",
     "preanalyze": "npm run analyze:clean",
@@ -206,10 +206,8 @@
     "redux-immutable": "3.0.8",
     "redux-saga": "0.12.0",
     "reselect": "2.5.4",
-    "sanitize.css": "4.1.0",
     "styled-components": "1.0.3",
-    "warning": "3.0.0",
-    "whatwg-fetch": "1.0.0"
+    "warning": "3.0.0"
   },
   "devDependencies": {
     "babel-cli": "6.18.0",
