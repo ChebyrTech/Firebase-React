@@ -1,3 +1,5 @@
+
+/* eslint-disable import/no-unresolved, import/extensions */
 import 'babel-polyfill';
 import '!file?name=[name].[ext]!./manifest.json';
 import 'file?name=[name].[ext]!./.htaccess';
@@ -21,7 +23,7 @@ import { selectLocationState } from 'containers/App/selectors';
 import App from 'containers/App';
 import createRoutes from './routes';
 
-require('!bootstrap-webpack!./theme/bootstrap.config.js');
+// require('!bootstrap-webpack!./theme/bootstrap.config.js'); // overwriting css files :(
 
 // Create redux store with history
 // this uses the singleton browserHistory provided by react-router
