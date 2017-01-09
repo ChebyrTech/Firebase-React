@@ -1,4 +1,3 @@
-
 /* eslint-disable import/no-unresolved, import/extensions */
 import 'babel-polyfill';
 import '!file?name=[name].[ext]!./manifest.json';
@@ -22,7 +21,7 @@ import { selectLocationState } from 'containers/App/selectors';
 // Set up the router, wrapping all Routes in the App component
 import App from 'containers/App';
 import createRoutes from './routes';
-
+import { initAuth } from './utils/auth';
 // require('!bootstrap-webpack!./theme/bootstrap.config.js'); // overwriting css files :(
 
 // Create redux store with history
@@ -85,5 +84,6 @@ if (!window.Intl) {
       throw err;
     });
 } else {
+  initAuth(store.dispatch);
   render(translationMessages);
 }
