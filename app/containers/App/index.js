@@ -11,7 +11,6 @@
  * the linting exception.
  */
 import React from 'react';
-import 'react-mdl/extra/material.css';
 
 export default class App extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
 
