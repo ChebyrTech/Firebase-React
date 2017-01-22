@@ -7,17 +7,16 @@
 import React from 'react';
 
 class Header extends React.Component { // eslint-disable-line react/prefer-stateless-function
+
   render() {
     return (
       <header className="fp-header mdl-layout__header mdl-color-text--white mdl-color--light-blue-700" >
         <div className="mdl-layout__header-row fp-titlebar" >
-          {/* logo*/}
           <h3 className="fp-logo" ><a href="/feed" >
             <i className="material-icons" >photo</i>Friendly Pix</a>
           </h3>
           <div className="mdl-layout-spacer" ></div>
 
-          {/* Search bar*/}
           <div className="fp-searchcontainer mdl-textfield mdl-js-textfield mdl-textfield--expandable" >
             <label className="mdl-button mdl-js-button mdl-button--icon" htmlFor="searchQuery" >
               <i className="material-icons" >search</i>
@@ -26,10 +25,8 @@ class Header extends React.Component { // eslint-disable-line react/prefer-state
               <input className="mdl-textfield__input" type="text" id="searchQuery" />
               <label className="mdl-textfield__label" htmlFor="searchQuery" >Enter your query...</label>
             </div>
-            {/* <div id="fp-searchResults" className="mdl-card mdl-shadow--2dp"></div>*/}
           </div>
 
-          {/* Signed-in User Info */}
           <div className="mdl-cell--hide-phone" >
             <a href="/" >
               <button
@@ -47,7 +44,6 @@ class Header extends React.Component { // eslint-disable-line react/prefer-state
             </div>
           </div>
 
-          {/* Drop Down Menu*/}
           <button
             className="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-cell--hide-phone"
             id="fp-menu"
@@ -70,7 +66,6 @@ class Header extends React.Component { // eslint-disable-line react/prefer-state
 
         </div>
 
-        {/* Navigation Bar */}
         <div className="fp-tab mdl-layout__header-row mdl-cell--hide-phone mdl-color--light-blue-600" >
           <div className="mdl-tab" >
             <a
@@ -81,7 +76,6 @@ class Header extends React.Component { // eslint-disable-line react/prefer-state
               className="material-icons"
             >home</i> Home</a>
             <a
-              href="/feed"
               id="fp-menu-feed"
               className="mdl-layout__tab mdl-button mdl-js-button mdl-js-ripple-effect"
             ><i
@@ -103,7 +97,6 @@ class Header extends React.Component { // eslint-disable-line react/prefer-state
           <i className="material-icons" >photo_camera</i>
         </button>
 
-        {/* Drawer menu */}
         <div className="mdl-cell--hide-desktop mdl-cell--hide-tablet mdl-layout__drawer" >
           <a href="/" className="fp-signed-out-only" >
             <button className="fp-sign-in-button mdl-button mdl-js-button mdl-js-ripple-effect" ><i
@@ -141,15 +134,6 @@ class Header extends React.Component { // eslint-disable-line react/prefer-state
           </nav>
         </div>
 
-        {/*
-         <NavBar>
-         <HeaderLink to="/">
-         <FormattedMessage {...messages.home} />
-         </HeaderLink>
-         <HeaderLink to="/features">
-         <FormattedMessage {...messages.features} />
-         </HeaderLink>
-         </NavBar>*/}
       </header>
     );
   }
