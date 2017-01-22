@@ -1,6 +1,6 @@
 import React from 'react';
 import Header from './../../components/Header';
-import Feed from './../../components/Feed';
+import UserProfile from './../../components/UserProfile';
 
 export default class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   render() {
@@ -8,7 +8,8 @@ export default class HomePage extends React.PureComponent { // eslint-disable-li
       <div className="mdl-layout mdl-js-layout mdl-layout--fixed-header" >
         <Header />
         <main className="mdl-layout__content mdl-color--grey-100" >
-          <Feed />
+
+          <UserProfile />
         </main>
       </div>
     );

@@ -3,7 +3,6 @@ import 'babel-polyfill';
 import '!file-loader?name=[name].[ext]!./manifest.json';
 import '!file-loader?name=[name].[ext]!./.htaccess';
 
-/* eslint-enable import/no-unresolved, import/extensions */
 // Import all the third party stuff
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -18,6 +17,7 @@ import { selectLocationState } from 'containers/App/selectors';
 // imports local styls
 import 'react-mdl/extra/material.css';
 import 'style-loader!css-loader!./styles/splash.css';
+import 'react-mdl/extra/material.js';
 
 import configureStore from './store';
 // Import i18n messages
@@ -29,6 +29,8 @@ import { translationMessages } from './i18n';
 import createRoutes from './routes';
 import { initAuth } from './utils/auth';
 // require('!bootstrap-webpack!./theme/bootstrap.config.js'); // overwriting css files :(
+
+/* eslint-enable */
 
 // include css file
 // import 'file?name=[name].[ext]!./styles/splash.css';
@@ -53,14 +55,12 @@ const rootRoute = {
 
 const render = (translatedMessages) => {
   ReactDOM.render(
-    <Provider store={store} >
-      <LanguageProvider messages={translatedMessages} >
+    <Provider store={store}>
+      <LanguageProvider messages={translatedMessages}>
         <Router
           history={history}
           routes={rootRoute}
           render={
-            // Scroll to top when going to a new page, imitating default browser
-            // behaviour
             applyRouterMiddleware(useScroll())
           }
         />
