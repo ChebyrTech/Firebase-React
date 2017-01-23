@@ -13,8 +13,7 @@
     "react-dom": "15.3.1",
     "react-router": "^2.7.0",
     "redux": "^3.6.0", 
-	"node-static": "*"
-	
+	"node-static": "*"	
   },
   "devDependencies": {
     "webpack": "1.13.2",
