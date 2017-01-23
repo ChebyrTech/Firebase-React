@@ -21,23 +21,12 @@ class Auth extends React.Component {
         this.auth.onAuthStateChanged(user => this.onAuthStateChanged(user)); 
         this.state = {
             signOutOnlyStyle: {}, 
-            loggedICls: '' 
+            loggedICls: '', 
+            user: {} 
         } 
 
-        var self = this; 
 
-        let currentValue = {}; 
-        function handleChange() {
-        let previousValue = currentValue
-        currentValue = store.getState().auth.uid; 
-
-        // redirect after login
-        if (previousValue !== currentValue) {
-                 self.setState({loggedInCls: 'login-fadeout'})
-            }
-        }
-
-        store.subscribe(handleChange);
+        this.skipAuthHandler = this.skipAuthHandler.bind(this);
     }
 
     componentDidMount() { 
@@ -45,20 +34,40 @@ class Auth extends React.Component {
       var firebaseUi = new firebaseui.auth.AuthUI(firebase.auth()); 
       firebaseUi.start('#firebaseui-auth-container', uiConfig); 
        
-    } 
+    }  
+    componentWillMount() {
+
+        if (store.getState().auth.uid != '') {
+            this.setState({loggedInCls: "login-fadeout"});
+            this.setState({signOutOnlyStyle: {display: 'none'}});   
+        }
+    }
+
     onAuthStateChanged(user) {
         if (user) { 
 
-            this.setState({signOutOnlyStyle: {display: 'none'}});   
+            
+          
+            
             this.props.signIn(user); 
             
             console.log('logged in'); 
 
             
         } else {
+            this.setState({loggedInCls: ''});  
+            this.setState({signOutOnlyStyle: {display: 'block'}});    
 
-            console.log('not logged in'); 
+            // var container = document.getElementById('firebaseui-auth-container'); 
+            // container.innerHTML = ''; 
+
+            console.log('logged out'); 
         }
+    } 
+
+    skipAuthHandler() {
+        this.setState({loggedInCls: "login-fadeout"}); 
+
     }
 
 
@@ -74,15 +83,12 @@ class Auth extends React.Component {
                     <div className="fp-signed-out-only" style={this.state.signOutOnlyStyle}> 
                         <div id="firebaseui-auth-container" className="fp-signed-out-only">
                         </div>
-                        <Link to="/feed"><p className="fp-skip" href="/feed" >skip sign in</p></Link>
+                        <p onClick={this.skipAuthHandler} className="fp-skip">skip sign in</p>
                     </div>
                 </section> 
                 </div>
                 <div className="logged-in">
-                        <Dashboard uid={ typeof this.state.user == "undefined" ? '' : this.state.user.uid } 
-                                   photoUrl={typeof this.state.user == "undefined" ? '' : this.state.user.photoUrl}  
-                                   displayName={typeof this.state.user == "undefined" ? '' : this.state.user.displayName }
-                        />
+                        <Dashboard/>
                 </div> 
             </div>
         )
@@ -92,7 +98,7 @@ class Auth extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        user: state.user
+        user: state.auth.user
     }
 }  
 

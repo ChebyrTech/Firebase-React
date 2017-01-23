@@ -11,11 +11,10 @@ const authReducer = (state = {
 
         case "AUTH_SUCCESS": {
             
-
             var newState = {
                 user: {
                     uid: action.payload.uid, 
-                    photoUrl: action.payload.photoUrl, 
+                    photoUrl: action.payload.photoURL, 
                     displayName: action.payload.displayName
                 }
 
@@ -23,7 +22,21 @@ const authReducer = (state = {
 
             return newState; 
             break; 
+        }
+        case "SIGN_OUT": { 
+
+            var newState = {
+                user: {
+                        uid: "", 
+                        photoUrl: "", 
+                        displayName: "" 
+                    } 
+            }
+            return newState; 
+            break;
+
         } 
+        
     }
 
     return state; 

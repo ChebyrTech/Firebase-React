@@ -8,4 +8,7 @@ let allreducers = combineReducers({
 
 const store = createStore(allreducers); 
 
-export default store; 
+window.store = store; 
+
+export default store;  
+

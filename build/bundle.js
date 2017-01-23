@@ -74,6 +74,10 @@
 
 	var _dashboard2 = _interopRequireDefault(_dashboard);
 
+	var _about = __webpack_require__(277);
+
+	var _about2 = _interopRequireDefault(_about);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var App = _react2.default.createClass({
@@ -94,8 +98,12 @@
 	    _react2.default.createElement(
 	        _reactRouter.Router,
 	        { history: _reactRouter.hashHistory },
-	        _react2.default.createElement(_reactRouter.Route, { path: '/', component: App }),
-	        _react2.default.createElement(_reactRouter.Route, { path: '/feed', component: _dashboard2.default })
+	        _react2.default.createElement(
+	            _reactRouter.Route,
+	            { path: '/', component: App },
+	            _react2.default.createElement(_reactRouter.Route, { path: '/about', component: _about2.default }),
+	            _react2.default.createElement(_reactRouter.Route, { path: '/feed', component: _dashboard2.default })
+	        )
 	    )
 	), container);
 
@@ -29703,6 +29711,8 @@
 
 	var store = (0, _redux.createStore)(allreducers);
 
+	window.store = store;
+
 	exports.default = store;
 
 /***/ },
@@ -29734,7 +29744,7 @@
 	                var newState = {
 	                    user: {
 	                        uid: action.payload.uid,
-	                        photoUrl: action.payload.photoUrl,
+	                        photoUrl: action.payload.photoURL,
 	                        displayName: action.payload.displayName
 	                    }
 
@@ -29743,6 +29753,20 @@
 	                return newState;
 	                break;
 	            }
+	        case "SIGN_OUT":
+	            {
+
+	                var newState = {
+	                    user: {
+	                        uid: "",
+	                        photoUrl: "",
+	                        displayName: ""
+	                    }
+	                };
+	                return newState;
+	                break;
+	            }
+
 	    }
 
 	    return state;
@@ -29812,23 +29836,11 @@
 	        });
 	        _this.state = {
 	            signOutOnlyStyle: {},
-	            loggedICls: ''
+	            loggedICls: '',
+	            user: {}
 	        };
 
-	        var self = _this;
-
-	        var currentValue = {};
-	        function handleChange() {
-	            var previousValue = currentValue;
-	            currentValue = _store2.default.getState().auth.uid;
-
-	            // redirect after login
-	            if (previousValue !== currentValue) {
-	                self.setState({ loggedInCls: 'login-fadeout' });
-	            }
-	        }
-
-	        _store2.default.subscribe(handleChange);
+	        _this.skipAuthHandler = _this.skipAuthHandler.bind(_this);
 	        return _this;
 	    }
 
@@ -29840,18 +29852,36 @@
 	            firebaseUi.start('#firebaseui-auth-container', uiConfig);
 	        }
 	    }, {
+	        key: 'componentWillMount',
+	        value: function componentWillMount() {
+
+	            if (_store2.default.getState().auth.uid != '') {
+	                this.setState({ loggedInCls: "login-fadeout" });
+	                this.setState({ signOutOnlyStyle: { display: 'none' } });
+	            }
+	        }
+	    }, {
 	        key: 'onAuthStateChanged',
 	        value: function onAuthStateChanged(user) {
 	            if (user) {
 
-	                this.setState({ signOutOnlyStyle: { display: 'none' } });
 	                this.props.signIn(user);
 
 	                console.log('logged in');
 	            } else {
+	                this.setState({ loggedInCls: '' });
+	                this.setState({ signOutOnlyStyle: { display: 'block' } });
 
-	                console.log('not logged in');
+	                // var container = document.getElementById('firebaseui-auth-container'); 
+	                // container.innerHTML = ''; 
+
+	                console.log('logged out');
 	            }
+	        }
+	    }, {
+	        key: 'skipAuthHandler',
+	        value: function skipAuthHandler() {
+	            this.setState({ loggedInCls: "login-fadeout" });
 	        }
 	    }, {
 	        key: 'render',
@@ -29891,13 +29921,9 @@
 	                            { className: 'fp-signed-out-only', style: this.state.signOutOnlyStyle },
 	                            _react2.default.createElement('div', { id: 'firebaseui-auth-container', className: 'fp-signed-out-only' }),
 	                            _react2.default.createElement(
-	                                _reactRouter.Link,
-	                                { to: '/feed' },
-	                                _react2.default.createElement(
-	                                    'p',
-	                                    { className: 'fp-skip', href: '/feed' },
-	                                    'skip sign in'
-	                                )
+	                                'p',
+	                                { onClick: this.skipAuthHandler, className: 'fp-skip' },
+	                                'skip sign in'
 	                            )
 	                        )
 	                    )
@@ -29905,10 +29931,7 @@
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'logged-in' },
-	                    _react2.default.createElement(_dashboard2.default, { uid: typeof this.state.user == "undefined" ? '' : this.state.user.uid,
-	                        photoUrl: typeof this.state.user == "undefined" ? '' : this.state.user.photoUrl,
-	                        displayName: typeof this.state.user == "undefined" ? '' : this.state.user.displayName
-	                    })
+	                    _react2.default.createElement(_dashboard2.default, null)
 	                )
 	            );
 	        }
@@ -29919,7 +29942,7 @@
 
 	function mapStateToProps(state) {
 	    return {
-	        user: state.user
+	        user: state.auth.user
 	    };
 	}
 
@@ -29949,6 +29972,12 @@
 	    };
 	};
 
+	var signOut = exports.signOut = function signOut() {
+	    return {
+	        type: 'SIGN_OUT'
+	    };
+	};
+
 /***/ },
 /* 275 */
 /***/ function(module, exports, __webpack_require__) {
@@ -29969,9 +29998,9 @@
 
 	var _header2 = _interopRequireDefault(_header);
 
-	var _body = __webpack_require__(277);
+	var _store = __webpack_require__(271);
 
-	var _body2 = _interopRequireDefault(_body);
+	var _store2 = _interopRequireDefault(_store);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -29984,10 +30013,32 @@
 	var Dashboard = function (_React$Component) {
 	    _inherits(Dashboard, _React$Component);
 
-	    function Dashboard() {
+	    function Dashboard(props) {
 	        _classCallCheck(this, Dashboard);
 
-	        return _possibleConstructorReturn(this, (Dashboard.__proto__ || Object.getPrototypeOf(Dashboard)).apply(this, arguments));
+	        var _this = _possibleConstructorReturn(this, (Dashboard.__proto__ || Object.getPrototypeOf(Dashboard)).call(this));
+
+	        _this.state = {
+	            user: {
+	                uid: '',
+	                photoUrl: '',
+	                displayName: ''
+	            }
+	        };
+
+	        var self = _this;
+	        _store2.default.subscribe(handleChange);
+
+	        var currentValue = {};
+	        function handleChange() {
+	            var previousValue = currentValue;
+	            currentValue = _store2.default.getState().auth.uid;
+
+	            if (previousValue !== currentValue && currentValue != '') {
+	                self.setState({ user: _store2.default.getState().auth.user });
+	            }
+	        }
+	        return _this;
 	    }
 
 	    _createClass(Dashboard, [{
@@ -29996,8 +30047,8 @@
 	            return _react2.default.createElement(
 	                'div',
 	                null,
-	                _react2.default.createElement(_header2.default, null),
-	                _react2.default.createElement(_body2.default, null)
+	                _react2.default.createElement(_header2.default, { uid: this.state.user.uid, displayName: this.state.user.displayName, photoUrl: this.state.user.photoUrl }),
+	                this.props.children
 	            );
 	        }
 	    }]);
@@ -30009,6 +30060,314 @@
 
 /***/ },
 /* 276 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(256);
+
+	var _redux = __webpack_require__(172);
+
+	var _store = __webpack_require__(271);
+
+	var _store2 = _interopRequireDefault(_store);
+
+	var _appActions = __webpack_require__(274);
+
+	var appActions = _interopRequireWildcard(_appActions);
+
+	var _auth = __webpack_require__(272);
+
+	var _auth2 = _interopRequireDefault(_auth);
+
+	var _reactRouter = __webpack_require__(193);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Header = function (_React$Component) {
+	    _inherits(Header, _React$Component);
+
+	    function Header(props) {
+	        _classCallCheck(this, Header);
+
+	        var _this = _possibleConstructorReturn(this, (Header.__proto__ || Object.getPrototypeOf(Header)).call(this, props));
+
+	        _store2.default.subscribe(handleChange);
+
+	        var self = _this;
+
+	        var currentValue = {};
+	        function handleChange() {
+	            var previousValue = currentValue;
+	            currentValue = _store2.default.getState().auth.uid;
+
+	            // set styles after log in
+	            if (previousValue !== currentValue && currentValue != '') {
+	                self.setState({ signedOutOnlyStyle: {
+	                        display: 'none'
+	                    } });
+	                self.setState({ signedInOnlyStyle: {
+	                        display: 'block'
+	                    } });
+	                self.setState({ avatarStyle: {
+	                        backgroundImage: 'url(' + self.props.user.photoUrl + ')'
+	                    } });
+	            }
+	        }
+
+	        _this.state = {
+	            signedOutOnlyStyle: {
+	                display: 'block'
+	            },
+	            signedInOnlyStyle: {
+	                display: 'none'
+
+	            },
+	            avatarStyle: {
+	                backgroundImage: 'url()'
+	            }
+	        };
+
+	        _this.signOutHandler = _this.signOutHandler.bind(_this);
+	        return _this;
+	    }
+
+	    _createClass(Header, [{
+	        key: 'signOutHandler',
+	        value: function signOutHandler() {
+	            firebase.auth().signOut();
+
+	            this.props.signOut();
+	            this.setState({ signedOutOnlyStyle: {
+	                    display: 'block'
+	                } });
+	            this.setState({ signedInOnlyStyle: {
+	                    display: 'none'
+	                } });
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            return _react2.default.createElement(
+	                'div',
+	                null,
+	                _react2.default.createElement(
+	                    'header',
+	                    { className: 'fp-header mdl-layout__header mdl-color-text--white mdl-color--light-blue-700' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'mdl-layout__header-row fp-titlebar' },
+	                        _react2.default.createElement(
+	                            'h3',
+	                            { className: 'fp-logo' },
+	                            _react2.default.createElement(
+	                                _reactRouter.Link,
+	                                { to: '/feed' },
+	                                _react2.default.createElement(
+	                                    'span',
+	                                    null,
+	                                    _react2.default.createElement(
+	                                        'i',
+	                                        { className: 'material-icons' },
+	                                        'photo'
+	                                    ),
+	                                    ' Friendly Pix'
+	                                )
+	                            )
+	                        ),
+	                        _react2.default.createElement('div', { className: 'mdl-layout-spacer' }),
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'fp-searchcontainer mdl-textfield mdl-js-textfield mdl-textfield--expandable' },
+	                            _react2.default.createElement(
+	                                'label',
+	                                { className: 'mdl-button mdl-js-button mdl-button--icon', htmlFor: 'searchQuery' },
+	                                _react2.default.createElement(
+	                                    'i',
+	                                    { className: 'material-icons' },
+	                                    'search'
+	                                )
+	                            ),
+	                            _react2.default.createElement(
+	                                'div',
+	                                { className: 'mdl-textfield__expandable-holder' },
+	                                _react2.default.createElement('input', { className: 'mdl-textfield__input', type: 'text', id: 'searchQuery' }),
+	                                _react2.default.createElement(
+	                                    'label',
+	                                    { className: 'mdl-textfield__label', htmlFor: 'searchQuery' },
+	                                    'Enter your query...'
+	                                )
+	                            ),
+	                            _react2.default.createElement('div', { id: 'fp-searchResults', className: 'mdl-card mdl-shadow--2dp' })
+	                        ),
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'mdl-cell--hide-phone' },
+	                            _react2.default.createElement(
+	                                'a',
+	                                { href: '/', style: this.state.signedOutOnlyStyle },
+	                                _react2.default.createElement(
+	                                    'button',
+	                                    { className: 'fp-sign-in-button fp-signed-out-only mdl-button mdl-js-button mdl-js-ripple-effect' },
+	                                    _react2.default.createElement(
+	                                        'i',
+	                                        { className: 'material-icons' },
+	                                        'account_circle'
+	                                    ),
+	                                    ' Sign in'
+	                                )
+	                            ),
+	                            _react2.default.createElement(
+	                                'div',
+	                                { className: 'fp-signed-in-user-container mdl-cell--hide-phone fp-signed-in-only', style: this.state.signedInOnlyStyle },
+	                                _react2.default.createElement(
+	                                    'a',
+	                                    { className: 'fp-usernamelink mdl-button mdl-js-button' },
+	                                    _react2.default.createElement('div', { className: 'fp-avatar', style: this.state.avatarStyle }),
+	                                    _react2.default.createElement(
+	                                        'div',
+	                                        { className: 'fp-username mdl-color-text--white' },
+	                                        this.props.user.displayName
+	                                    )
+	                                )
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            'button',
+	                            { className: 'mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-cell--hide-phone', id: 'fp-menu' },
+	                            _react2.default.createElement(
+	                                'i',
+	                                { className: 'material-icons' },
+	                                'more_vert'
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            'ul',
+	                            { className: 'fp-menu-list mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right', htmlFor: 'fp-menu' },
+	                            _react2.default.createElement(
+	                                _reactRouter.Link,
+	                                { to: '/about' },
+	                                _react2.default.createElement(
+	                                    'li',
+	                                    { className: 'mdl-menu__item' },
+	                                    _react2.default.createElement(
+	                                        'i',
+	                                        { className: 'material-icons' },
+	                                        'perm_contact_calendar'
+	                                    ),
+	                                    ' About - Help - Contact'
+	                                )
+	                            ),
+	                            _react2.default.createElement(
+	                                'li',
+	                                { onClick: this.signOutHandler, className: 'fp-sign-out mdl-menu__item fp-signed-in-only', style: this.state.signedInOnlyStyle },
+	                                _react2.default.createElement(
+	                                    'i',
+	                                    { className: 'material-icons' },
+	                                    'exit_to_app'
+	                                ),
+	                                ' Sign out'
+	                            )
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'fp-tab mdl-layout__header-row mdl-cell--hide-phone mdl-color--light-blue-600' },
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'mdl-tab' },
+	                            _react2.default.createElement(
+	                                _reactRouter.Link,
+	                                { to: '/' },
+	                                _react2.default.createElement(
+	                                    'span',
+	                                    { id: 'fp-menu-home', className: 'mdl-layout__tab fp-signed-in-only is-active mdl-button mdl-js-button mdl-js-ripple-effect', style: this.state.signedInOnlyStyle },
+	                                    ' ',
+	                                    _react2.default.createElement(
+	                                        'i',
+	                                        { className: 'material-icons' },
+	                                        'home'
+	                                    ),
+	                                    ' Home'
+	                                )
+	                            ),
+	                            _react2.default.createElement(
+	                                _reactRouter.Link,
+	                                { to: '/feed' },
+	                                _react2.default.createElement(
+	                                    'span',
+	                                    { id: 'fp-menu-feed', className: 'mdl-layout__tab mdl-button mdl-js-button mdl-js-ripple-effect' },
+	                                    _react2.default.createElement(
+	                                        'i',
+	                                        { className: 'material-icons' },
+	                                        'trending_up'
+	                                    ),
+	                                    ' Feed'
+	                                )
+	                            ),
+	                            _react2.default.createElement('input', { id: 'fp-mediacapture', type: 'file', accept: 'image/*;capture=camera' }),
+	                            _react2.default.createElement(
+	                                'button',
+	                                { className: 'fp-signed-in-only mdl-button mdl-js-button mdl-button--fab mdl-cell--hide-tablet mdl-color--amber-400 mdl-shadow--4dp mdl-js-ripple-effect', id: 'add', style: this.state.signedInOnlyStyle },
+	                                _react2.default.createElement(
+	                                    'i',
+	                                    { className: 'material-icons' },
+	                                    'file_upload'
+	                                )
+	                            )
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'button',
+	                        { className: 'fp-signed-in-only mdl-cell--hide-desktop mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-color--amber-400 mdl-shadow--4dp', id: 'add-floating', style: this.state.signedInOnlyStyle },
+	                        _react2.default.createElement(
+	                            'i',
+	                            { className: 'material-icons' },
+	                            'photo_camera'
+	                        )
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+
+	    return Header;
+	}(_react2.default.Component);
+
+	function mapStateToProps(state) {
+	    return {
+	        user: state.auth.user
+	    };
+	}
+
+	function matchDispatchToProps(dispatch) {
+	    return (0, _redux.bindActionCreators)({
+	        signOut: appActions.signOut
+	    }, dispatch);
+	}
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, matchDispatchToProps)(Header);
+
+/***/ },
+/* 277 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -30031,177 +30390,162 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var Header = function (_React$Component) {
-	    _inherits(Header, _React$Component);
+	var About = function (_React$Component) {
+	    _inherits(About, _React$Component);
 
-	    function Header() {
-	        _classCallCheck(this, Header);
+	    function About() {
+	        _classCallCheck(this, About);
 
-	        return _possibleConstructorReturn(this, (Header.__proto__ || Object.getPrototypeOf(Header)).apply(this, arguments));
+	        return _possibleConstructorReturn(this, (About.__proto__ || Object.getPrototypeOf(About)).apply(this, arguments));
 	    }
 
-	    _createClass(Header, [{
+	    _createClass(About, [{
 	        key: "render",
 	        value: function render() {
 	            return _react2.default.createElement(
-	                "div",
-	                null,
+	                "section",
+	                { id: "page-about", "class": "mdl-grid fp-content", style: "display: none;" },
 	                _react2.default.createElement(
-	                    "header",
-	                    { className: "fp-header mdl-layout__header mdl-color-text--white mdl-color--light-blue-700" },
+	                    "div",
+	                    { "class": "fp-help mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--8-col-desktop" },
 	                    _react2.default.createElement(
 	                        "div",
-	                        { className: "mdl-layout__header-row fp-titlebar" },
-	                        _react2.default.createElement(
-	                            "h3",
-	                            { className: "fp-logo" },
-	                            _react2.default.createElement(
-	                                "a",
-	                                { href: "/feed" },
-	                                _react2.default.createElement(
-	                                    "i",
-	                                    { className: "material-icons" },
-	                                    "photo"
-	                                ),
-	                                " Friendly Pix"
-	                            )
-	                        ),
-	                        _react2.default.createElement("div", { className: "mdl-layout-spacer" }),
-	                        _react2.default.createElement(
-	                            "div",
-	                            { className: "fp-searchcontainer mdl-textfield mdl-js-textfield mdl-textfield--expandable" },
-	                            _react2.default.createElement(
-	                                "label",
-	                                { className: "mdl-button mdl-js-button mdl-button--icon", htmlFor: "searchQuery" },
-	                                _react2.default.createElement(
-	                                    "i",
-	                                    { className: "material-icons" },
-	                                    "search"
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                "div",
-	                                { className: "mdl-textfield__expandable-holder" },
-	                                _react2.default.createElement("input", { className: "mdl-textfield__input", type: "text", id: "searchQuery" }),
-	                                _react2.default.createElement(
-	                                    "label",
-	                                    { className: "mdl-textfield__label", htmlFor: "searchQuery" },
-	                                    "Enter your query..."
-	                                )
-	                            ),
-	                            _react2.default.createElement("div", { id: "fp-searchResults", className: "mdl-card mdl-shadow--2dp" })
-	                        ),
-	                        _react2.default.createElement(
-	                            "div",
-	                            { className: "mdl-cell--hide-phone" },
-	                            _react2.default.createElement(
-	                                "a",
-	                                { href: "/" },
-	                                _react2.default.createElement(
-	                                    "button",
-	                                    { className: "fp-sign-in-button fp-signed-out-only mdl-button mdl-js-button mdl-js-ripple-effect" },
-	                                    _react2.default.createElement(
-	                                        "i",
-	                                        { className: "material-icons" },
-	                                        "account_circle"
-	                                    ),
-	                                    " Sign in"
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                "div",
-	                                { className: "fp-signed-in-user-container mdl-cell--hide-phone fp-signed-in-only" },
-	                                _react2.default.createElement(
-	                                    "a",
-	                                    { className: "fp-usernamelink mdl-button mdl-js-button" },
-	                                    _react2.default.createElement("div", { className: "fp-avatar" }),
-	                                    _react2.default.createElement("div", { className: "fp-username mdl-color-text--white" })
-	                                )
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            "button",
-	                            { className: "mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-cell--hide-phone", id: "fp-menu" },
-	                            _react2.default.createElement(
-	                                "i",
-	                                { className: "material-icons" },
-	                                "more_vert"
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            "ul",
-	                            { className: "fp-menu-list mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right", htmlFor: "fp-menu" },
-	                            _react2.default.createElement(
-	                                "a",
-	                                { href: "/about" },
-	                                _react2.default.createElement(
-	                                    "li",
-	                                    { className: "mdl-menu__item" },
-	                                    _react2.default.createElement(
-	                                        "i",
-	                                        { className: "material-icons" },
-	                                        "perm_contact_calendar"
-	                                    ),
-	                                    " About - Help - Contact"
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                "li",
-	                                { className: "fp-sign-out mdl-menu__item fp-signed-in-only" },
-	                                _react2.default.createElement(
-	                                    "i",
-	                                    { className: "material-icons" },
-	                                    "exit_to_app"
-	                                ),
-	                                " Sign out"
-	                            )
-	                        )
-	                    ),
-	                    _react2.default.createElement(
-	                        "div",
-	                        { className: "fp-tab mdl-layout__header-row mdl-cell--hide-phone mdl-color--light-blue-600" },
-	                        _react2.default.createElement(
-	                            "div",
-	                            { className: "mdl-tab" },
-	                            _react2.default.createElement(
-	                                "a",
-	                                { href: "/", id: "fp-menu-home", className: "mdl-layout__tab fp-signed-in-only is-active mdl-button mdl-js-button mdl-js-ripple-effect" },
-	                                _react2.default.createElement(
-	                                    "i",
-	                                    { className: "material-icons" },
-	                                    "home"
-	                                ),
-	                                " Home"
-	                            ),
-	                            _react2.default.createElement(
-	                                "a",
-	                                { href: "/feed", id: "fp-menu-feed", className: "mdl-layout__tab mdl-button mdl-js-button mdl-js-ripple-effect" },
-	                                _react2.default.createElement(
-	                                    "i",
-	                                    { className: "material-icons" },
-	                                    "trending_up"
-	                                ),
-	                                " Feed"
-	                            ),
-	                            _react2.default.createElement("input", { id: "fp-mediacapture", type: "file", accept: "image/*;capture=camera" }),
-	                            _react2.default.createElement(
-	                                "button",
-	                                { className: "fp-signed-in-only mdl-button mdl-js-button mdl-button--fab mdl-cell--hide-tablet mdl-color--amber-400 mdl-shadow--4dp mdl-js-ripple-effect", id: "add" },
-	                                _react2.default.createElement(
-	                                    "i",
-	                                    { className: "material-icons" },
-	                                    "file_upload"
-	                                )
-	                            )
-	                        )
-	                    ),
-	                    _react2.default.createElement(
-	                        "button",
-	                        { className: "fp-signed-in-only mdl-cell--hide-desktop mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-color--amber-400 mdl-shadow--4dp", id: "add-floating" },
+	                        { "class": "mdl-card__supporting-text mdl-color-text--grey-600" },
 	                        _react2.default.createElement(
 	                            "i",
-	                            { className: "material-icons" },
-	                            "photo_camera"
+	                            { "class": "fp-info material-icons" },
+	                            "info"
+	                        ),
+	                        _react2.default.createElement(
+	                            "div",
+	                            null,
+	                            _react2.default.createElement(
+	                                "p",
+	                                null,
+	                                "Friendly Pix is a photo sharing app showcasing the use of the ",
+	                                _react2.default.createElement(
+	                                    "a",
+	                                    { href: "https://firebase.google.com" },
+	                                    "Firebase Platform"
+	                                ),
+	                                "."
+	                            )
+	                        )
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "div",
+	                    { "class": "fp-help mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--8-col-desktop" },
+	                    _react2.default.createElement(
+	                        "div",
+	                        { "class": "mdl-card__supporting-text mdl-color-text--grey-600" },
+	                        _react2.default.createElement(
+	                            "i",
+	                            { "class": "fp-info material-icons" },
+	                            "help"
+	                        ),
+	                        _react2.default.createElement(
+	                            "div",
+	                            null,
+	                            _react2.default.createElement(
+	                                "p",
+	                                null,
+	                                "Start following people to see their posts in your ",
+	                                _react2.default.createElement(
+	                                    "a",
+	                                    { href: "/" },
+	                                    _react2.default.createElement(
+	                                        "i",
+	                                        { "class": "material-icons" },
+	                                        "home"
+	                                    ),
+	                                    "home"
+	                                ),
+	                                "!"
+	                            ),
+	                            _react2.default.createElement(
+	                                "p",
+	                                null,
+	                                "Use the ",
+	                                _react2.default.createElement(
+	                                    "strong",
+	                                    null,
+	                                    _react2.default.createElement(
+	                                        "i",
+	                                        { "class": "material-icons" },
+	                                        "search"
+	                                    ),
+	                                    "search bar"
+	                                ),
+	                                " to find people you know and have a look at the ",
+	                                _react2.default.createElement(
+	                                    "a",
+	                                    { href: "/feed" },
+	                                    _react2.default.createElement(
+	                                        "i",
+	                                        { "class": "material-icons" },
+	                                        "trending_up"
+	                                    ),
+	                                    "feed"
+	                                ),
+	                                " to discover interesting people."
+	                            ),
+	                            _react2.default.createElement(
+	                                "p",
+	                                null,
+	                                "Then ",
+	                                _react2.default.createElement(
+	                                    "i",
+	                                    { "class": "material-icons" },
+	                                    "favorite"
+	                                ),
+	                                "like and comment their posts!"
+	                            ),
+	                            _react2.default.createElement(
+	                                "p",
+	                                null,
+	                                "Share your pics with your friends using the ",
+	                                _react2.default.createElement(
+	                                    "i",
+	                                    { "class": "material-icons" },
+	                                    "file_upload"
+	                                ),
+	                                "or ",
+	                                _react2.default.createElement(
+	                                    "i",
+	                                    { "class": "material-icons" },
+	                                    "photo_camera"
+	                                ),
+	                                "buttons."
+	                            )
+	                        )
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "div",
+	                    { "class": "fp-help mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--8-col-desktop" },
+	                    _react2.default.createElement(
+	                        "div",
+	                        { "class": "mdl-card__supporting-text mdl-color-text--grey-600" },
+	                        _react2.default.createElement(
+	                            "i",
+	                            { "class": "fp-info material-icons" },
+	                            "contacts"
+	                        ),
+	                        _react2.default.createElement(
+	                            "div",
+	                            null,
+	                            _react2.default.createElement(
+	                                "p",
+	                                null,
+	                                "Feel free to file issues on our ",
+	                                _react2.default.createElement(
+	                                    "a",
+	                                    { href: "https://github.com/firebase/friendlypix" },
+	                                    "GitHub repo"
+	                                ),
+	                                "."
+	                            )
 	                        )
 	                    )
 	                )
@@ -30209,55 +30553,10 @@
 	        }
 	    }]);
 
-	    return Header;
+	    return About;
 	}(_react2.default.Component);
 
-	exports.default = Header;
-
-/***/ },
-/* 277 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Body = function (_React$Component) {
-	    _inherits(Body, _React$Component);
-
-	    function Body() {
-	        _classCallCheck(this, Body);
-
-	        return _possibleConstructorReturn(this, (Body.__proto__ || Object.getPrototypeOf(Body)).apply(this, arguments));
-	    }
-
-	    _createClass(Body, [{
-	        key: 'render',
-	        value: function render() {
-	            return _react2.default.createElement('div', null);
-	        }
-	    }]);
-
-	    return Body;
-	}(_react2.default.Component);
-
-	exports.default = Body;
+	exports.default = About;
 
 /***/ }
 /******/ ]);

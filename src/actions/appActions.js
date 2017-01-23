@@ -5,4 +5,10 @@ export const signIn = (user) => {
         type: 'AUTH_SUCCESS', 
         payload: user
     }
+} 
+
+export const signOut = () => {
+    return {
+        type: 'SIGN_OUT'
+    }
 }
