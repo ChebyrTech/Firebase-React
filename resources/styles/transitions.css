@@ -1,0 +1,12 @@
+.logged-out {
+	display: block; 
+	opacity: 1; 
+	transition: opacity .5s ease-in; 
+}
+
+.login-fadeout {
+
+	display: block; 
+	opacity: 0; 
+
+}
