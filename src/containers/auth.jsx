@@ -4,7 +4,6 @@ import {Link} from 'react-router'
 import {connect} from 'react-redux'
 import { bindActionCreators} from 'redux'
 
-import store from '../store.js'; 
 import * as appActions from '../actions/appActions.js'
 
 import Dashboard from './dashboard.jsx'
@@ -21,36 +20,47 @@ class Auth extends React.Component {
         this.auth.onAuthStateChanged(user => this.onAuthStateChanged(user)); 
         this.state = {
             signOutOnlyStyle: {}, 
-            loggedICls: '', 
-            user: {} 
+            loggedICls: ''
         } 
 
 
         this.skipAuthHandler = this.skipAuthHandler.bind(this);
     }
 
+
     componentDidMount() { 
 
+
       var firebaseUi = new firebaseui.auth.AuthUI(firebase.auth()); 
-      firebaseUi.start('#firebaseui-auth-container', uiConfig); 
+      firebaseUi.start('#firebaseui-auth-container', uiConfig);  
        
     }  
-    componentWillMount() {
 
-        if (store.getState().auth.uid != '') {
+
+    componentWillReceiveProps(nextProps) { 
+        
+        // Check if the user is authorized 
+        console.log(nextProps)
+
+        if (nextProps.user.uid != '' && nextProps.user.photoUrl != '') {
+
+            
+     
             this.setState({loggedInCls: "login-fadeout"});
             this.setState({signOutOnlyStyle: {display: 'none'}});   
-        }
+
+        } 
+
+
     }
 
+   /**
+   * Authentication
+   */
     onAuthStateChanged(user) {
         if (user) { 
 
-            
-          
-            
-            this.props.signIn(user); 
-            
+            this.props.signIn(user);             
             console.log('logged in'); 
 
             
@@ -58,13 +68,13 @@ class Auth extends React.Component {
             this.setState({loggedInCls: ''});  
             this.setState({signOutOnlyStyle: {display: 'block'}});    
 
-            // var container = document.getElementById('firebaseui-auth-container'); 
-            // container.innerHTML = ''; 
-
             console.log('logged out'); 
         }
     } 
 
+    /**
+   * Skip authentication
+   */
     skipAuthHandler() {
         this.setState({loggedInCls: "login-fadeout"}); 
 
@@ -88,7 +98,7 @@ class Auth extends React.Component {
                 </section> 
                 </div>
                 <div className="logged-in">
-                        <Dashboard/>
+                        <Dashboard>{this.props.children}</Dashboard>
                 </div> 
             </div>
         )

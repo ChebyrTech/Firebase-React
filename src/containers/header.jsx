@@ -3,44 +3,24 @@ import React from 'react'
 import {connect} from 'react-redux'
 import { bindActionCreators} from 'redux'
 
-import store from '../store.js'; 
 import * as appActions from '../actions/appActions.js' 
 
 import authReducer from '../reducers/auth.js' 
 
-import {Link} from 'react-router'
+import {Link, withRouter} from 'react-router'
 
 class Header extends React.Component { 
 
     constructor(props) {
         super(props) 
         
-        store.subscribe(handleChange); 
 
 
         var self = this; 
+ 
 
-        let currentValue = {}; 
-        function handleChange() {
-        let previousValue = currentValue
-        currentValue = store.getState().auth.uid; 
-
-        // set styles after log in
-        if (previousValue !== currentValue && currentValue != '') {
-                 self.setState({signedOutOnlyStyle: {
-                     display: 'none'
-                 }}); 
-                 self.setState({signedInOnlyStyle: {
-                     display: 'block'
-                 }}); 
-                 self.setState({avatarStyle: {
-                       backgroundImage: 'url('+ self.props.user.photoUrl + ')'
-                 }})
-
-            }
-        }
-
-        this.state = {
+        this.state = { 
+            // set element style depending on auth state
             signedOutOnlyStyle: {
                 display: 'block'
             }, 
@@ -50,13 +30,52 @@ class Header extends React.Component {
             }, 
             avatarStyle: {
                 backgroundImage: 'url()'
-            }
+            }, 
+            upload: {}
         } 
 
         this.signOutHandler = this.signOutHandler.bind(this); 
+        this.handleUpload = this.handleUpload.bind(this); 
+    } 
+
+
+    componentWillReceiveProps(nextProps) {
+
+        // Set style depending on whether the user is logged in 
+        if (nextProps.user.uid !== '' && nextProps.user.photoUrl != '') {
+          
+            this.setState({signedOutOnlyStyle: {
+                display: 'none'
+            }}); 
+            this.setState({signedInOnlyStyle: {
+                display: 'block'
+            }}); 
+            this.setState({avatarStyle: {
+                backgroundImage: 'url('+ this.props.user.photoUrl + ')'
+            }})
+
+        }  
+
+
+        if (nextProps.uploadIndex != this.props.uploadIndex && nextProps.uploadIndex > 0) {
+              this.props.router.push('/add'); // go to upload page
+        }
     }
  
 
+  /**
+   * Start image upload 
+   */
+    handleUpload(e) {
+        if (e.target.files.length > 0) {
+            var file = e.target.files[0]; 
+            this.props.uploadImage(file); 
+        }
+    } 
+
+    /**
+   * Sign out 
+   */
     signOutHandler() {
         firebase.auth().signOut(); 
 
@@ -119,10 +138,11 @@ class Header extends React.Component {
             <div className="mdl-tab">
                 <Link to="/"><span id="fp-menu-home" className="mdl-layout__tab fp-signed-in-only is-active mdl-button mdl-js-button mdl-js-ripple-effect"  style={this.state.signedInOnlyStyle}> <i className="material-icons">home</i> Home</span></Link>
                 <Link to="/feed"><span id="fp-menu-feed" className="mdl-layout__tab mdl-button mdl-js-button mdl-js-ripple-effect"><i className="material-icons">trending_up</i> Feed</span></Link>
-                <input id="fp-mediacapture" type="file" accept="image/*;capture=camera" />
-                <button className="fp-signed-in-only mdl-button mdl-js-button mdl-button--fab mdl-cell--hide-tablet mdl-color--amber-400 mdl-shadow--4dp mdl-js-ripple-effect" id="add"  style={this.state.signedInOnlyStyle}>
+              
+                <label onClick={this.triggerUpload} className="fp-signed-in-only mdl-button mdl-js-button mdl-button--fab mdl-cell--hide-tablet mdl-color--amber-400 mdl-shadow--4dp mdl-js-ripple-effect" id="add"  style={this.state.signedInOnlyStyle}>
                 <i className="material-icons">file_upload</i>
-                </button>
+                <input onChange={this.handleUpload} id="fp-mediacapture" type="file" accept="image/*;capture=camera" />
+                </label>
             </div>
             </div>
             <button className="fp-signed-in-only mdl-cell--hide-desktop mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-color--amber-400 mdl-shadow--4dp" id="add-floating"  style={this.state.signedInOnlyStyle}>
@@ -136,14 +156,16 @@ class Header extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        user: state.auth.user 
+        user: state.auth.user, 
+        uploadIndex: state.upload.index 
     }
 } 
 
 function matchDispatchToProps(dispatch) {
     return bindActionCreators({
-        signOut: appActions.signOut
+        signOut: appActions.signOut, 
+        uploadImage: appActions.upload
     }, dispatch)
 }
 
-export default connect(mapStateToProps, matchDispatchToProps)(Header) 
+export default withRouter(connect(mapStateToProps, matchDispatchToProps)(Header)) 

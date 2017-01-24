@@ -10,3 +10,7 @@
 	opacity: 0; 
 
 } 
+
+#fp-mediacapture {
+	display: none;
+}

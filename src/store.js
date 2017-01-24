@@ -1,10 +1,14 @@
-import { createStore, combineReducers } from 'redux'
+import { createStore, combineReducers, applyMiddleware } from 'redux'
 
 import authReducer from './reducers/auth.js'
+import uploadReducer from './reducers/uploader.js'
 
 let allreducers = combineReducers({
-    auth: authReducer 
+    auth: authReducer, 
+    upload: uploadReducer 
 })
+
+
 
 const store = createStore(allreducers); 
 

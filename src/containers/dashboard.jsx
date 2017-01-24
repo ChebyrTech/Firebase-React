@@ -1,13 +1,18 @@
 import React from 'react' 
 
-import Header from './header.jsx' 
+import {connect} from 'react-redux'
+import { bindActionCreators} from 'redux'
 
-import store from '../store.js'; 
+import Header from './header.jsx'
+
+import Toast from './toast.jsx'
+
 
 class Dashboard extends React.Component {
 
 constructor(props) {
-    super(); 
+    super(props);  
+
     this.state = {
         user: {
             uid: '', 
@@ -15,27 +20,24 @@ constructor(props) {
             displayName: ''
         }
     }
+} 
 
-    var self = this; 
-    store.subscribe(handleChange);
 
-        let currentValue = {}; 
-        function handleChange() {
-        let previousValue = currentValue
-        currentValue = store.getState().auth.uid; 
-
-        if (previousValue !== currentValue && currentValue != '') {
-                self.setState({user: store.getState().auth.user })
-            }   
-        }
+    render () {
+            return (<div>
+                <Header uid={this.props.user.uid} displayName={this.props.user.displayName} photoUrl={this.props.user.photoUrl} />
+                {this.props.children}
+                <Toast />
+            </div>)
+     }   
 }
 
-render () {
-        return (<div>
-            <Header uid={this.state.user.uid} displayName={this.state.user.displayName} photoUrl={this.state.user.photoUrl} />
-            {this.props.children}
-        </div>)
-    }   
+function mapStateToProps(state) {
+    return {
+        user: state.auth.user
+    }
 }
 
-export default Dashboard 
+
+
+export default connect(mapStateToProps)(Dashboard)

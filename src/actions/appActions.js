@@ -1,3 +1,4 @@
+// auth events 
 export const signIn = (user) => {
 
     return {
@@ -11,4 +12,28 @@ export const signOut = () => {
     return {
         type: 'SIGN_OUT'
     }
+} 
+
+
+// file upload events 
+export const upload = (post_data) => {
+    return {
+        type: 'UPLOAD', 
+        payload: post_data
+    }
+} 
+
+export const uploadSuccess = (data) => {
+    return {
+        type: 'UPLOAD_SUCCESS', 
+        payload: data 
+    } 
 }
+
+export const uploadError = (data) => {
+    return {
+        type: 'UPLOAD_ERROR', 
+        payload: data 
+    }
+}
+

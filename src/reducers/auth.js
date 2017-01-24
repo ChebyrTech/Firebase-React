@@ -32,6 +32,7 @@ const authReducer = (state = {
                         displayName: "" 
                     } 
             }
+        
             return newState; 
             break;
 
