@@ -19,8 +19,20 @@ constructor(props) {
             photoUrl: '',
             displayName: ''
         }
-    }
+    } 
 } 
+
+componentWillReceiveProps(newProps) { 
+
+    if ("successData[postid]" in newProps.upload)  {
+        if (newProps.upload.successData.postid != this.props.successData.postid) {
+
+        }
+    }  
+
+    
+    
+}
 
 
     render () {
@@ -34,10 +46,10 @@ constructor(props) {
 
 function mapStateToProps(state) {
     return {
-        user: state.auth.user
+        user: state.auth.user, 
+        upload: state.upload
     }
-}
-
+} 
 
 
 export default connect(mapStateToProps)(Dashboard)

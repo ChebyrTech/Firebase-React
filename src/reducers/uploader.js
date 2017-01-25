@@ -1,6 +1,7 @@
 import store from '../store' 
 
-    var upload_index = 0; 
+    var upload_index = 0, 
+    error_index = 0;
 
     const uploadReducer = (state = {
         index: 0, 
@@ -9,12 +10,10 @@ import store from '../store'
         successData: {}, 
         errorData: {}
     }, action) => {
-        switch (action.type) {
+        switch (action.type) { 
 
             // upload event 
             case "UPLOAD": { 
-
-                console.log('image upload event')
 
                 // read image data 
                 var img_reader = new Promise(function(resolve, reject) {
@@ -52,17 +51,28 @@ import store from '../store'
 
        
                 return newState; 
-                break; 
             }
             // upload success event
             case 'UPLOAD_SUCCESS': {
 
-                break; 
+                var newState = Object.assign({}, state, {
+                    successData: action.payload
+                }) 
+
+                return newState; 
             }
             // upload error event 
-            case 'UPLOAD_ERROR': {
+            case 'UPLOAD_ERROR': { 
+                
+                var errorData = action.payload; 
+                errorData.index = ++error_index; 
+                
 
-                break; 
+                var newState = Object.assign({}, state, {
+                    errorData: errorData
+                }) 
+
+                return newState; 
             }
         } 
         return state; 

@@ -23,15 +23,21 @@ export const upload = (post_data) => {
     }
 } 
 
-export const uploadSuccess = (data) => {
+export const uploadSuccess = (data) => { 
+
+    console.log('upload success')
+    console.log(data)
     return {
         type: 'UPLOAD_SUCCESS', 
         payload: data 
     } 
 }
+ 
+export const uploadError = (data) => { 
 
-export const uploadError = (data) => {
-    return {
+    console.log('upload error')
+    console.log(data)
+    return { 
         type: 'UPLOAD_ERROR', 
         payload: data 
     }

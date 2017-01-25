@@ -40,12 +40,9 @@ class Auth extends React.Component {
     componentWillReceiveProps(nextProps) { 
         
         // Check if the user is authorized 
-        console.log(nextProps)
+        if (nextProps.user.uid != '') {
 
-        if (nextProps.user.uid != '' && nextProps.user.photoUrl != '') {
 
-            
-     
             this.setState({loggedInCls: "login-fadeout"});
             this.setState({signOutOnlyStyle: {display: 'none'}});   
 
@@ -84,22 +81,22 @@ class Auth extends React.Component {
     render() { 
 
         return (
-            <div> 
-                <div className={"logged-out " + (this.state.loggedInCls)}>
-                <div className="fp-theatre"><img className="fp-fullpic" /></div>
-                <section id="page-splash">
-                    <h3 className="fp-logo"><i className="material-icons">photo</i> Friendly Pix</h3>
-                    <div className="fp-caption">The friendliest way to share your pics</div>
-                    <div className="fp-signed-out-only" style={this.state.signOutOnlyStyle}> 
-                        <div id="firebaseui-auth-container" className="fp-signed-out-only">
+            <div>
+                <div className={"logged-out " + (this.state.loggedInCls) }>
+                    <div className="fp-theatre"><img className="fp-fullpic" /></div>
+                    <section id="page-splash">
+                        <h3 className="fp-logo"><i className="material-icons">photo</i> Friendly Pix</h3>
+                        <div className="fp-caption">The friendliest way to share your pics</div>
+                        <div className="fp-signed-out-only" style={this.state.signOutOnlyStyle}>
+                            <div id="firebaseui-auth-container" className="fp-signed-out-only">
+                            </div>
+                            <p onClick={this.skipAuthHandler} className="fp-skip">skip sign in</p>
                         </div>
-                        <p onClick={this.skipAuthHandler} className="fp-skip">skip sign in</p>
-                    </div>
-                </section> 
+                    </section>
                 </div>
                 <div className="logged-in">
-                        <Dashboard>{this.props.children}</Dashboard>
-                </div> 
+                    <Dashboard>{this.props.children}</Dashboard>
+                </div>
             </div>
         )
     }

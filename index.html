@@ -78,7 +78,12 @@
       firebase.auth.GoogleAuthProvider.PROVIDER_ID,
       firebase.auth.FacebookAuthProvider.PROVIDER_ID
     ],
-    'signInSuccessUrl': '/',
+    'callbacks': {
+    signInSuccess: function() {
+
+      // prevent automatic redirects after signin
+      return false; 
+    }}
   };
   
 </script>

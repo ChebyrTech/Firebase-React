@@ -14,3 +14,7 @@
 #fp-mediacapture {
 	display: none;
 }
+
+.fp-no-posts {
+	display: block; 
+}

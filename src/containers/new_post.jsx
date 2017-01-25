@@ -1,6 +1,5 @@
 import React from 'react' 
-import {withRouter} from 'react-router' 
-
+import { withRouter } from 'react-router' 
 
 import {connect} from 'react-redux'
 import { bindActionCreators} from 'redux'
@@ -32,23 +31,37 @@ class NewPost extends React.Component {
     }
 
 
-    // handle file data 
+  
     componentWillReceiveProps(nextProps) { 
 
-        this.setState({filename: nextProps.file.filename}); 
+        // handle file data 
+        if (this.state.src == '' || nextProps.upload.index != this.props.upload.index) {
 
-        var self = this; 
+            this.setState({filename: nextProps.file.filename}); 
 
-        console.log(nextProps)
-        var image_promise = nextProps.file.image.then(function(result) { 
-            
-            self.setState({src: result})
+            var self = this; 
 
-        })
+            console.log(nextProps)
+            var image_promise = nextProps.file.image.then(function(result) { 
+                
+                self.setState({src: result})
+
+            }) 
+        }
+        
+
+        if ("successData" in nextProps.upload && nextProps.upload.successData != this.props.upload.successData) {
+            // redirect to user profile page if file upload was successful 
+            this.props.router.push(`/user/${this.props.uid}`); 
+        }
     }
 
     // upgrade the DOM for correct rendering of Material Design Lite components 
-    componentDidMount () {
+    componentDidMount () { 
+
+        if (this.props.file.filename == '') {
+            this.props.router.push('/');
+        }
         componentHandler.upgradeDom();
 
     }
@@ -159,9 +172,8 @@ class NewPost extends React.Component {
         self.generateImages(img, self).then(pics => {
             // Upload the File upload to Firebase Storage and create new post. 
 
-            console.log(FirebaseHandler)
+         
             FirebaseHandler.uploadNewPic(pics.full, pics.thumb, self.state.caption, self.state.caption).then(postId => { 
-                self.router.push(`/user/${this.auth.currentUser.uid}`); 
 
                 var data = {
                 message: 'New pic has been posted!',
@@ -169,7 +181,8 @@ class NewPost extends React.Component {
                     self.props.router.push(`/post/${postId}`); 
                 },
                 actionText: 'View',
-                timeout: 10000
+                timeout: 10000, 
+                postid: postId
                 }; 
 
                 // Enable upload UI
@@ -196,6 +209,7 @@ class NewPost extends React.Component {
     
     } 
 
+    // Disable or enable upload UI 
     disableUploadUi(dir) {
         if (dir) {
           this.setState({
@@ -208,6 +222,7 @@ class NewPost extends React.Component {
         }
     }
 
+    // Capture ImageCaption input value 
     valueChangeHandler(e) {
         this.setState({caption: e.target.value});  
         if (this.state.caption.length > 0) {
@@ -226,24 +241,24 @@ class NewPost extends React.Component {
             <section id="page-add" className="mdl-grid fp-content">
                 <div className="mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-grid mdl-grid--no-spacing">
                     <div className="fp-addcontainer mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
-                    <div className="fp-overlay" style={this.state.overlayStyle}>
-                        <i className="material-icons">hourglass_full</i>
-                    </div>
-                    <img id="newPictureContainer" src={this.state.src} />
-                    <div className="mdl-card__supporting-text mdl-color-text--grey-600">
-                        <form id="uploadPicForm" action="#"> 
-                
-                        <div className="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input autofocus className="mdl-textfield__input" type="text" id="imageCaptionInput" onChange={this.valueChangeHandler} value={this.state.caption}/>
-                            <label className="mdl-textfield__label" htmlFor="imageCaptionInput">Image caption...</label>
+                        <div className="fp-overlay" style={this.state.overlayStyle}>
+                            <i className="material-icons">hourglass_full</i>
                         </div>
-                        
-                        <br />
-                        <button disabled={this.state.uploadUiStyle} onClick={()=>{this.uploadPic(this.state.src, this)}} type="submit" className="fp-upload mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--amber-400">
-                            Upload this pic!
-                        </button>
-                        </form>
-                    </div>
+                        <img id="newPictureContainer" src={this.state.src} />
+                        <div className="mdl-card__supporting-text mdl-color-text--grey-600">
+                            <form id="uploadPicForm" action="#">
+
+                                <div className="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                    <input autoFocus className="mdl-textfield__input" type="text" id="imageCaptionInput" onChange={this.valueChangeHandler} value={this.state.caption}/>
+                                    <label className="mdl-textfield__label" htmlFor="imageCaptionInput">Image caption...</label>
+                                </div>
+
+                                <br />
+                                <button disabled={this.state.uploadUiStyle} onClick={() => { this.uploadPic(this.state.src, this) } } type="submit" className="fp-upload mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--amber-400">
+                                    Upload this pic!
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -254,7 +269,9 @@ class NewPost extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        file: state.upload
+        file: state.upload, 
+        uid: state.auth.user.uid, 
+        upload: state.upload
     }
 }
 
