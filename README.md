@@ -5,7 +5,18 @@
 3. Run `npm start` and open your browser at http://localhost:3000  
 
  
-### Additional information 
+### Scripts location  
 
-Most scripts from the original project can be found in the src/containers folder. 
-The location of the original script named firebase.js is src/fireabse.js
+
+old ==> new
+
+auth.js ==> src/containers/auth.jsx
+feed.js ==> src/containers/feed.jsx
+firebase.js ==> src/firebase.js
+messaging.js ==> not yet implemented
+post.js ==> src/containers/single_post.jsx
+routing.js ==> src/main.jsx
+search.js ==> not yet implemented
+uploader.js ==> src/containers/new_post.jsx
+userpage.js ==> not yet implemented
+utils.js ==> yet not implemented  

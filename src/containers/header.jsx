@@ -157,15 +157,16 @@ class Header extends React.Component {
                         <Link to="/"><span id="fp-menu-home" className="mdl-layout__tab fp-signed-in-only is-active mdl-button mdl-js-button mdl-js-ripple-effect"  style={this.state.signedInOnlyStyle}> <i className="material-icons">home</i> Home</span></Link>
                         <Link to="/feed"><span id="fp-menu-feed" className="mdl-layout__tab mdl-button mdl-js-button mdl-js-ripple-effect"><i className="material-icons">trending_up</i> Feed</span></Link>
 
-                        <label onClick={this.triggerUpload} className="fp-signed-in-only mdl-button mdl-js-button mdl-button--fab mdl-cell--hide-tablet mdl-color--amber-400 mdl-shadow--4dp mdl-js-ripple-effect" id="add"  style={this.state.signedInOnlyStyle}>
+                        <label className="fp-signed-in-only mdl-button mdl-js-button mdl-button--fab mdl-cell--hide-tablet mdl-color--amber-400 mdl-shadow--4dp mdl-js-ripple-effect" id="add"  style={this.state.signedInOnlyStyle}>
                             <i className="material-icons">file_upload</i>
                             <input onChange={this.handleUpload} id="fp-mediacapture" type="file" accept="image/*;capture=camera" />
                         </label>
                     </div>
                 </div>
-                <button className="fp-signed-in-only mdl-cell--hide-desktop mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-color--amber-400 mdl-shadow--4dp" id="add-floating"  style={this.state.signedInOnlyStyle}>
+                <label className="fp-signed-in-only mdl-cell--hide-desktop mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-color--amber-400 mdl-shadow--4dp" id="add-floating"  style={this.state.signedInOnlyStyle}>
                     <i className="material-icons">photo_camera</i>
-                </button>
+                    <input onChange={this.handleUpload} id="fp-mediacapture-sm" type="file" accept="image/*;capture=camera" />
+                </label>
             </header>
             
         </div>)

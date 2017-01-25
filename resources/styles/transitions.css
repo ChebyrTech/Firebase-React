@@ -18,3 +18,12 @@
 .fp-no-posts {
 	display: block; 
 }
+
+.mdl-layout__header {
+	display: flex;
+}
+
+#fp-mediacapture-sm {
+	display: none; 
+} 
+

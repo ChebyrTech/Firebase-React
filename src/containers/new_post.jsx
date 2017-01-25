@@ -278,7 +278,7 @@ function mapStateToProps(state) {
 function matchDispatchToProps(dispatch) {
     return bindActionCreators({
         uploadSuccess: appActions.uploadSuccess, 
-        uploadError: appActions.uploadError 
+        uploadError: appActions.uploadError
     }, dispatch)
 }
 

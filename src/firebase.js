@@ -11,7 +11,12 @@ class FirebaseHandler {
 
 
         // Firebase references that are listened to.
-        this.firebaseRefs = [];
+        this.firebaseRefs = []; 
+
+
+        // settings 
+        this.COMMENTS_PAGE_SIZE = 5; 
+        this.POSTS_PAGE_SIZE = 6; 
 
     }
 
@@ -72,6 +77,15 @@ class FirebaseHandler {
   } 
 
 
+  /**
+   * Turns off all Firebase listeners.
+   */
+  cancelAllSubscriptions() {
+    this.firebaseRefs.forEach(ref => ref.off());
+    this.firebaseRefs = [];
+  }
+
+
     /**
    * Subscribes to receive updates from a post's comments. The given `callback` function gets
    * called for each new comment to the post with ID `postId`.
@@ -92,7 +106,7 @@ class FirebaseHandler {
    */
   getComments(postId) {
     return this._getPaginatedFeed(`/comments/${postId}`,
-        friendlyPix.Firebase.COMMENTS_PAGE_SIZE, null, false);
+        this.COMMENTS_PAGE_SIZE, null, false);
   }
 
     /**
@@ -138,7 +152,7 @@ class FirebaseHandler {
    */
   getHomeFeedPosts() {
     return this._getPaginatedFeed(`/feed/${this.auth.currentUser.uid}`,
-        friendlyPix.Firebase.POSTS_PAGE_SIZE, null, true);
+       this.POSTS_PAGE_SIZE, null, true);
   }
 
   /**

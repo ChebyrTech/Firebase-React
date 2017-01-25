@@ -3,6 +3,7 @@ import React from 'react'
 import {connect} from 'react-redux'
 import { bindActionCreators} from 'redux'
 
+import * as appActions from '../actions/appActions'
 
 class Toast extends React.Component {
 
@@ -28,6 +29,13 @@ class Toast extends React.Component {
             if (typeof newProps.errorData == 'undefined' || newProps.upload.errorData.index != this.props.upload.errorData.index ) {
                 document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.upload.errorData);
             }
+        } 
+
+        if (typeof newProps.deleteData != 'undefined') {
+
+            document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.deleteData); 
+            this.props.errorHandled(); 
+
         }
         
     }
@@ -49,8 +57,15 @@ class Toast extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        upload: state.upload
+        upload: state.upload, 
+        deleteData: state.feed.deleteData
     }
+} 
+
+function matchDispatchToProps(dispatch) {
+    return bindActionCreators({
+        errorHandled: appActions.errorHandled
+    }, dispatch)
 }
 
 export default connect(mapStateToProps)(Toast) 

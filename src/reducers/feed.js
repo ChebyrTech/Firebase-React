@@ -4,14 +4,19 @@ const feedReducer = (state = {
     }
 }, action) => {
     switch(action.type) {
-        case 'LOAD_FEED': {
-            break;
-        }
-        case 'REMOVE_POST': {
 
-            break; 
+        case 'DELETE_POST_ERROR': {
+
+            var newState = action.payload; 
+            return newState; 
         }
-    }
+        case 'DELETE_ERRORHANDLER_DONE': {
+            var newState = {}; 
+            return newState
+        }
+    } 
+
+    return state; 
 }
 
 export default feedReducer; 

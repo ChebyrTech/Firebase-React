@@ -1,14 +1,18 @@
 import React from 'react' 
 import {Link} from 'react-router'
 
+import {withRouter} from 'react-router'
+
 import {connect} from 'react-redux'
-import { bindActionCreators} from 'redux'
+import { bindActionCreators} from 'redux' 
 
 import * as appActions from '../actions/appActions.js'
 
 import Dashboard from './dashboard.jsx'
 
 import authReducer from '../reducers/auth.js' 
+
+import FirebaseHandler from '../firebase'
 
 
 
@@ -60,7 +64,7 @@ class Auth extends React.Component {
             this.props.signIn(user);             
             console.log('logged in'); 
 
-            
+            FirebaseHandler.saveUserData(user.photoURL, user.displayName);
         } else {
             this.setState({loggedInCls: ''});  
             this.setState({signOutOnlyStyle: {display: 'block'}});    
@@ -74,7 +78,7 @@ class Auth extends React.Component {
    */
     skipAuthHandler() {
         this.setState({loggedInCls: "login-fadeout"}); 
-
+        this.props.router.push('/feed');
     }
 
 
@@ -116,4 +120,4 @@ function matchDispatchToProps(dispatch) {
     }, dispatch) 
 }
 
-export default connect(mapStateToProps, matchDispatchToProps)(Auth); 
+export default withRouter(connect(mapStateToProps, matchDispatchToProps)(Auth)); 

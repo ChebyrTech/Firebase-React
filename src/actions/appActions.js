@@ -25,8 +25,6 @@ export const upload = (post_data) => {
 
 export const uploadSuccess = (data) => { 
 
-    console.log('upload success')
-    console.log(data)
     return {
         type: 'UPLOAD_SUCCESS', 
         payload: data 
@@ -35,11 +33,26 @@ export const uploadSuccess = (data) => {
  
 export const uploadError = (data) => { 
 
-    console.log('upload error')
-    console.log(data)
     return { 
         type: 'UPLOAD_ERROR', 
         payload: data 
     }
+} 
+
+// delete post error 
+export const postDeleteError = (data) => { 
+
+    return {
+        type: 'DELETE_POST_ERROR', 
+        payload: data
+    }
+} 
+
+export const errorHandled = () => { 
+    
+    return {
+        type: 'DELETE_ERRORHANDLER_DONE'
+    }
 }
+
 
