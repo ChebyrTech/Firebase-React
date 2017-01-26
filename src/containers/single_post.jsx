@@ -4,7 +4,9 @@ import {Link, withRouter} from 'react-router'
 import {connect} from 'react-redux'
 import { bindActionCreators} from 'redux'
 
-import * as appActions from '../actions/appActions'
+import * as appActions from '../actions/appActions' 
+
+import Theatre from './theatre.jsx'
 
 import FirebaseHandler from '../firebase'
 
@@ -49,6 +51,7 @@ class SinglePost extends React.Component {
             thumb_url: '',
             timestamp: 0
         }, 
+        postId: '',
 
         
         avatarStyle: {
@@ -80,6 +83,7 @@ class SinglePost extends React.Component {
         firstComment: '', 
         comments: [], 
         commentId: '', 
+        newCommentText: '', 
 
         commentsFormStyle: {
             display: 'none'
@@ -92,6 +96,7 @@ class SinglePost extends React.Component {
         nextPage: '', 
 
         textTime: 'now'
+        
         }
     
     }
@@ -102,7 +107,6 @@ componentDidMount(){
     this.loadPost(this.props.params.postid); 
 } 
 
-// ------------------------------------------------------------------------------
   /**
    * Loads the given post's details.
    */
@@ -127,7 +131,7 @@ componentDidMount(){
         }
       } else {
 
-        this.setState({post: post})
+        this.setState({post: post}); 
         this.fillPostData(snapshot.key, post.thumb_url || post.url, post.text, post.author,
             post.timestamp, post.thumb_storage_uri, post.full_storage_uri, post.full_url);
       }
@@ -151,20 +155,19 @@ componentDidMount(){
    */
   displayComments(comments) {
 
-    var self = this; 
-    var postElem = document.getElementById('post'); 
+      console.log(comments)
+      var self = this; 
 
-    var comments_state = self.state.comments; 
-
+    var comments_state = self.state.comments.slice(); 
+    if (comments.length == 0) return; 
 
     const commentsIds = Object.keys(comments);
     for (let i = commentsIds.length - 1; i >= 0; i--) {
 
-            var comment = self.createCommentHtml(comments[commentsIds[i]].author,
-                comments[commentsIds[i]].text); 
+            var comment = self.createCommentJsx(comments[commentsIds[i]].author, comments[commentsIds[i]].text); 
                 
             comments_state.push(comment); 
-        } 
+    } 
 
         
     this.setState({
@@ -178,9 +181,6 @@ componentDidMount(){
    */
   displayNextPageButton(nextPage) {
 
-    var postElem = document.getElementById('post'); 
-
-
     if (nextPage) {
 
         this.setState({
@@ -190,7 +190,7 @@ componentDidMount(){
         })
 
         this.setState({
-            nextPageBtnStyle: false 
+            nextPageBtnDisabled: false 
         })
 
         this.setState({
@@ -215,14 +215,13 @@ componentDidMount(){
 
         self.state.nextPage().then(data => {
             self.setState({
-                nextPageBtnStyle: true 
-            
+                nextPageBtnDisabled: true 
             }) 
             self.displayComments(data.entries);
             self.displayNextPageButton(data.nextPage);
         })
 
-      }
+      } 
   }
 
   /**
@@ -232,8 +231,9 @@ componentDidMount(){
   fillPostData(postId, thumbUrl, imageText, author, timestamp, thumbStorageUri, picStorageUri, picUrl) {
     const post = document.getElementById('post'); 
 
-    // Fills element's author profile. 
-
+    this.setState({
+        postId: postId
+    })
     this.setState({
         avatarStyle: {
             backgroundImage: `url(${this.state.post.author.profile_picture || '/images/silhouette.jpg'})`
@@ -255,27 +255,6 @@ componentDidMount(){
     return post;
   }
 
-
-//   leaveTheatreMode() {
-//     this.theatre.hide();
-//     this.theatre.off('click');
-//     $(document).off('keydown');
-//   }
-
-
-//   enterTheatreMode(picUrl) {
-//     $('.fp-fullpic', this.theatre).prop('src', picUrl);
-//     this.theatre.css('display', 'flex');
-//     // Leave theatre mode if click or ESC key down.
-//     this.theatre.off('click');
-//     this.theatre.click(() => this.leaveTheatreMode())
-//     $(document).off('keydown');
-//     $(document).keydown(e => {
-//       if (e.which === 27) {
-//         this.leaveTheatreMode();
-//       }
-//     });
-//   }
 
   /**
    * Shows the thumbnail and sets up the click to see the full size image.
@@ -323,17 +302,25 @@ componentDidMount(){
     const post = document.getElementById('post');  
     var self = this; 
 
-    // Creates the initial comment with the post's text.
-    var first_comment = this.createCommentHtml(author, imageText); 
+    // first post html
     this.setState({
-        firstComment: first_comment
-    })
+        firstComment: (
+                <div className="fp-comment">
+                    <Link to={"user/" + author.uid}><span className="fp-author">{author.full_name || 'Anonymous'}</span></Link>:
+                    <span className="fp-text"> {imageText}</span>
+                </div>
+            )
+    }); 
 
 
     // Load first page of comments and listen to new comments.
-    FirebaseHandler.getComments(postId).then(data => {
-    //    self.displayComments(data.entries);
-    //    self.displayNextPageButton(data.nextPage);
+    FirebaseHandler.getComments(postId).then(data => { 
+
+
+    self.displayComments(data.entries); 
+
+    self.displayNextPageButton(data.nextPage);
+
 
       // Display any new comments.
       const commentIds = Object.keys(data.entries);
@@ -341,13 +328,9 @@ componentDidMount(){
 
           var comment_array = this.state.comments;  
 
-          var new_comment =  self.createCommentHtml(commentData.author, commentData.text)
+          var new_comment =  self.createCommentJsx(commentData.author, commentData.text)
 
           comment_array.push(new_comment)
-
-          self.setState({
-              comments: comment_array
-          })
 
       }, commentIds ? commentIds[commentIds.length - 1] : 0);
     });
@@ -360,15 +343,32 @@ componentDidMount(){
           commentId:  `${postId}-${ran}-comment`
       })
       
-      // Show comments form.
+      // Show comments form
       self.setState({
           commentsFormStyle: {
               display: 'flex'
           }
       })
 
-    }
+    } 
   }
+
+  /**
+   * Generate enter theatre mode event 
+   */
+  enterTheatreMode(self) { 
+      
+      self.props.enterTheatreMode(self.state.post.full_url); 
+  }
+
+ /**
+  * Captures the value of comment form input 
+  */
+  commentTextChangeHandler(e, self) {
+      self.setState({
+          newCommentText: e.target.value
+      })
+  } 
 
   /**
    * Submit comment handler 
@@ -377,12 +377,15 @@ componentDidMount(){
 
         e.preventDefault(); 
 
-        const commentText = document.querySelector(`.mdl-textfield__input`).value; 
-        if (!commentText || commentText.length === 0) {
+        // const commentText = document.querySelector(`.mdl-textfield__input`).value; 
+        if (self.state.newCommentText.length === 0 || self.state.postId == '') {
             return;
-        }
-        FirebaseHandler.addComment(postId, commentText);
-        document.querySelector(`.mdl-textfield__input`).value = ''; 
+        } 
+
+        FirebaseHandler.addComment(self.state.postId, self.state.newCommentText);
+        self.setState({
+            newCommentText: ''
+        })
   }
 
   /**
@@ -590,23 +593,24 @@ componentDidMount(){
      
 
     /**
-     * Returns the HTML for a post's comment.
+     * Returns the JSX for a post's comment.
      */
-        createCommentHtml(author, text) {
-            return `
-                <div class="fp-comment">
-                    <a class="fp-author" href="/user/${author.uid}">${author.displayName || 'Anonymous'}</a>:
-                    <span class="fp-text">${text}</span>
+        createCommentJsx(author, text) {
+            return (
+                <div className="fp-comment" key={Math.random() * 10000}>
+                    <Link to={"/user/" + author.uid}><span className="fp-author">{author.full_name || 'Anonymous'}</span></Link>:
+                    <span className="fp-text"> {text}</span>
                 </div>
-                `
+            )
     }
 
 
     render () {
         return (
-
+            <div>
+            <Theatre picUrl={this.state.post.full_url}></Theatre>
             <section id="page-post" className="mdl-grid fp-content">
-                <div className="fp-theatre"><img className="fp-fullpic" src={this}/></div>
+              
                 <div className="fp-image-container mdl-cell mdl-cell--12-col mdl-grid">
                     <div id="post" className="fp-post mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--8-col-desktop mdl-grid mdl-grid--no-spacing">
                         <div className="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
@@ -621,13 +625,13 @@ componentDidMount(){
                                 </button>
                             <Link to={"/post/" + this.props.params.postid}><span className="fp-time">{this.state.textTime}</span></Link>
                             </div>
-                            <div className="fp-image" onClick={this.changeViewMode} style={this.state.thumbStyle}></div>
+                            <div className="fp-image" onClick={()=>{this.enterTheatreMode(this)}} style={this.state.thumbStyle}></div>
                             <div className="fp-likes" style={this.state.likePanelStyle}>{this.state.likesCount} like{this.state.likesCount == 1 ? "" : "s"}</div>
-                            <div className="fp-first-comment"></div>
+                            <div className="fp-first-comment">{this.state.firstComment}</div>
                             <div className="fp-morecomments" style={this.state.nextPageBtnStyle} disabled={this.nextPageBtnDisabled} onClick={() => {this.showMoreComments(this)}}>View more comments...</div>
                             <div className="fp-comments">{
-                                this.state.comments.map((comment, index) => {
-                                    comment.key = 'comment' + index; 
+                                this.state.comments.map((comment) => {
+                                  
                                     return comment
                                 })
                             }</div>
@@ -638,7 +642,7 @@ componentDidMount(){
                                 </span>
                                 <form className="fp-add-comment" action="#" onSubmit={(e) => {this.submitCommentHandler(e, this)}}>
                                     <div className="mdl-textfield mdl-js-textfield">
-                                        <input className="mdl-textfield__input" id={this.state.commentId} type="text" />
+                                        <input className="mdl-textfield__input" id={this.state.commentId} type="text" value={this.state.newCommentText} onChange={(e)=>{this.commentTextChangeHandler(e, this)}}/>
                                         <label className="mdl-textfield__label" htmlFor={this.state.commentId}>Comment...</label>
                                     </div>
                                 </form>
@@ -647,16 +651,19 @@ componentDidMount(){
                     </div>
                 </div>
             </section>
+            </div>
 
 
         )
     }
 } 
 
+
 function matchDispatchToProps(dispatch) {
     return bindActionCreators({
-        deleteError: appActions.postDeleteError
+        deleteError: appActions.postDeleteError,
+        enterTheatreMode: appActions.enterTheatreMode
     }, dispatch)
 }
 
-export default withRouter(connect(matchDispatchToProps)(SinglePost))
+export default withRouter(connect(null, matchDispatchToProps)(SinglePost)); 

@@ -35,6 +35,7 @@ class NewPost extends React.Component {
     componentWillReceiveProps(nextProps) { 
 
         // handle file data 
+
         if (this.state.src == '' || nextProps.upload.index != this.props.upload.index) {
 
             this.setState({filename: nextProps.file.filename}); 

@@ -1,14 +1,14 @@
 import store from '../store' 
 
-    var upload_index = 0, 
-    error_index = 0;
+    var error_index = 0;
 
     const uploadReducer = (state = {
         index: 0, 
         image: '', 
         filename: '', 
         successData: {}, 
-        errorData: {}
+        errorData: {}, 
+        newUpload: null
     }, action) => {
         switch (action.type) { 
 
@@ -40,13 +40,14 @@ import store from '../store'
 
                 }) 
 
-                var new_index = ++upload_index; 
-     
+                var new_index = Math.random() * 100000; 
+                
 
                 var newState = {
                     filename: action.payload.filename, 
                     index: new_index,  
-                    image: img 
+                    image: img, 
+                    newUpload: true  
                 } 
 
        
@@ -60,12 +61,21 @@ import store from '../store'
                 }) 
 
                 return newState; 
-            }
+            } 
+            case 'CLEAR_SUCCESS_DATA': {
+              var newState = Object.assign({}, state)
+
+              return newState 
+             }
             // upload error event 
             case 'UPLOAD_ERROR': { 
                 
                 var errorData = action.payload; 
-                errorData.index = ++error_index; 
+
+                ++error_index;   
+                if (upload_index > 100) { upload_index = 1 }
+
+                errorData.index = error_index; 
                 
 
                 var newState = Object.assign({}, state, {

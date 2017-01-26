@@ -20,7 +20,8 @@ class Toast extends React.Component {
 
             // show snackbar if the image was uploaded successfully 
             if (typeof this.props.successData == 'undefined' || newProps.upload.successData.postid != this.props.successData.postid) {
-                document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.upload.successData);
+                document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.upload.successData); 
+                //this.props.clearSuccessData()
             }
         
         }  else if ("errorData" in newProps.upload) {
@@ -31,11 +32,18 @@ class Toast extends React.Component {
             }
         } 
 
-        if (typeof newProps.deleteData != 'undefined') {
+        if (newProps.deleteData) {
 
             document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.deleteData); 
             this.props.errorHandled(); 
 
+        } 
+
+        if (newProps.userLoadError) {
+
+            console.log(newProps)
+            document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.userLoadError); 
+            this.props.clearUserError();  
         }
         
     }
@@ -58,13 +66,16 @@ class Toast extends React.Component {
 function mapStateToProps(state) {
     return {
         upload: state.upload, 
-        deleteData: state.feed.deleteData
+        deleteData: state.feed.errorData, 
+        userLoadError: state.user.errorData
     }
 } 
 
 function matchDispatchToProps(dispatch) {
     return bindActionCreators({
-        errorHandled: appActions.errorHandled
+        errorHandled: appActions.errorHandled, 
+        clearUserError: appActions.clearUserError
+       
     }, dispatch)
 }
 

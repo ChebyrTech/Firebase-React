@@ -13,6 +13,8 @@ import Dashboard from './containers/dashboard.jsx'
 import NewPost from './containers/new_post.jsx' 
 import SinglePost from './containers/single_post.jsx'
 import Feed from './containers/feed.jsx'
+import Home from './containers/home.jsx'
+import User from './containers/user.jsx'
 
 // components
 import About from './components/about.jsx'
@@ -37,10 +39,11 @@ var container = document.getElementById('app');
 ReactDOM.render(<Provider store={store}>
     <Router history={hashHistory}>
         <Route path="/" component={App}>
+                    <Route path="" component={Home}></Route>
                     <Route path="/about" component={About}></Route>
                     <Route path="/feed" component={Feed}></Route>
                     <Route path="/add" component={NewPost}></Route>
-                    <Route path="/user/:uid" component={Feed}></Route>
+                    <Route path="/user/:uid" component={User}></Route>
                     <Route path="/post/:postid" component={SinglePost}></Route>
 
         </Route>

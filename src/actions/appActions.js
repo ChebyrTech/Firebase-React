@@ -55,4 +55,30 @@ export const errorHandled = () => {
     }
 }
 
+export const clearSuccessData = () => {
+      return {
+        type: 'CLEAR_SUCCESS_DATA'
+    }  
+}
 
+// enter theatre mode 
+export const enterTheatreMode = (data) => {
+    return {
+        type: 'ENTER_THEATRE_MODE', 
+        payload: data 
+    }
+} 
+
+// error loading user 
+export const userLoadError = (data) => {
+    return {
+        type: 'USER_LOAD_ERROR', 
+        payload: data 
+    }
+}
+
+export const clearUserError = () => {
+    return {
+        type: 'CLEAR_USER_ERROR'
+    }
+}

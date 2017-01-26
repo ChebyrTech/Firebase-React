@@ -59,11 +59,6 @@ class Header extends React.Component {
             }})
 
         }  
-
-
-        if (nextProps.uploadIndex != this.props.uploadIndex && nextProps.uploadIndex > 0) {
-              this.props.router.push('/add'); // go to upload page
-        }
     }
 
      // upgrade the DOM for correct rendering of Material Design Lite components 
@@ -85,8 +80,12 @@ class Header extends React.Component {
     handleUpload(e) {
         if (e.target.files.length > 0) {
             var file = e.target.files[0]; 
-            this.props.uploadImage(file); 
-        }
+            this.props.uploadImage(file);  
+            e.target.value = null; 
+            this.props.router.push('/add'); // go to upload page 
+        } 
+
+
     } 
 
     /**
@@ -132,10 +131,11 @@ class Header extends React.Component {
                     <div className="mdl-cell--hide-phone">
                         <a href="/" style={this.state.signedOutOnlyStyle}><button className="fp-sign-in-button fp-signed-out-only mdl-button mdl-js-button mdl-js-ripple-effect"><i className="material-icons">account_circle</i> Sign in</button></a>
                         <div className="fp-signed-in-user-container mdl-cell--hide-phone fp-signed-in-only" style={this.state.signedInOnlyStyle}>
-                            <a className="fp-usernamelink mdl-button mdl-js-button">
+                             <Link to={"user/" + this.props.user.uid}><span className="fp-usernamelink mdl-button mdl-js-button">
                                 <div className="fp-avatar" style={this.state.avatarStyle}></div>
-                                <div className="fp-username mdl-color-text--white">{this.props.user.displayName}</div>
-                            </a>
+                               <div className="fp-username mdl-color-text--white">{this.props.user.displayName}</div>
+                            </span>
+                            </Link>
                         </div>
                     </div>
 
@@ -176,14 +176,14 @@ class Header extends React.Component {
 function mapStateToProps(state) {
     return {
         user: state.auth.user, 
-        uploadIndex: state.upload.index 
+        uploadIndex: state.upload.index  
     }
 } 
 
 function matchDispatchToProps(dispatch) {
     return bindActionCreators({
         signOut: appActions.signOut, 
-        uploadImage: appActions.upload
+        uploadImage: appActions.upload 
     }, dispatch)
 }
 

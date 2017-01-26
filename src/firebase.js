@@ -15,8 +15,9 @@ class FirebaseHandler {
 
 
         // settings 
-        this.COMMENTS_PAGE_SIZE = 5; 
+        this.COMMENTS_PAGE_SIZE = 3; 
         this.POSTS_PAGE_SIZE = 6; 
+        this.USER_PAGE_POSTS_PAGE_SIZE = 9; 
 
     }
 
@@ -128,7 +129,7 @@ class FirebaseHandler {
    * `null` if there is no next page.
    */
   getPosts() {
-    return this._getPaginatedFeed('/posts/', friendlyPix.Firebase.POSTS_PAGE_SIZE);
+    return this._getPaginatedFeed('/posts/', this.POSTS_PAGE_SIZE);
   }
 
   /**
@@ -176,8 +177,10 @@ class FirebaseHandler {
    * `null` if there is no next page.
    */
   getUserFeedPosts(uid) {
+
+    
     return this._getPaginatedFeed(`/people/${uid}/posts`,
-        friendlyPix.Firebase.USER_PAGE_POSTS_PAGE_SIZE, null, true);
+        this.USER_PAGE_POSTS_PAGE_SIZE, null, true);
   }
 
   /**
@@ -631,4 +634,3 @@ class FirebaseHandler {
 }
 
 export default new FirebaseHandler(); 
-window.FirebaseHandler = new FirebaseHandler; 

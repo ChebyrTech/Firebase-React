@@ -18,5 +18,5 @@ post.js ==> src/containers/single_post.jsx
 routing.js ==> src/main.jsx
 search.js ==> not yet implemented
 uploader.js ==> src/containers/new_post.jsx
-userpage.js ==> not yet implemented
+userpage.js ==> src/containers/user.jsx
 utils.js ==> yet not implemented  
