@@ -104,31 +104,36 @@ class SinglePost extends React.Component {
 
 
 componentDidMount(){
-    this.loadPost(this.props.params.postid); 
+
+    var postId = this.props.params.postid || this.props.postId; 
+    this.loadPost(postId); 
 } 
+
 
   /**
    * Loads the given post's details.
    */
   loadPost(postId) {
 
+    var self = this; 
     // Load the posts information.
     FirebaseHandler.getPostData(postId).then(snapshot => {
       const post = snapshot.val();
 
-      // Clear listeners and previous post data.
-      this.clear();
+
       if (!post) {
         var data = {
           message: 'This post does not exists.',
           timeout: 5000
         };
-        this.toast[0].MaterialSnackbar.showSnackbar(data);
-        if (this.auth.currentUser) {
-          page(`/user/${this.auth.currentUser.uid}`);
-        } else {
-          page(`/feed`);
-        }
+
+        self.props.deleteError(data)
+            // this.toast[0].MaterialSnackbar.showSnackbar(data);
+            if (this.auth.currentUser) {
+            self.props.router.push('/user/' + this.auth.currentUser.uid)
+            } else {
+            self.props.router.push('/feed')
+            }
       } else {
 
         this.setState({post: post}); 
@@ -395,7 +400,7 @@ componentDidMount(){
   _setupDeleteButton(postId, author, picStorageUri, thumbStorageUri) {
     const post = document.getElementById('post'); 
 
-    if (this.auth.currentUser && this.auth.currentUser.uid === author.uid && picStorageUri) { 
+    if (this.auth.currentUser && this.auth.currentUser.uid === author.uid && picStorageUri && this.props.params.postId) { 
         this.setState({
           deleteBtnStyle: {
               display: 'block'
@@ -431,7 +436,8 @@ componentDidMount(){
                 deleteBtnDisabled: true
             }); 
 
-             FirebaseHandler.deletePost(this.props.params.postid, this.state.post.full_storage_uri, this.state.post.thumb_storage_uri).then(() => {
+            var pid = self.props.params.postid || this.props.postId; 
+             FirebaseHandler.deletePost(pid, this.state.post.full_storage_uri, this.state.post.thumb_storage_uri).then(() => {
                 swal({
                 title: 'Deleted!',
                 text: 'Your post has been deleted.',
@@ -532,7 +538,8 @@ componentDidMount(){
      */
     _changeLikeStatus(willBeLiked) { 
 
-        FirebaseHandler.updateLike(this.props.params.postid, willBeLiked); 
+        var postId = this.props.params.postid || this.props.postId; 
+        FirebaseHandler.updateLike(postId, willBeLiked); 
 
 
         if (willBeLiked) { 
@@ -607,12 +614,9 @@ componentDidMount(){
 
     render () {
         return (
-            <div>
-            <Theatre picUrl={this.state.post.full_url}></Theatre>
-            <section id="page-post" className="mdl-grid fp-content">
-              
-                <div className="fp-image-container mdl-cell mdl-cell--12-col mdl-grid">
-                    <div id="post" className="fp-post mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--8-col-desktop mdl-grid mdl-grid--no-spacing">
+   
+                    <div className="fp-post mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--8-col-desktop mdl-grid mdl-grid--no-spacing">
+                      <Theatre picUrl={this.state.post.full_url}></Theatre>
                         <div className="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
                             <div className="fp-header">
                                 <Link to={"/user/" + this.state.post.author.uid}><span className="fp-usernamelink mdl-button mdl-js-button">
@@ -623,7 +627,7 @@ componentDidMount(){
                             <button className="fp-delete-post mdl-button mdl-js-button" disabled={this.state.deleteBtnDisabled} onClick={() => {this.deletePostHandler(this)}} style={this.state.deleteBtnStyle}>
                                     Delete
                                 </button>
-                            <Link to={"/post/" + this.props.params.postid}><span className="fp-time">{this.state.textTime}</span></Link>
+                            <Link to={"/post/" + this.props.params.postid || this.props.postId}><span className="fp-time">{this.state.textTime}</span></Link>
                             </div>
                             <div className="fp-image" onClick={()=>{this.enterTheatreMode(this)}} style={this.state.thumbStyle}></div>
                             <div className="fp-likes" style={this.state.likePanelStyle}>{this.state.likesCount} like{this.state.likesCount == 1 ? "" : "s"}</div>
@@ -649,9 +653,7 @@ componentDidMount(){
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
-            </div>
+
 
 
         )

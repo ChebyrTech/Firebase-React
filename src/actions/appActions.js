@@ -16,10 +16,13 @@ export const signOut = () => {
 
 
 // file upload events 
-export const upload = (post_data) => {
+export const upload = (file, image) => {
     return {
         type: 'UPLOAD', 
-        payload: post_data
+        payload: {
+            file: file, 
+            image: image 
+        }
     }
 } 
 
@@ -38,6 +41,12 @@ export const uploadError = (data) => {
         payload: data 
     }
 } 
+
+export const clearUploadError = () => {
+    return {
+        type: 'CLEAR_UPLOAD_ERROR'
+    }
+}
 
 // delete post error 
 export const postDeleteError = (data) => { 
@@ -81,4 +90,5 @@ export const clearUserError = () => {
     return {
         type: 'CLEAR_USER_ERROR'
     }
-}
+} 
+

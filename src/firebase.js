@@ -17,7 +17,7 @@ class FirebaseHandler {
         // settings 
         this.COMMENTS_PAGE_SIZE = 3; 
         this.POSTS_PAGE_SIZE = 6; 
-        this.USER_PAGE_POSTS_PAGE_SIZE = 9; 
+        this.USER_PAGE_POSTS_PAGE_SIZE = 6; 
 
     }
 
@@ -463,7 +463,7 @@ class FirebaseHandler {
           updateData[`/people/${this.auth.currentUser.uid}/following/${followedUserId}`] =
               follow ? lastPostId : null;
 
-          // Add signed-in suer to the list of followers.
+          // Add signed-in user to the list of followers.
           updateData[`/followers/${followedUserId}/${this.auth.currentUser.uid}`] =
               follow ? !!follow : null;
           return this.database.ref().update(updateData);

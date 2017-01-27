@@ -80,17 +80,9 @@
 
 	var _new_post2 = _interopRequireDefault(_new_post);
 
-	var _single_post = __webpack_require__(275);
-
-	var _single_post2 = _interopRequireDefault(_single_post);
-
-	var _feed = __webpack_require__(277);
+	var _feed = __webpack_require__(275);
 
 	var _feed2 = _interopRequireDefault(_feed);
-
-	var _home = __webpack_require__(278);
-
-	var _home2 = _interopRequireDefault(_home);
 
 	var _user = __webpack_require__(279);
 
@@ -99,6 +91,10 @@
 	var _about = __webpack_require__(280);
 
 	var _about2 = _interopRequireDefault(_about);
+
+	var _post_wrapper = __webpack_require__(281);
+
+	var _post_wrapper2 = _interopRequireDefault(_post_wrapper);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -157,12 +153,12 @@
 	        _react2.default.createElement(
 	            _reactRouter.Route,
 	            { path: '/', component: App },
-	            _react2.default.createElement(_reactRouter.Route, { path: '', component: _home2.default }),
+	            _react2.default.createElement(_reactRouter.IndexRoute, { component: _feed2.default }),
 	            _react2.default.createElement(_reactRouter.Route, { path: '/about', component: _about2.default }),
 	            _react2.default.createElement(_reactRouter.Route, { path: '/feed', component: _feed2.default }),
 	            _react2.default.createElement(_reactRouter.Route, { path: '/add', component: _new_post2.default }),
 	            _react2.default.createElement(_reactRouter.Route, { path: '/user/:uid', component: _user2.default }),
-	            _react2.default.createElement(_reactRouter.Route, { path: '/post/:postid', component: _single_post2.default })
+	            _react2.default.createElement(_reactRouter.Route, { path: '/post/:postid', component: _post_wrapper2.default })
 	        )
 	    )
 	), container);
@@ -29150,7 +29146,8 @@
 	                    user: {
 	                        uid: "",
 	                        photoUrl: "",
-	                        displayName: ""
+	                        displayName: "",
+	                        signOut: true
 	                    }
 	                };
 
@@ -29200,34 +29197,12 @@
 	        case "UPLOAD":
 	            {
 
-	                // read image data 
-	                var img_reader = new Promise(function (resolve, reject) {
-
-	                    var file = action.payload;
-
-	                    if (file.type.match('image.*')) {
-	                        var reader = new FileReader();
-	                        var image;
-	                        reader.readAsDataURL(file);
-	                        reader.onload = function (e) {
-
-	                            image = e.target.result;
-	                            resolve(image);
-	                        };
-	                    }
-	                });
-
-	                var img = img_reader.then(function (image) {
-
-	                    return image;
-	                });
-
 	                var new_index = Math.random() * 100000;
 
 	                var newState = {
-	                    filename: action.payload.filename,
+	                    filename: action.payload.file.filename,
 	                    index: new_index,
-	                    image: img,
+	                    image: action.payload.image,
 	                    newUpload: true
 	                };
 
@@ -29265,6 +29240,15 @@
 	                var newState = Object.assign({}, state, {
 	                    errorData: errorData
 	                });
+
+	                return newState;
+	            }
+	        // clear upload error 
+	        case 'CLEAR_UPLOAD_ERROR':
+	            {
+
+	                var newState = Object.assign({}, state);
+	                newState.errorData = null;
 
 	                return newState;
 	            }
@@ -29438,7 +29422,7 @@
 	        });
 	        _this.state = {
 	            signOutOnlyStyle: {},
-	            loggedICls: ''
+	            loggedInCls: ''
 	        };
 
 	        _this.skipAuthHandler = _this.skipAuthHandler.bind(_this);
@@ -29451,6 +29435,10 @@
 
 	            var firebaseUi = new firebaseui.auth.AuthUI(firebase.auth());
 	            firebaseUi.start('#firebaseui-auth-container', uiConfig);
+
+	            if (this.props.location.pathname != '') {
+	                this.setState({ loggedInCls: "login-fadeout" });
+	            }
 	        }
 	    }, {
 	        key: 'componentWillReceiveProps',
@@ -29478,7 +29466,7 @@
 
 	                _firebase2.default.saveUserData(user.photoURL, user.displayName);
 	            } else {
-	                this.setState({ loggedInCls: '' });
+
 	                this.setState({ signOutOnlyStyle: { display: 'block' } });
 
 	                console.log('logged out');
@@ -29596,10 +29584,13 @@
 	};
 
 	// file upload events 
-	var upload = exports.upload = function upload(post_data) {
+	var upload = exports.upload = function upload(file, image) {
 	    return {
 	        type: 'UPLOAD',
-	        payload: post_data
+	        payload: {
+	            file: file,
+	            image: image
+	        }
 	    };
 	};
 
@@ -29616,6 +29607,12 @@
 	    return {
 	        type: 'UPLOAD_ERROR',
 	        payload: data
+	    };
+	};
+
+	var clearUploadError = exports.clearUploadError = function clearUploadError() {
+	    return {
+	        type: 'CLEAR_UPLOAD_ERROR'
 	    };
 	};
 
@@ -29728,11 +29725,16 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
+
 	            return _react2.default.createElement(
 	                'div',
 	                null,
 	                _react2.default.createElement(_header2.default, { uid: this.props.user.uid, displayName: this.props.user.displayName, photoUrl: this.props.user.photoUrl }),
-	                this.props.children,
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'content-container' },
+	                    this.props.children
+	                ),
 	                _react2.default.createElement(_toast2.default, null)
 	            );
 	        }
@@ -29816,7 +29818,8 @@
 	            tabClasses: {
 	                home: 'is-active',
 	                feed: ''
-	            }
+	            },
+	            activeTab: 1
 	        };
 
 	        _this.signOutHandler = _this.signOutHandler.bind(_this);
@@ -29831,15 +29834,27 @@
 	            // Set style depending on whether the user is logged in 
 	            if (nextProps.user.uid !== '' && nextProps.user.photoUrl != '') {
 
-	                this.setState({ signedOutOnlyStyle: {
+	                this.setState({
+	                    signedOutOnlyStyle: {
 	                        display: 'none'
-	                    } });
-	                this.setState({ signedInOnlyStyle: {
+	                    }
+	                });
+	                this.setState({
+	                    signedInOnlyStyle: {
 	                        display: 'block'
-	                    } });
-	                this.setState({ avatarStyle: {
+	                    }
+	                });
+	                this.setState({
+	                    avatarStyle: {
 	                        backgroundImage: 'url(' + nextProps.user.photoUrl + ')'
-	                    } });
+	                    }
+	                });
+	            }
+
+	            if (nextProps.params.uid != this.props.params.uid && nextProps.params.uid && this.props.params.uid) {
+
+	                console.log(nextProps.params.uid);
+	                window.location.reload();
 	            }
 	        }
 
@@ -29864,11 +29879,22 @@
 	    }, {
 	        key: 'handleUpload',
 	        value: function handleUpload(e) {
+
 	            if (e.target.files.length > 0) {
+
 	                var file = e.target.files[0];
-	                this.props.uploadImage(file);
-	                e.target.value = null;
-	                this.props.router.push('/add'); // go to upload page 
+	                if (file.type.match('image.*')) {
+	                    var reader = new FileReader();
+	                    reader.readAsDataURL(file);
+
+	                    var self = this;
+	                    reader.onload = function (e) {
+
+	                        self.props.uploadImage(file, e.target.result);
+	                        e.target.value = null;
+	                        self.props.router.push('/add'); // go to upload page 
+	                    };
+	                }
 	            }
 	        }
 
@@ -29881,15 +29907,18 @@
 	        value: function signOutHandler() {
 
 	            firebase.auth().signOut();
-	            window.location.href = '/';
 
 	            this.props.signOut();
-	            this.setState({ signedOutOnlyStyle: {
+	            this.setState({
+	                signedOutOnlyStyle: {
 	                    display: 'block'
-	                } });
-	            this.setState({ signedInOnlyStyle: {
+	                }
+	            });
+	            this.setState({
+	                signedInOnlyStyle: {
 	                    display: 'none'
-	                } });
+	                }
+	            });
 	        }
 	    }, {
 	        key: 'render',
@@ -30148,32 +30177,38 @@
 	        key: 'componentWillReceiveProps',
 	        value: function componentWillReceiveProps(newProps) {
 
+	            // user load error 
+	            if (newProps.userLoadError) {
+
+	                if ('message' in newProps.userLoadError) {
+	                    document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.userLoadError);
+	                    this.props.clearUserError();
+	                }
+	            }
+
 	            if ("successData" in newProps.upload) {
 
 	                // show snackbar if the image was uploaded successfully 
 	                if (typeof this.props.successData == 'undefined' || newProps.upload.successData.postid != this.props.successData.postid) {
-	                    document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.upload.successData);
-	                    //this.props.clearSuccessData()
+	                    if ('message' in newProps.upload.successData) {
+	                        document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.upload.successData);
+	                    }
 	                }
 	            } else if ("errorData" in newProps.upload) {
 
-	                // show snackbar error message 
+	                // show snackbar error message  
 	                if (typeof newProps.errorData == 'undefined' || newProps.upload.errorData.index != this.props.upload.errorData.index) {
-	                    document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.upload.errorData);
+	                    if ('message' in newProps.upload.errorData) {
+	                        document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.upload.errorData);
+	                        this.props.clearUploadError();
+	                    }
 	                }
 	            }
 
+	            // error deleting post 
 	            if (newProps.deleteData) {
-
-	                document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.deleteData);
+	                if ('message' in newProps.deleteData) document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.deleteData);
 	                this.props.errorHandled();
-	            }
-
-	            if (newProps.userLoadError) {
-
-	                console.log(newProps);
-	                document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.userLoadError);
-	                this.props.clearUserError();
 	            }
 	        }
 	    }, {
@@ -30202,12 +30237,13 @@
 	function matchDispatchToProps(dispatch) {
 	    return (0, _redux.bindActionCreators)({
 	        errorHandled: appActions.errorHandled,
-	        clearUserError: appActions.clearUserError
+	        clearUserError: appActions.clearUserError,
+	        clearUploadError: appActions.clearUploadError
 
 	    }, dispatch);
 	}
 
-	exports.default = (0, _reactRedux.connect)(mapStateToProps)(Toast);
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, matchDispatchToProps)(Toast);
 
 /***/ },
 /* 273 */
@@ -30240,7 +30276,7 @@
 	    // settings 
 	    this.COMMENTS_PAGE_SIZE = 3;
 	    this.POSTS_PAGE_SIZE = 6;
-	    this.USER_PAGE_POSTS_PAGE_SIZE = 9;
+	    this.USER_PAGE_POSTS_PAGE_SIZE = 6;
 	  }
 
 	  /**
@@ -30765,7 +30801,7 @@
 	        // Add followed user to the 'following' list.
 	        updateData['/people/' + _this6.auth.currentUser.uid + '/following/' + followedUserId] = follow ? lastPostId : null;
 
-	        // Add signed-in suer to the list of followers.
+	        // Add signed-in user to the list of followers.
 	        updateData['/followers/' + followedUserId + '/' + _this6.auth.currentUser.uid] = follow ? !!follow : null;
 	        return _this6.database.ref().update(updateData);
 	      });
@@ -31072,10 +31108,8 @@
 
 	                var self = this;
 
-	                console.log(nextProps);
-	                var image_promise = nextProps.file.image.then(function (result) {
-
-	                    self.setState({ src: result });
+	                self.setState({
+	                    src: nextProps.src
 	                });
 	            }
 
@@ -31290,7 +31324,7 @@
 	                                'hourglass_full'
 	                            )
 	                        ),
-	                        _react2.default.createElement('img', { id: 'newPictureContainer', src: this.state.src }),
+	                        _react2.default.createElement('img', { id: 'newPictureContainer', src: this.props.src }),
 	                        _react2.default.createElement(
 	                            'div',
 	                            { className: 'mdl-card__supporting-text mdl-color-text--grey-600' },
@@ -31329,6 +31363,7 @@
 	function mapStateToProps(state) {
 	    return {
 	        file: state.upload,
+	        src: state.upload.image,
 	        uid: state.auth.user.uid,
 	        upload: state.upload
 	    };
@@ -31345,6 +31380,549 @@
 
 /***/ },
 /* 275 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRouter = __webpack_require__(172);
+
+	var _theatre = __webpack_require__(276);
+
+	var _theatre2 = _interopRequireDefault(_theatre);
+
+	var _single_post = __webpack_require__(277);
+
+	var _single_post2 = _interopRequireDefault(_single_post);
+
+	var _firebase = __webpack_require__(273);
+
+	var _firebase2 = _interopRequireDefault(_firebase);
+
+	var _utils = __webpack_require__(278);
+
+	var _utils2 = _interopRequireDefault(_utils);
+
+	var _reactRedux = __webpack_require__(248);
+
+	var _redux = __webpack_require__(227);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Feed = function (_React$Component) {
+	  _inherits(Feed, _React$Component);
+
+	  function Feed(props) {
+	    _classCallCheck(this, Feed);
+
+	    // List of all posts on the page.
+	    var _this = _possibleConstructorReturn(this, (Feed.__proto__ || Object.getPrototypeOf(Feed)).call(this, props));
+
+	    _this.posts = [];
+	    // Map of posts that can be displayed.
+	    _this.newPosts = {};
+
+	    // Firebase SDK.
+	    _this.auth = firebase.auth();
+
+	    _this.state = {
+	      posts: [],
+	      noPostsStyle: {
+	        display: 'block'
+	      },
+	      nextPageBtnDisabled: true,
+	      nextPageBtnStyle: {
+	        display: 'none'
+	      },
+	      nbNewPosts: 0
+	    };
+
+	    _this.addPosts = _this.addPosts.bind(_this);
+	    _this.toggleNextPageButton = _this.toggleNextPageButton.bind(_this);
+	    _this.showNewPosts = _this.showNewPosts.bind(_this);
+
+	    _this.showGeneralFeed = _this.showGeneralFeed.bind(_this);
+	    _this.showHomeFeed = _this.showHomeFeed.bind(_this);
+
+	    _this.onPostDeleted = _this.onPostDeleted.bind(_this);
+	    _this.addNewPost = _this.addNewPost.bind(_this);
+	    return _this;
+	  }
+
+	  _createClass(Feed, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+
+	      var self = this;
+	      this.auth.onAuthStateChanged(function (user) {
+	        self.showGeneralFeed();
+	      });
+	    }
+
+	    // ----------------------------------------------
+
+	    /**
+	     * Appends the given list of `posts`.
+	     */
+
+	  }, {
+	    key: 'addPosts',
+	    value: function addPosts(posts) {
+	      // Displays the list of posts
+
+	      var posts_arr = [];
+	      var postIds = Object.keys(posts);
+	      for (var i = postIds.length - 1; i >= 0; i--) {
+
+	        this.setState({
+	          noPostsStyle: {
+	            display: 'none'
+	          }
+	        });
+
+	        var postData = posts[postIds[i]];
+
+	        var post = _react2.default.createElement(_single_post2.default, { postId: postIds[i], key: postIds[i], hideDeleteBtn: true });
+
+	        posts_arr.push(post);
+
+	        // const postElement = post.fillPostData(postIds[i], postData.thumb_url || postData.url,
+	        //     postData.text, postData.author, postData.timestamp, null, null, postData.full_url); 
+
+	        // If a post with similar ID is already in the feed we replace it instead of appending.
+	        // const existingPostElement = $(`.fp-post-${postIds[i]}`, this.feedImageContainer);
+	        // if (existingPostElement.length) {
+	        //   existingPostElement.replaceWith(postElement);
+	        // } else {
+	        //   this.feedImageContainer.append(postElement.addClass(`fp-post-${postIds[i]}`));
+	        // }
+
+	      }
+
+	      console.log(posts_arr);
+	      this.setState({
+	        posts: posts_arr
+	      });
+	    }
+
+	    /**
+	     * Shows the "load next page" button and binds it the `nextPage` callback. If `nextPage` is `null`
+	     * then the button is hidden.
+	     */
+
+	  }, {
+	    key: 'toggleNextPageButton',
+	    value: function toggleNextPageButton(nextPage) {
+
+	      var self = this;
+	      if (nextPage) {
+	        var loadMorePosts = function loadMorePosts() {
+
+	          self.nextPageButton.prop('disabled', true);
+	          console.log('Loading next page of posts.');
+	          nextPage().then(function (data) {
+	            self.addPosts(data.entries);
+	            self.toggleNextPageButton(data.nextPage);
+	          });
+	        };
+	        self.setState({
+	          nextPageBtnStyle: {
+	            display: 'block'
+	          },
+	          nextPageBtnDisabled: false
+	        });
+
+	        // Enable infinite Scroll.
+	        _utils2.default.onEndScroll(100).then(loadMorePosts);
+
+	        document.getElementById('more-posts').onclick = loadMorePosts;
+	      } else {
+
+	        self.setState({
+	          nextPageBtnStyle: {
+	            display: 'none'
+	          }
+	        });
+	      }
+	    }
+
+	    /**
+	     * Prepends the list of new posts stored in `this.newPosts`. This happens when the user clicks on
+	     * the "Show new posts" button.
+	     */
+
+	  }, {
+	    key: 'showNewPosts',
+	    value: function showNewPosts() {
+	      var newPosts = this.newPosts;
+	      this.newPosts = {};
+	      this.newPostsButton.hide();
+	      var postKeys = Object.keys(newPosts);
+
+	      for (var i = 0; i < postKeys.length; i++) {
+	        this.noPostsMessage.hide();
+	        var post = newPosts[postKeys[i]];
+	        var postElement = new friendlyPix.Post();
+	        this.posts.push(postElement);
+	        this.feedImageContainer.prepend(postElement.fillPostData(postKeys[i], post.thumb_url || post.url, post.text, post.author, post.timestamp, null, null, post.full_url));
+	      }
+	    }
+
+	    /**
+	     * Displays the general posts feed.
+	     */
+
+	  }, {
+	    key: 'showGeneralFeed',
+	    value: function showGeneralFeed() {
+	      var _this2 = this;
+
+	      var self = this;
+	      // Load initial batch of posts.
+	      _firebase2.default.getPosts().then(function (data) {
+	        // Listen for new posts.
+	        var latestPostId = Object.keys(data.entries)[Object.keys(data.entries).length - 1];
+	        _firebase2.default.subscribeToGeneralFeed(function (postId, postValue) {
+	          return _this2.addNewPost(postId, postValue);
+	        }, latestPostId);
+
+	        // Adds fetched posts and next page button if necessary.
+	        self.addPosts(data.entries);
+	        self.toggleNextPageButton(data.nextPage);
+	      });
+
+	      // Listen for posts deletions.
+	      _firebase2.default.registerForPostsDeletion(function (postId) {
+	        return _this2.onPostDeleted(postId);
+	      });
+	    }
+
+	    /**
+	     * Shows the feed showing all followed users.
+	     */
+
+	  }, {
+	    key: 'showHomeFeed',
+	    value: function showHomeFeed() {
+	      var _this3 = this;
+
+	      var self = this;
+
+	      if (this.auth.currentUser) {
+	        // Make sure the home feed is updated with followed users's new posts.
+	        _firebase2.default.updateHomeFeeds().then(function () {
+	          // Load initial batch of posts.
+	          _firebase2.default.getHomeFeedPosts().then(function (data) {
+	            var postIds = Object.keys(data.entries);
+	            if (postIds.length === 0) {
+	              self.setState({
+	                noPostsStyle: {
+	                  display: 'block'
+	                }
+	              });
+	            }
+	            // Listen for new posts.
+	            var latestPostId = postIds[postIds.length - 1];
+	            _firebase2.default.subscribeToHomeFeed(function (postId, postValue) {
+	              _this3.addNewPost(postId, postValue);
+	            }, latestPostId);
+
+	            // Adds fetched posts and next page button if necessary.
+	            _this3.addPosts(data.entries);
+	            _this3.toggleNextPageButton(data.nextPage);
+	          });
+
+	          // Add new posts from followers live.
+	          _firebase2.default.startHomeFeedLiveUpdaters();
+
+	          // Listen for posts deletions.
+	          _firebase2.default.registerForPostsDeletion(function (postId) {
+	            return _this3.onPostDeleted(postId);
+	          });
+	        });
+	      }
+	    }
+
+	    /**
+	     * Triggered when a post has been deleted.
+	     */
+
+	  }, {
+	    key: 'onPostDeleted',
+	    value: function onPostDeleted(postId) {
+	      // Potentially remove post from in-memory new post list.
+	      if (this.newPosts[postId]) {
+
+	        delete this.newPosts[postId];
+	        var nbNewPosts = Object.keys(this.newPosts).length;
+	        this.newPostsButton.text('Display ' + nbNewPosts + ' new posts');
+	        if (nbNewPosts === 0) {
+	          this.newPostsButton.hide();
+	        }
+	      }
+	    }
+
+	    /**
+	     * Adds a new post to display in the queue.
+	     */
+
+	  }, {
+	    key: 'addNewPost',
+	    value: function addNewPost(postId, postValue) {
+	      this.newPosts[postId] = postValue;
+	      this.newPostsButton.text('Display ' + Object.keys(this.newPosts).length + ' new posts');
+	      this.newPostsButton.show();
+	    }
+
+	    // ---------------------------------------------
+
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(_theatre2.default, null),
+	        _react2.default.createElement(
+	          'section',
+	          { id: 'page-feed', className: 'mdl-grid fp-content' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'fp-new-posts-button' },
+	            _react2.default.createElement(
+	              'button',
+	              { className: 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--amber-400' },
+	              'Show new posts...'
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'fp-image-container mdl-cell mdl-cell--12-col mdl-grid' },
+	            this.state.posts.map(function (post) {
+	              return post;
+	            }),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'fp-no-posts fp-help mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--8-col-desktop mdl-grid mdl-grid--no-spacing', style: this.state.noPostsStyle },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'mdl-card__supporting-text mdl-color-text--grey-600' },
+	                _react2.default.createElement(
+	                  'i',
+	                  { className: 'fp-info material-icons' },
+	                  'help'
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  null,
+	                  _react2.default.createElement(
+	                    'p',
+	                    null,
+	                    'Start following people to see their posts!'
+	                  ),
+	                  _react2.default.createElement(
+	                    'p',
+	                    null,
+	                    'Use the ',
+	                    _react2.default.createElement(
+	                      'strong',
+	                      null,
+	                      _react2.default.createElement(
+	                        'i',
+	                        { className: 'material-icons' },
+	                        'search'
+	                      ),
+	                      ' search bar'
+	                    ),
+	                    ' to find people you know and have a look at the ',
+	                    _react2.default.createElement(
+	                      _reactRouter.Link,
+	                      { to: '/feed' },
+	                      _react2.default.createElement(
+	                        'span',
+	                        null,
+	                        _react2.default.createElement(
+	                          'i',
+	                          { className: 'material-icons' },
+	                          'trending_up'
+	                        ),
+	                        ' feed'
+	                      )
+	                    ),
+	                    ' to discover interesting people.'
+	                  ),
+	                  _react2.default.createElement(
+	                    'p',
+	                    null,
+	                    'Then ',
+	                    _react2.default.createElement(
+	                      'i',
+	                      { className: 'material-icons' },
+	                      'favorite'
+	                    ),
+	                    ' like and comment their posts!'
+	                  )
+	                )
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'fp-next-page-button', id: 'more-posts', style: this.state.nextPageBtnStyle, disabled: this.state.nextPageBtnDisabled },
+	            _react2.default.createElement(
+	              'button',
+	              { className: 'mdl-button mdl-js-button mdl-button--raised mdl-button--fab' },
+	              _react2.default.createElement(
+	                'i',
+	                { className: 'material-icons' },
+	                'expand_more'
+	              )
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Feed;
+	}(_react2.default.Component);
+
+	exports.default = Feed;
+
+/***/ },
+/* 276 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(248);
+
+	var _redux = __webpack_require__(227);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Theatre = function (_React$Component) {
+	    _inherits(Theatre, _React$Component);
+
+	    function Theatre(props) {
+	        _classCallCheck(this, Theatre);
+
+	        var _this = _possibleConstructorReturn(this, (Theatre.__proto__ || Object.getPrototypeOf(Theatre)).call(this, props));
+
+	        _this.state = {
+	            viewModeChanged: 0
+	        };
+	        return _this;
+	    }
+
+	    _createClass(Theatre, [{
+	        key: 'componentWillReceiveProps',
+	        value: function componentWillReceiveProps(newProps) {
+	            if (newProps.picUrl != '' && newProps.index != this.props.index) {
+	                this.enterTheatreMode(this);
+	            }
+	        }
+
+	        // Leave theatre mode 
+
+	    }, {
+	        key: 'leaveTheatreMode',
+	        value: function leaveTheatreMode(self) {
+
+	            document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-show');
+	            document.querySelector('.fp-theatre-fullpic').classList.add('theatre-hide');
+	            document.removeEventListener('keydown', self.escHandler);
+	        }
+	    }, {
+	        key: 'escHandler',
+	        value: function escHandler(e) {
+
+	            if (e.which === 27) {
+	                document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-show');
+	                document.querySelector('.fp-theatre-fullpic').classList.add('theatre-hide');
+	            }
+	        }
+
+	        // Enter theatre mode 
+
+	    }, {
+	        key: 'enterTheatreMode',
+	        value: function enterTheatreMode(self) {
+
+	            var timestamp = function timestamp() {
+	                return new Date.getTime();
+	            };
+
+	            if (timestamp - self.state.viewModeChanged < 300) return;
+
+	            document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-hide');
+	            document.querySelector('.fp-theatre-fullpic').classList.add('theatre-show');
+	            self.setState({
+	                viewModeChanged: timestamp
+	            });
+
+	            document.addEventListener('keydown', self.escHandler);
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this2 = this;
+
+	            return _react2.default.createElement(
+	                'div',
+	                { className: 'fp-theatre fp-theatre-fullpic theatre-hide', onClick: function onClick() {
+	                        _this2.leaveTheatreMode(_this2);
+	                    } },
+	                _react2.default.createElement('img', { className: 'fp-fullpic', src: this.props.picUrl })
+	            );
+	        }
+	    }]);
+
+	    return Theatre;
+	}(_react2.default.Component);
+
+	function mapStateToProps(state) {
+	    return {
+	        picUrl: state.feed.picUrl,
+	        index: state.feed.index
+	    };
+	}
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps)(Theatre);
+
+/***/ },
+/* 277 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31484,7 +32062,9 @@
 	    _createClass(SinglePost, [{
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            this.loadPost(this.props.params.postid);
+
+	            var postId = this.props.params.postid || this.props.postId;
+	            this.loadPost(postId);
 	        }
 
 	        /**
@@ -31496,22 +32076,23 @@
 	        value: function loadPost(postId) {
 	            var _this2 = this;
 
+	            var self = this;
 	            // Load the posts information.
 	            _firebase2.default.getPostData(postId).then(function (snapshot) {
 	                var post = snapshot.val();
 
-	                // Clear listeners and previous post data.
-	                _this2.clear();
 	                if (!post) {
 	                    var data = {
 	                        message: 'This post does not exists.',
 	                        timeout: 5000
 	                    };
-	                    _this2.toast[0].MaterialSnackbar.showSnackbar(data);
+
+	                    self.props.deleteError(data);
+	                    // this.toast[0].MaterialSnackbar.showSnackbar(data);
 	                    if (_this2.auth.currentUser) {
-	                        page('/user/' + _this2.auth.currentUser.uid);
+	                        self.props.router.push('/user/' + _this2.auth.currentUser.uid);
 	                    } else {
-	                        page('/feed');
+	                        self.props.router.push('/feed');
 	                    }
 	                } else {
 
@@ -31825,7 +32406,7 @@
 	        value: function _setupDeleteButton(postId, author, picStorageUri, thumbStorageUri) {
 	            var post = document.getElementById('post');
 
-	            if (this.auth.currentUser && this.auth.currentUser.uid === author.uid && picStorageUri) {
+	            if (this.auth.currentUser && this.auth.currentUser.uid === author.uid && picStorageUri && this.props.params.postId) {
 	                this.setState({
 	                    deleteBtnStyle: {
 	                        display: 'block'
@@ -31865,7 +32446,8 @@
 	                    deleteBtnDisabled: true
 	                });
 
-	                _firebase2.default.deletePost(_this6.props.params.postid, _this6.state.post.full_storage_uri, _this6.state.post.thumb_storage_uri).then(function () {
+	                var pid = self.props.params.postid || _this6.props.postId;
+	                _firebase2.default.deletePost(pid, _this6.state.post.full_storage_uri, _this6.state.post.thumb_storage_uri).then(function () {
 	                    swal({
 	                        title: 'Deleted!',
 	                        text: 'Your post has been deleted.',
@@ -31966,7 +32548,8 @@
 	        key: '_changeLikeStatus',
 	        value: function _changeLikeStatus(willBeLiked) {
 
-	            _firebase2.default.updateLike(this.props.params.postid, willBeLiked);
+	            var postId = this.props.params.postid || this.props.postId;
+	            _firebase2.default.updateLike(postId, willBeLiked);
 
 	            if (willBeLiked) {
 
@@ -32060,123 +32643,111 @@
 
 	            return _react2.default.createElement(
 	                'div',
-	                null,
+	                { className: 'fp-post mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--8-col-desktop mdl-grid mdl-grid--no-spacing' },
 	                _react2.default.createElement(_theatre2.default, { picUrl: this.state.post.full_url }),
 	                _react2.default.createElement(
-	                    'section',
-	                    { id: 'page-post', className: 'mdl-grid fp-content' },
+	                    'div',
+	                    { className: 'mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop' },
 	                    _react2.default.createElement(
 	                        'div',
-	                        { className: 'fp-image-container mdl-cell mdl-cell--12-col mdl-grid' },
+	                        { className: 'fp-header' },
 	                        _react2.default.createElement(
-	                            'div',
-	                            { id: 'post', className: 'fp-post mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--8-col-desktop mdl-grid mdl-grid--no-spacing' },
+	                            _reactRouter.Link,
+	                            { to: "/user/" + this.state.post.author.uid },
+	                            _react2.default.createElement(
+	                                'span',
+	                                { className: 'fp-usernamelink mdl-button mdl-js-button' },
+	                                _react2.default.createElement('div', { className: 'fp-avatar', style: this.state.avatarStyle }),
+	                                _react2.default.createElement(
+	                                    'div',
+	                                    { className: 'fp-username mdl-color-text--black' },
+	                                    this.state.post.author.full_name
+	                                )
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            'button',
+	                            { className: 'fp-delete-post mdl-button mdl-js-button', disabled: this.state.deleteBtnDisabled, onClick: function onClick() {
+	                                    _this7.deletePostHandler(_this7);
+	                                }, style: this.state.deleteBtnStyle },
+	                            'Delete'
+	                        ),
+	                        _react2.default.createElement(
+	                            _reactRouter.Link,
+	                            { to: "/post/" + this.props.params.postid || this.props.postId },
+	                            _react2.default.createElement(
+	                                'span',
+	                                { className: 'fp-time' },
+	                                this.state.textTime
+	                            )
+	                        )
+	                    ),
+	                    _react2.default.createElement('div', { className: 'fp-image', onClick: function onClick() {
+	                            _this7.enterTheatreMode(_this7);
+	                        }, style: this.state.thumbStyle }),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'fp-likes', style: this.state.likePanelStyle },
+	                        this.state.likesCount,
+	                        ' like',
+	                        this.state.likesCount == 1 ? "" : "s"
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'fp-first-comment' },
+	                        this.state.firstComment
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'fp-morecomments', style: this.state.nextPageBtnStyle, disabled: this.nextPageBtnDisabled, onClick: function onClick() {
+	                                _this7.showMoreComments(_this7);
+	                            } },
+	                        'View more comments...'
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'fp-comments' },
+	                        this.state.comments.map(function (comment) {
+
+	                            return comment;
+	                        })
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'fp-action', style: this.state.commentsFormStyle },
+	                        _react2.default.createElement(
+	                            'span',
+	                            { className: 'fp-like' },
 	                            _react2.default.createElement(
 	                                'div',
-	                                { className: 'mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop' },
+	                                { className: 'fp-not-liked material-icons', onClick: function onClick() {
+	                                        _this7._changeLikeStatus(true);
+	                                    }, style: this.state.notLikedStyle },
+	                                'favorite_border'
+	                            ),
+	                            _react2.default.createElement(
+	                                'div',
+	                                { className: 'fp-liked material-icons', onClick: function onClick() {
+	                                        _this7._changeLikeStatus(false);
+	                                    }, style: this.state.likedStyle },
+	                                'favorite'
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            'form',
+	                            { className: 'fp-add-comment', action: '#', onSubmit: function onSubmit(e) {
+	                                    _this7.submitCommentHandler(e, _this7);
+	                                } },
+	                            _react2.default.createElement(
+	                                'div',
+	                                { className: 'mdl-textfield mdl-js-textfield' },
+	                                _react2.default.createElement('input', { className: 'mdl-textfield__input', id: this.state.commentId, type: 'text', value: this.state.newCommentText, onChange: function onChange(e) {
+	                                        _this7.commentTextChangeHandler(e, _this7);
+	                                    } }),
 	                                _react2.default.createElement(
-	                                    'div',
-	                                    { className: 'fp-header' },
-	                                    _react2.default.createElement(
-	                                        _reactRouter.Link,
-	                                        { to: "/user/" + this.state.post.author.uid },
-	                                        _react2.default.createElement(
-	                                            'span',
-	                                            { className: 'fp-usernamelink mdl-button mdl-js-button' },
-	                                            _react2.default.createElement('div', { className: 'fp-avatar', style: this.state.avatarStyle }),
-	                                            _react2.default.createElement(
-	                                                'div',
-	                                                { className: 'fp-username mdl-color-text--black' },
-	                                                this.state.post.author.full_name
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'button',
-	                                        { className: 'fp-delete-post mdl-button mdl-js-button', disabled: this.state.deleteBtnDisabled, onClick: function onClick() {
-	                                                _this7.deletePostHandler(_this7);
-	                                            }, style: this.state.deleteBtnStyle },
-	                                        'Delete'
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        _reactRouter.Link,
-	                                        { to: "/post/" + this.props.params.postid },
-	                                        _react2.default.createElement(
-	                                            'span',
-	                                            { className: 'fp-time' },
-	                                            this.state.textTime
-	                                        )
-	                                    )
-	                                ),
-	                                _react2.default.createElement('div', { className: 'fp-image', onClick: function onClick() {
-	                                        _this7.enterTheatreMode(_this7);
-	                                    }, style: this.state.thumbStyle }),
-	                                _react2.default.createElement(
-	                                    'div',
-	                                    { className: 'fp-likes', style: this.state.likePanelStyle },
-	                                    this.state.likesCount,
-	                                    ' like',
-	                                    this.state.likesCount == 1 ? "" : "s"
-	                                ),
-	                                _react2.default.createElement(
-	                                    'div',
-	                                    { className: 'fp-first-comment' },
-	                                    this.state.firstComment
-	                                ),
-	                                _react2.default.createElement(
-	                                    'div',
-	                                    { className: 'fp-morecomments', style: this.state.nextPageBtnStyle, disabled: this.nextPageBtnDisabled, onClick: function onClick() {
-	                                            _this7.showMoreComments(_this7);
-	                                        } },
-	                                    'View more comments...'
-	                                ),
-	                                _react2.default.createElement(
-	                                    'div',
-	                                    { className: 'fp-comments' },
-	                                    this.state.comments.map(function (comment) {
-
-	                                        return comment;
-	                                    })
-	                                ),
-	                                _react2.default.createElement(
-	                                    'div',
-	                                    { className: 'fp-action', style: this.state.commentsFormStyle },
-	                                    _react2.default.createElement(
-	                                        'span',
-	                                        { className: 'fp-like' },
-	                                        _react2.default.createElement(
-	                                            'div',
-	                                            { className: 'fp-not-liked material-icons', onClick: function onClick() {
-	                                                    _this7._changeLikeStatus(true);
-	                                                }, style: this.state.notLikedStyle },
-	                                            'favorite_border'
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            'div',
-	                                            { className: 'fp-liked material-icons', onClick: function onClick() {
-	                                                    _this7._changeLikeStatus(false);
-	                                                }, style: this.state.likedStyle },
-	                                            'favorite'
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'form',
-	                                        { className: 'fp-add-comment', action: '#', onSubmit: function onSubmit(e) {
-	                                                _this7.submitCommentHandler(e, _this7);
-	                                            } },
-	                                        _react2.default.createElement(
-	                                            'div',
-	                                            { className: 'mdl-textfield mdl-js-textfield' },
-	                                            _react2.default.createElement('input', { className: 'mdl-textfield__input', id: this.state.commentId, type: 'text', value: this.state.newCommentText, onChange: function onChange(e) {
-	                                                    _this7.commentTextChangeHandler(e, _this7);
-	                                                } }),
-	                                            _react2.default.createElement(
-	                                                'label',
-	                                                { className: 'mdl-textfield__label', htmlFor: this.state.commentId },
-	                                                'Comment...'
-	                                            )
-	                                        )
-	                                    )
+	                                    'label',
+	                                    { className: 'mdl-textfield__label', htmlFor: this.state.commentId },
+	                                    'Comment...'
 	                                )
 	                            )
 	                        )
@@ -32199,515 +32770,8 @@
 	exports.default = (0, _reactRouter.withRouter)((0, _reactRedux.connect)(null, matchDispatchToProps)(SinglePost));
 
 /***/ },
-/* 276 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(248);
-
-	var _redux = __webpack_require__(227);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Theatre = function (_React$Component) {
-	    _inherits(Theatre, _React$Component);
-
-	    function Theatre(props) {
-	        _classCallCheck(this, Theatre);
-
-	        var _this = _possibleConstructorReturn(this, (Theatre.__proto__ || Object.getPrototypeOf(Theatre)).call(this, props));
-
-	        _this.state = {
-	            viewModeChanged: 0
-	        };
-	        return _this;
-	    }
-
-	    _createClass(Theatre, [{
-	        key: 'componentWillReceiveProps',
-	        value: function componentWillReceiveProps(newProps) {
-	            if (newProps.picUrl != '' && newProps.index != this.props.index) {
-	                this.enterTheatreMode(this);
-	            }
-	        }
-
-	        // Leave theatre mode 
-
-	    }, {
-	        key: 'leaveTheatreMode',
-	        value: function leaveTheatreMode(self) {
-
-	            document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-show');
-	            document.querySelector('.fp-theatre-fullpic').classList.add('theatre-hide');
-	            document.removeEventListener('keydown', self.escHandler);
-	        }
-	    }, {
-	        key: 'escHandler',
-	        value: function escHandler(e) {
-
-	            if (e.which === 27) {
-	                document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-show');
-	                document.querySelector('.fp-theatre-fullpic').classList.add('theatre-hide');
-	            }
-	        }
-
-	        // Enter theatre mode 
-
-	    }, {
-	        key: 'enterTheatreMode',
-	        value: function enterTheatreMode(self) {
-
-	            var timestamp = function timestamp() {
-	                return new Date.getTime();
-	            };
-
-	            if (timestamp - self.state.viewModeChanged < 300) return;
-
-	            document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-hide');
-	            document.querySelector('.fp-theatre-fullpic').classList.add('theatre-show');
-	            self.setState({
-	                viewModeChanged: timestamp
-	            });
-
-	            document.addEventListener('keydown', self.escHandler);
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            var _this2 = this;
-
-	            return _react2.default.createElement(
-	                'div',
-	                { className: 'fp-theatre fp-theatre-fullpic theatre-hide', onClick: function onClick() {
-	                        _this2.leaveTheatreMode(_this2);
-	                    } },
-	                _react2.default.createElement('img', { className: 'fp-fullpic', src: this.props.picUrl })
-	            );
-	        }
-	    }]);
-
-	    return Theatre;
-	}(_react2.default.Component);
-
-	function mapStateToProps(state) {
-	    return {
-	        picUrl: state.feed.picUrl,
-	        index: state.feed.index
-	    };
-	}
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps)(Theatre);
-
-/***/ },
-/* 277 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRouter = __webpack_require__(172);
-
-	var _theatre = __webpack_require__(276);
-
-	var _theatre2 = _interopRequireDefault(_theatre);
-
-	var _firebase = __webpack_require__(273);
-
-	var _firebase2 = _interopRequireDefault(_firebase);
-
-	var _reactRedux = __webpack_require__(248);
-
-	var _redux = __webpack_require__(227);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Feed = function (_React$Component) {
-	    _inherits(Feed, _React$Component);
-
-	    function Feed(props) {
-	        _classCallCheck(this, Feed);
-
-	        // List of all posts on the page.
-	        var _this = _possibleConstructorReturn(this, (Feed.__proto__ || Object.getPrototypeOf(Feed)).call(this, props));
-
-	        _this.posts = [];
-	        // Map of posts that can be displayed.
-	        _this.newPosts = {};
-
-	        // Firebase SDK.
-	        _this.auth = firebase.auth();
-	        return _this;
-	    }
-
-	    _createClass(Feed, [{
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {}
-
-	        // ----------------------------------------------
-
-	        /**
-	         * Appends the given list of `posts`.
-	         */
-
-	    }, {
-	        key: 'addPosts',
-	        value: function addPosts(posts) {
-	            // Displays the list of posts
-	            var postIds = Object.keys(posts);
-	            for (var i = postIds.length - 1; i >= 0; i--) {
-	                this.noPostsMessage.hide();
-	                var postData = posts[postIds[i]];
-	                var post = new friendlyPix.Post();
-	                this.posts.push(post);
-	                var postElement = post.fillPostData(postIds[i], postData.thumb_url || postData.url, postData.text, postData.author, postData.timestamp, null, null, postData.full_url);
-	                // If a post with similar ID is already in the feed we replace it instead of appending.
-	                var existingPostElement = $('.fp-post-' + postIds[i], this.feedImageContainer);
-	                if (existingPostElement.length) {
-	                    existingPostElement.replaceWith(postElement);
-	                } else {
-	                    this.feedImageContainer.append(postElement.addClass('fp-post-' + postIds[i]));
-	                }
-	            }
-	        }
-
-	        /**
-	         * Shows the "load next page" button and binds it the `nextPage` callback. If `nextPage` is `null`
-	         * then the button is hidden.
-	         */
-
-	    }, {
-	        key: 'toggleNextPageButton',
-	        value: function toggleNextPageButton(nextPage) {
-	            var _this2 = this;
-
-	            this.nextPageButton.unbind('click');
-	            if (nextPage) {
-	                var loadMorePosts = function loadMorePosts() {
-	                    _this2.nextPageButton.prop('disabled', true);
-	                    console.log('Loading next page of posts.');
-	                    nextPage().then(function (data) {
-	                        _this2.addPosts(data.entries);
-	                        _this2.toggleNextPageButton(data.nextPage);
-	                    });
-	                };
-	                this.nextPageButton.show();
-	                // Enable infinite Scroll.
-	                friendlyPix.MaterialUtils.onEndScroll(100).then(loadMorePosts);
-	                this.nextPageButton.prop('disabled', false);
-	                this.nextPageButton.click(loadMorePosts);
-	            } else {
-	                this.nextPageButton.hide();
-	            }
-	        }
-
-	        /**
-	         * Prepends the list of new posts stored in `this.newPosts`. This happens when the user clicks on
-	         * the "Show new posts" button.
-	         */
-
-	    }, {
-	        key: 'showNewPosts',
-	        value: function showNewPosts() {
-	            var newPosts = this.newPosts;
-	            this.newPosts = {};
-	            this.newPostsButton.hide();
-	            var postKeys = Object.keys(newPosts);
-
-	            for (var i = 0; i < postKeys.length; i++) {
-	                this.noPostsMessage.hide();
-	                var post = newPosts[postKeys[i]];
-	                var postElement = new friendlyPix.Post();
-	                this.posts.push(postElement);
-	                this.feedImageContainer.prepend(postElement.fillPostData(postKeys[i], post.thumb_url || post.url, post.text, post.author, post.timestamp, null, null, post.full_url));
-	            }
-	        }
-
-	        /**
-	         * Displays the general posts feed.
-	         */
-
-	    }, {
-	        key: 'showGeneralFeed',
-	        value: function showGeneralFeed() {
-	            var _this3 = this;
-
-	            // Clear previously displayed posts if any.
-	            this.clear();
-
-	            // Load initial batch of posts.
-	            friendlyPix.firebase.getPosts().then(function (data) {
-	                // Listen for new posts.
-	                var latestPostId = Object.keys(data.entries)[Object.keys(data.entries).length - 1];
-	                friendlyPix.firebase.subscribeToGeneralFeed(function (postId, postValue) {
-	                    return _this3.addNewPost(postId, postValue);
-	                }, latestPostId);
-
-	                // Adds fetched posts and next page button if necessary.
-	                _this3.addPosts(data.entries);
-	                _this3.toggleNextPageButton(data.nextPage);
-	            });
-
-	            // Listen for posts deletions.
-	            friendlyPix.firebase.registerForPostsDeletion(function (postId) {
-	                return _this3.onPostDeleted(postId);
-	            });
-	        }
-
-	        /**
-	         * Shows the feed showing all followed users.
-	         */
-
-	    }, {
-	        key: 'showHomeFeed',
-	        value: function showHomeFeed() {
-	            var _this4 = this;
-
-	            // Clear previously displayed posts if any.
-	            this.clear();
-
-	            if (this.auth.currentUser) {
-	                // Make sure the home feed is updated with followed users's new posts.
-	                friendlyPix.firebase.updateHomeFeeds().then(function () {
-	                    // Load initial batch of posts.
-	                    friendlyPix.firebase.getHomeFeedPosts().then(function (data) {
-	                        var postIds = Object.keys(data.entries);
-	                        if (postIds.length === 0) {
-	                            _this4.noPostsMessage.fadeIn();
-	                        }
-	                        // Listen for new posts.
-	                        var latestPostId = postIds[postIds.length - 1];
-	                        friendlyPix.firebase.subscribeToHomeFeed(function (postId, postValue) {
-	                            _this4.addNewPost(postId, postValue);
-	                        }, latestPostId);
-
-	                        // Adds fetched posts and next page button if necessary.
-	                        _this4.addPosts(data.entries);
-	                        _this4.toggleNextPageButton(data.nextPage);
-	                    });
-
-	                    // Add new posts from followers live.
-	                    friendlyPix.firebase.startHomeFeedLiveUpdaters();
-
-	                    // Listen for posts deletions.
-	                    friendlyPix.firebase.registerForPostsDeletion(function (postId) {
-	                        return _this4.onPostDeleted(postId);
-	                    });
-	                });
-	            }
-	        }
-
-	        /**
-	         * Triggered when a post has been deleted.
-	         */
-
-	    }, {
-	        key: 'onPostDeleted',
-	        value: function onPostDeleted(postId) {
-	            // Potentially remove post from in-memory new post list.
-	            if (this.newPosts[postId]) {
-	                delete this.newPosts[postId];
-	                var nbNewPosts = Object.keys(this.newPosts).length;
-	                this.newPostsButton.text('Display ' + nbNewPosts + ' new posts');
-	                if (nbNewPosts === 0) {
-	                    this.newPostsButton.hide();
-	                }
-	            }
-
-	            // Potentially delete from the UI.
-	            $('.fp-post-' + postId, this.pageFeed).remove();
-	        }
-
-	        /**
-	         * Adds a new post to display in the queue.
-	         */
-
-	    }, {
-	        key: 'addNewPost',
-	        value: function addNewPost(postId, postValue) {
-	            this.newPosts[postId] = postValue;
-	            this.newPostsButton.text('Display ' + Object.keys(this.newPosts).length + ' new posts');
-	            this.newPostsButton.show();
-	        }
-
-	        /**
-	         * Clears the UI.
-	         */
-
-	    }, {
-	        key: 'clear',
-	        value: function clear() {
-	            // Delete the existing posts if any.
-	            $('.fp-post', this.feedImageContainer).remove();
-
-	            // Hides the "next page" and "new posts" buttons.
-	            this.nextPageButton.hide();
-	            this.newPostsButton.hide();
-
-	            // Remove any click listener on the next page button.
-	            this.nextPageButton.unbind('click');
-
-	            // Stops then infinite scrolling listeners.
-	            friendlyPix.MaterialUtils.stopOnEndScrolls();
-
-	            // Clears the list of upcoming posts to display.
-	            this.newPosts = {};
-
-	            // Displays the help message for empty feeds.
-	            this.noPostsMessage.hide();
-
-	            // Remove Firebase listeners.
-	            friendlyPix.firebase.cancelAllSubscriptions();
-
-	            // Stops all timers if any.
-	            this.posts.forEach(function (post) {
-	                return post.clear();
-	            });
-	            this.posts = [];
-	        }
-
-	        // ---------------------------------------------
-
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            return _react2.default.createElement(
-	                'div',
-	                null,
-	                _react2.default.createElement(_theatre2.default, null),
-	                _react2.default.createElement(
-	                    'section',
-	                    { id: 'page-feed', className: 'mdl-grid fp-content' },
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'fp-new-posts-button' },
-	                        _react2.default.createElement(
-	                            'button',
-	                            { className: 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--amber-400' },
-	                            'Show new posts...'
-	                        )
-	                    ),
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'fp-image-container mdl-cell mdl-cell--12-col mdl-grid' },
-	                        _react2.default.createElement(
-	                            'div',
-	                            { className: 'fp-no-posts fp-help mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--8-col-desktop mdl-grid mdl-grid--no-spacing' },
-	                            _react2.default.createElement(
-	                                'div',
-	                                { className: 'mdl-card__supporting-text mdl-color-text--grey-600' },
-	                                _react2.default.createElement(
-	                                    'i',
-	                                    { className: 'fp-info material-icons' },
-	                                    'help'
-	                                ),
-	                                _react2.default.createElement(
-	                                    'div',
-	                                    null,
-	                                    _react2.default.createElement(
-	                                        'p',
-	                                        null,
-	                                        'Start following people to see their posts!'
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'p',
-	                                        null,
-	                                        'Use the ',
-	                                        _react2.default.createElement(
-	                                            'strong',
-	                                            null,
-	                                            _react2.default.createElement(
-	                                                'i',
-	                                                { className: 'material-icons' },
-	                                                'search'
-	                                            ),
-	                                            ' search bar'
-	                                        ),
-	                                        ' to find people you know and have a look at the ',
-	                                        _react2.default.createElement(
-	                                            'a',
-	                                            { href: '/feed' },
-	                                            _react2.default.createElement(
-	                                                'i',
-	                                                { className: 'material-icons' },
-	                                                'trending_up'
-	                                            ),
-	                                            ' feed'
-	                                        ),
-	                                        ' to discover interesting people.'
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'p',
-	                                        null,
-	                                        'Then ',
-	                                        _react2.default.createElement(
-	                                            'i',
-	                                            { className: 'material-icons' },
-	                                            'favorite'
-	                                        ),
-	                                        ' like and comment their posts!'
-	                                    )
-	                                )
-	                            )
-	                        )
-	                    ),
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'fp-next-page-button' },
-	                        _react2.default.createElement(
-	                            'button',
-	                            { className: 'mdl-button mdl-js-button mdl-button--raised mdl-button--fab' },
-	                            _react2.default.createElement(
-	                                'i',
-	                                { className: 'material-icons' },
-	                                'expand_more'
-	                            )
-	                        )
-	                    )
-	                )
-	            );
-	        }
-	    }]);
-
-	    return Feed;
-	}(_react2.default.Component);
-
-	exports.default = Feed;
-
-/***/ },
 /* 278 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	'use strict';
 
@@ -32717,46 +32781,63 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _theatre = __webpack_require__(276);
-
-	var _theatre2 = _interopRequireDefault(_theatre);
-
-	var _reactRedux = __webpack_require__(248);
-
-	var _redux = __webpack_require__(227);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Home = function (_React$Component) {
-	    _inherits(Home, _React$Component);
-
-	    function Home() {
-	        _classCallCheck(this, Home);
-
-	        return _possibleConstructorReturn(this, (Home.__proto__ || Object.getPrototypeOf(Home)).apply(this, arguments));
+	var Utils = function () {
+	    function Utils() {
+	        _classCallCheck(this, Utils);
 	    }
 
-	    _createClass(Home, [{
-	        key: 'render',
-	        value: function render() {
-	            return _react2.default.createElement('div', null);
+	    /**
+	    * Refreshes the UI state of the given Material Design Checkbox / Switch element.
+	    */
+
+
+	    _createClass(Utils, [{
+	        key: 'refreshSwitchState',
+	        value: function refreshSwitchState(element) {
+
+	            if (element.MaterialSwitch) {
+	                element.MaterialSwitch.checkDisabled();
+	                element.MaterialSwitch.checkToggleState();
+	            }
+	        }
+
+	        /**
+	         * Returns a Promise which resolves when the user has reached the bottom of the page while
+	         * scrolling.
+	         * If an `offset` is specified the promise will resolve before reaching the bottom of
+	         * the page by the given amount offset in pixels.
+	         */
+
+	    }, {
+	        key: 'onEndScroll',
+	        value: function onEndScroll() {
+	            var offset = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+
+	            var promise = new Promise(function (resolve, reject) {
+	                var mdlLayoutElement = document.querySelector('.content-container');
+	                mdlLayoutElement.onscroll = function () {
+	                    if (window.innerHeight + mdlLayoutElement.scrollTop + offset >= mdlLayoutElement.scrollHeight) {
+	                        console.log('Scroll End Reached!');
+	                        // mdlLayoutElement.unbind('scroll');
+	                        resolve();
+	                    }
+	                };
+	            }).then(function () {
+
+	                console.log('Now watching for Scroll End.');
+	            });
+
+	            return promise;
 	        }
 	    }]);
 
-	    return Home;
-	}(_react2.default.Component);
+	    return Utils;
+	}();
 
-	exports.default = Home;
+	exports.default = new Utils();
 
 /***/ },
 /* 279 */
@@ -32779,6 +32860,10 @@
 	var _firebase = __webpack_require__(273);
 
 	var _firebase2 = _interopRequireDefault(_firebase);
+
+	var _utils = __webpack_require__(278);
+
+	var _utils2 = _interopRequireDefault(_utils);
 
 	var _reactRedux = __webpack_require__(248);
 
@@ -32814,9 +32899,6 @@
 	            userAvatarStyle: {
 	                backgroundImage: 'url()'
 	            },
-	            followingContainerStyle: {
-	                display: 'none'
-	            },
 	            noPostsStyle: {
 	                display: 'block'
 	            },
@@ -32824,17 +32906,31 @@
 	                display: 'none'
 	            },
 	            followContainerStyle: {
+	                display: 'block'
+	            },
+	            notificationContainerStyle: {
+	                display: 'block'
+	            },
+	            closeFollowingBtnStyle: {
+	                display: 'none'
+	            },
+	            followingContainerStyle: {
 	                display: 'none'
 	            },
 	            nextPageBtnDisabled: false,
 	            followingContainerClass: '',
-	            nbLikes: 0,
-	            nbComments: 0,
 	            nbFollowing: 0,
 	            nbFollowers: 0,
 	            nbPosts: 0,
 
+	            followCheckboxChecked: true,
+	            followCheckboxDisabled: false,
+	            followLabelText: 'Following',
+	            followVal: false,
+
 	            posts: [],
+	            likes: [],
+	            comments: [],
 	            profiles: [],
 
 	            nextPage: {}
@@ -32847,15 +32943,80 @@
 
 	        _this.loadUser = _this.loadUser.bind(_this);
 	        _this.createImageCard = _this.createImageCard.bind(_this);
+	        _this.createProfileCardJsx = _this.createProfileCardJsx.bind(_this);
 	        _this.addPosts = _this.addPosts.bind(_this);
 	        _this.toggleNextPageButton = _this.toggleNextPageButton.bind(_this);
+
+	        _this.trackFollowStatus = _this.trackFollowStatus.bind(_this);
+	        _this.onFollowChange = _this.onFollowChange.bind(_this);
+
+	        var self = _this;
+
+	        // this.auth.onAuthStateChanged(() => this.trackFollowStatus); 
 	        return _this;
 	    }
 
 	    _createClass(UserProfile, [{
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            this.loadUser(this.props.params.uid);
+	            var _this2 = this;
+
+	            var self = this;
+	            this.auth.onAuthStateChanged(function (user) {
+
+	                _this2.trackFollowStatus();
+	                _this2.loadUser(self.props.params.uid);
+
+	                if (!user) {
+	                    self.setState({
+	                        followContainerStyle: {
+	                            display: 'none'
+	                        }
+	                    });
+	                }
+	            });
+	        }
+
+	        /**
+	         * Triggered when the user changes the "Follow" checkbox.
+	         */
+
+	    }, {
+	        key: 'onFollowChange',
+	        value: function onFollowChange(e, self) {
+
+	            if (e.target.checked) {
+	                var label = 'Following';
+	            } else {
+	                var label = 'Follow';
+	            }
+	            self.setState({
+	                followCheckboxChecked: e.target.checked,
+	                followLabelText: label
+	            });
+
+	            console.log(this.state.followCheckboxChecked);
+
+	            _firebase2.default.toggleFollowUser(this.props.params.uid, this.state.followCheckboxChecked);
+	        }
+
+	        /**
+	         * Starts tracking the "Follow" checkbox status.
+	         */
+
+	    }, {
+	        key: 'trackFollowStatus',
+	        value: function trackFollowStatus() {
+	            if (this.auth.currentUser) {
+
+	                var self = this;
+
+	                _firebase2.default.registerToFollowStatusUpdate(this.auth.currentUser.uid, function (data) {
+	                    if (data.val() !== null) {
+	                        //Utils.refreshSwitchState(document.querySelector('.fp-name-follow-container'))
+	                    }
+	                });
+	            }
 	        }
 
 	        /**
@@ -32874,12 +33035,14 @@
 	                posts_array.push(self.createImageCard(postIds[i], posts[postIds[i]].thumb_url || posts[postIds[i]].url, posts[postIds[i]].text));
 	            }
 
+	            var more_posts = self.state.posts.slice();
+	            more_posts = more_posts.concat(posts_array);
+
 	            self.setState({
 	                noPostsStyle: {
-	                    display: 'none',
-	                    posts: posts_array
+	                    display: 'none'
 	                },
-	                posts: posts_array
+	                posts: more_posts
 	            });
 	        }
 
@@ -32892,20 +33055,21 @@
 	        key: 'toggleNextPageButton',
 	        value: function toggleNextPageButton(nextPage) {
 
-	            console.log('btn function');
 	            if (nextPage) {
 
 	                this.setState({
 	                    nextPage: nextPage,
 	                    nextPageButtonStyle: {
 	                        display: 'block'
-	                    }
+	                    },
+	                    nextPageBtnDisabled: false
 	                });
 	            } else {
 	                this.setState({
 	                    nextPageButtonStyle: {
 	                        display: 'none'
-	                    }
+	                    },
+	                    nextPageBtnDisabled: false
 	                });
 	            }
 	        }
@@ -32935,37 +33099,47 @@
 	        key: 'loadUser',
 	        value: function loadUser(userId) {
 
-	            console.log(userId);
-	            console.log(this.props.uid);
 	            // If users is the currently signed-in user we hide the "Follow" checkbox and the opposite for
 	            // the "Notifications" checkbox.
-	            if (userId == this.props.uid) {
+	            if (this.auth.currentUser && userId == this.auth.currentUser.uid) {
 	                // this.followContainer.hide();
-	                this.setStyle({
+	                this.setState({
 	                    followContainerStyle: {
 	                        display: 'none'
+	                    },
+	                    notificationContainerStyle: {
+	                        display: 'block'
 	                    }
+
 	                });
 
 	                // Messaging options!!! Do later
 	                // friendlyPix.messaging.enableNotificationsContainer.show();
 	                // friendlyPix.messaging.enableNotificationsCheckbox.prop('disabled', true);
-	                // friendlyPix.MaterialUtils.refreshSwitchState(friendlyPix.messaging.enableNotificationsContainer);
+	                // Utils.refreshSwitchState(document.querySelector('.fp-name-follow-container'))
 	                // friendlyPix.messaging.trackNotificationsEnabledStatus();
 	            } else {
 
-	                    //friendlyPix.messaging.enableNotificationsContainer.hide(); 
+	                this.setState({
+	                    followContainerStyle: {
+	                        display: 'block'
+	                    },
+	                    notificationContainerStyle: {
+	                        display: 'none'
+	                    }
+	                });
+	                //friendlyPix.messaging.enableNotificationsContainer.hide(); 
 
-	                    //  this.followContainer.show();
-	                    //  this.followCheckbox.prop('disabled', true); 
+	                //  this.followContainer.show();
+	                //  this.followCheckbox.prop('disabled', true); 
 
-	                    // see utils switch 
-	                    // friendlyPix.MaterialUtils.refreshSwitchState(this.followContainer);
-	                    // Start live tracking the state of the "Follow" Checkbox.
+	                // see utils switch 
 
-	                    // follow status
-	                    //this.trackFollowStatus();
-	                }
+	                // Start live tracking the state of the "Follow" Checkbox.
+
+	                // follow status
+	                this.trackFollowStatus();
+	            }
 
 	            var self = this;
 
@@ -32990,7 +33164,7 @@
 	                    });
 	                } else {
 	                    var data = {
-	                        message: 'This user does not exists.',
+	                        message: 'This user does not exist.',
 	                        timeout: 5000
 	                    };
 
@@ -32999,22 +33173,22 @@
 	                }
 	            });
 
-	            // Lod user's number of followers.
+	            // Load user's number of followers.
 	            _firebase2.default.registerForFollowersCount(userId, function (nbFollowers) {
 	                self.setState({
 	                    nbFollowers: nbFollowers
 	                });
 	            });
 
-	            // Lod user's number of followed users.
-	            _firebase2.default.registerForFollowingCount(userId, function (nbFollowed) {
+	            // Load user's number of followed users.
+	            _firebase2.default.registerForFollowingCount(this.auth.currentUser.uid, function (nbFollowed) {
 
 	                self.setState({
-	                    nbFollowed: nbFollowed
+	                    nbFollowing: nbFollowed
 	                });
 	            });
 
-	            // Lod user's number of posts.
+	            // Load user's number of posts.
 	            _firebase2.default.registerForPostsCount(userId, function (nbPosts) {
 	                self.setState({
 	                    nbPosts: nbPosts
@@ -33053,8 +33227,11 @@
 	            _firebase2.default.registerForPostsDeletion(function (postId) {
 
 	                var posts = self.state.posts.slice();
+
+	                console.log('post stuff');
 	                var filtered = posts.filter(function (el) {
-	                    if (el.id == postId) {
+
+	                    if (el.key == postId) {
 	                        return false;
 	                    } else {
 	                        return true;
@@ -33064,10 +33241,6 @@
 	                self.setState({
 	                    posts: filtered
 	                });
-
-	                console.log(posts);
-
-	                //$(`.fp-post-${postId}`, this.userPage).remove();
 	            });
 	        }
 
@@ -33077,14 +33250,13 @@
 
 	    }, {
 	        key: 'displayFollowing',
-	        value: function displayFollowing() {
+	        value: function displayFollowing(self) {
 
-	            var self = this;
-	            _firebase2.default.getFollowingProfiles(this.userId).then(function (profiles) {
+	            _firebase2.default.getFollowingProfiles(this.props.params.uid).then(function (profiles) {
 
-	                self.setState({
-	                    nbFollowing: 0
-	                });
+	                //   self.setState({
+	                //       nbFollowing: 0
+	                //   })
 
 	                var profiles_arr = [];
 
@@ -33095,26 +33267,51 @@
 	                if (Object.keys(profiles).length > 0) {
 
 	                    self.setState({
+
+	                        followingContainerClass: 'is-active',
+	                        profiles: profiles_arr,
 	                        followingContainerStyle: {
 	                            display: 'block'
 	                        },
-	                        followingContainerClass: 'is-active',
-	                        profiles: profiles_arr
+	                        closeFollowingBtnStyle: {
+	                            display: 'block'
+	                        }
 
 	                    });
+	                }
+
+	                console.log(profiles_arr);
+	            });
+	        }
+
+	        /**
+	         * Hides the list of followed people
+	         */
+
+	    }, {
+	        key: 'closeFollowing',
+	        value: function closeFollowing(self) {
+	            self.setState({
+	                followingContainerClass: '',
+	                followingContainerStyle: {
+	                    display: 'none'
 	                }
 	            });
 	        }
 
 	        /**
-	         * Handles post links in the context of react-router 
+	         * Handles links in dynamically created jsx components 
 	         */
 
 	    }, {
 	        key: 'hrefHandler',
-	        value: function hrefHandler(self, postId) {
+	        value: function hrefHandler(self, id, prefix) {
 
-	            self.props.router.push('/post/' + postId);
+	            self.props.router.push('/' + prefix + '/' + id);
+
+	            if (prefix == 'user') {
+	                window.location.reload();
+	            }
 	        }
 
 	        /**
@@ -33124,7 +33321,7 @@
 	    }, {
 	        key: 'createImageCard',
 	        value: function createImageCard(postId, thumbUrl, text) {
-	            var _this2 = this;
+	            var _this3 = this;
 
 	            var self = this;
 	            var thumbStyle = {
@@ -33134,8 +33331,8 @@
 	            var element = _react2.default.createElement(
 	                'a',
 	                { onClick: function onClick(e) {
-	                        _this2.hrefHandler(self, postId);
-	                    }, key: Math.random() * 100000, className: "fp-post-" + postId + " fp-image mdl-cell mdl-cell--12-col mdl-cell--4-col-tablet mdl-cell--4-col-desktop mdl-grid mdl-grid--no-spacing" },
+	                        _this3.hrefHandler(self, postId, 'post');
+	                    }, key: postId, className: "fp-post-" + postId + " fp-image mdl-cell mdl-cell--12-col mdl-cell--4-col-tablet mdl-cell--4-col-desktop mdl-grid mdl-grid--no-spacing" },
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'fp-overlay' },
@@ -33146,8 +33343,8 @@
 	                    ),
 	                    _react2.default.createElement(
 	                        'span',
-	                        { className: 'likes' },
-	                        self.state.nbLikes
+	                        { className: "likes " + "likes" + postId },
+	                        '0'
 	                    ),
 	                    _react2.default.createElement(
 	                        'i',
@@ -33156,8 +33353,8 @@
 	                    ),
 	                    _react2.default.createElement(
 	                        'span',
-	                        { className: 'comments' },
-	                        self.state.nbComments
+	                        { className: "comments " + "comments" + postId },
+	                        '0'
 	                    ),
 	                    _react2.default.createElement(
 	                        'div',
@@ -33167,18 +33364,6 @@
 	                ),
 	                _react2.default.createElement('div', { className: 'mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop', style: thumbStyle })
 	            );
-
-	            // Start listening for comments and likes counts.
-	            _firebase2.default.registerForLikesCount(postId, function (nbLikes) {
-	                self.setState({
-	                    nbLikes: nbLikes
-	                });
-	            });
-	            _firebase2.default.registerForCommentsCount(postId, function (nbComments) {
-	                self.setState({
-	                    nbComments: nbComments
-	                });
-	            });
 
 	            return element;
 	        }
@@ -33190,33 +33375,32 @@
 	    }, {
 	        key: 'createProfileCardJsx',
 	        value: function createProfileCardJsx(uid) {
+	            var _this4 = this;
+
 	            var profilePic = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '/images/silhouette.jpg';
 	            var fullName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'Anonymous';
 
 
-	            avatarStyle = {
+	            var avatarStyle = {
 	                backgroundImage: 'url(\'' + profilePic + '\''
 	            };
 	            return _react2.default.createElement(
-	                _reactRouter.Link,
-	                { to: "/user/" + uid },
-	                ' ',
+	                'a',
+	                { onClick: function onClick() {
+	                        _this4.hrefHandler(_this4, uid, 'user');
+	                    }, key: uid, className: 'fp-usernamelink mdl-button mdl-js-button' },
+	                _react2.default.createElement('div', { className: 'fp-avatar', style: avatarStyle }),
 	                _react2.default.createElement(
-	                    'span',
-	                    { className: 'fp-usernamelink mdl-button mdl-js-button' },
-	                    _react2.default.createElement('div', { className: 'fp-avatar' }),
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'fp-username mdl-color-text--black' },
-	                        fullName
-	                    )
+	                    'div',
+	                    { className: 'fp-username mdl-color-text--black' },
+	                    fullName
 	                )
 	            );
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this3 = this;
+	            var _this5 = this;
 
 	            return _react2.default.createElement(
 	                'section',
@@ -33239,16 +33423,18 @@
 	                            _react2.default.createElement(
 	                                'label',
 	                                { className: 'fp-follow mdl-switch mdl-js-switch mdl-js-ripple-effect', style: this.state.followContainerStyle, htmlFor: 'follow' },
-	                                _react2.default.createElement('input', { type: 'checkbox', id: 'follow', className: 'mdl-switch__input', value: 'true' }),
+	                                _react2.default.createElement('input', { type: 'checkbox', id: 'follow', className: 'mdl-switch__input', checked: this.state.followCheckboxChecked, disabled: this.state.followCheckboxDisabled, onChange: function onChange(e) {
+	                                        _this5.onFollowChange(e, _this5);
+	                                    } }),
 	                                _react2.default.createElement(
 	                                    'span',
 	                                    { className: 'mdl-switch__label' },
-	                                    'Follow'
+	                                    this.state.followLabelText
 	                                )
 	                            ),
 	                            _react2.default.createElement(
 	                                'label',
-	                                { className: 'fp-notifications mdl-switch mdl-js-switch mdl-js-ripple-effect', htmlFor: 'notifications' },
+	                                { className: 'fp-notifications mdl-switch mdl-js-switch mdl-js-ripple-effect', htmlFor: 'notifications', style: this.state.notificationContainerStyle },
 	                                _react2.default.createElement('input', { type: 'checkbox', id: 'notifications', className: 'mdl-switch__input', value: 'true' }),
 	                                _react2.default.createElement(
 	                                    'span',
@@ -33282,10 +33468,9 @@
 	                            ),
 	                            _react2.default.createElement(
 	                                'div',
-	                                { className: "fp-user-detail fp-user-nbfollowing-container " + this.state.followingContainerClass, style: this.state.followingContainerStyle },
-	                                this.state.profiles.map(function (profile) {
-	                                    return profile;
-	                                }),
+	                                { className: "fp-user-detail fp-user-nbfollowing-container " + this.state.followingContainerClass, onClick: function onClick() {
+	                                        _this5.displayFollowing(_this5);
+	                                    } },
 	                                _react2.default.createElement(
 	                                    'span',
 	                                    { className: 'fp-user-nbfollowing' },
@@ -33298,10 +33483,15 @@
 	                ),
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'fp-user-following mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col' },
+	                    { className: 'fp-user-following mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col', style: this.state.followingContainerStyle },
+	                    this.state.profiles.map(function (profile) {
+	                        return profile;
+	                    }),
 	                    _react2.default.createElement(
 	                        'button',
-	                        { className: 'fp-close-following  mdl-button mdl-js-button mdl-button--raised mdl-button--fab' },
+	                        { className: 'fp-close-following  mdl-button mdl-js-button mdl-button--raised mdl-button--fab', style: this.state.closeFollowingBtnStyle, onClick: function onClick() {
+	                                _this5.closeFollowing(_this5);
+	                            } },
 	                        _react2.default.createElement(
 	                            'i',
 	                            { className: 'material-icons' },
@@ -33313,6 +33503,23 @@
 	                    'div',
 	                    { className: 'fp-image-container mdl-cell mdl-cell--12-col mdl-grid' },
 	                    this.state.posts.map(function (post) {
+
+	                        var postId = post.key;
+
+	                        try {
+	                            //Start listening for comments and likes counts.
+	                            _firebase2.default.registerForLikesCount(postId, function (nbLikes) {
+
+	                                document.querySelector('.likes' + postId).innerHTML = nbLikes;
+	                            });
+	                            _firebase2.default.registerForCommentsCount(postId, function (nbComments) {
+
+	                                document.querySelector('.comments' + postId).innerHTML = nbComments;
+	                            });
+	                        } catch (e) {
+	                            console.log('error loading user posts');
+	                        }
+
 	                        return post;
 	                    }),
 	                    _react2.default.createElement(
@@ -33328,7 +33535,7 @@
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'fp-next-page-button', style: this.state.nextPageButtonStyle, onClick: function onClick(e) {
-	                            _this3.showNextPage(e, self);
+	                            _this5.showNextPage(e, _this5);
 	                        } },
 	                    _react2.default.createElement(
 	                        'button',
@@ -33556,6 +33763,67 @@
 	}(_react2.default.Component);
 
 	exports.default = About;
+
+/***/ },
+/* 281 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _single_post = __webpack_require__(277);
+
+	var _single_post2 = _interopRequireDefault(_single_post);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var PostWrap = function (_React$Component) {
+	    _inherits(PostWrap, _React$Component);
+
+	    function PostWrap(props) {
+	        _classCallCheck(this, PostWrap);
+
+	        return _possibleConstructorReturn(this, (PostWrap.__proto__ || Object.getPrototypeOf(PostWrap)).call(this, props));
+	    }
+
+	    _createClass(PostWrap, [{
+	        key: 'render',
+	        value: function render() {
+	            return _react2.default.createElement(
+	                'div',
+	                null,
+	                _react2.default.createElement(
+	                    'section',
+	                    { id: 'page-post', className: 'mdl-grid fp-content' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'fp-image-container mdl-cell mdl-cell--12-col mdl-grid' },
+	                        _react2.default.createElement(_single_post2.default, { postId: this.props.params.postId })
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+
+	    return PostWrap;
+	}(_react2.default.Component);
+
+	exports.default = PostWrap;
 
 /***/ }
 /******/ ]);

@@ -15,38 +15,14 @@ import store from '../store'
             // upload event 
             case "UPLOAD": { 
 
-                // read image data 
-                var img_reader = new Promise(function(resolve, reject) {
-
-                    var file = action.payload; 
-                    
-                    if (file.type.match('image.*')) {
-                    var reader = new FileReader(); 
-                    var image; 
-                    reader.readAsDataURL(file); 
-                        reader.onload = (e) => {
-                            
-                            image = e.target.result;
-                            resolve(image) 
-
-                        }  
-                     }
-
-                })
-                
-                var img = img_reader.then(function(image) { 
-
-                    return image; 
-
-                }) 
 
                 var new_index = Math.random() * 100000; 
                 
 
                 var newState = {
-                    filename: action.payload.filename, 
+                    filename: action.payload.file.filename, 
                     index: new_index,  
-                    image: img, 
+                    image: action.payload.image, 
                     newUpload: true  
                 } 
 
@@ -81,6 +57,14 @@ import store from '../store'
                 var newState = Object.assign({}, state, {
                     errorData: errorData
                 }) 
+
+                return newState; 
+            }
+            // clear upload error 
+            case 'CLEAR_UPLOAD_ERROR': {
+
+                var newState = Object.assign({},state); 
+                newState.errorData = null; 
 
                 return newState; 
             }

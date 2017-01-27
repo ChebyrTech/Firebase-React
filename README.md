@@ -19,4 +19,4 @@ routing.js ==> src/main.jsx
 search.js ==> not yet implemented
 uploader.js ==> src/containers/new_post.jsx
 userpage.js ==> src/containers/user.jsx
-utils.js ==> yet not implemented  
+utils.js ==> src/utils.js

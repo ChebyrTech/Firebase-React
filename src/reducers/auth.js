@@ -29,7 +29,8 @@ const authReducer = (state = {
                 user: {
                         uid: "", 
                         photoUrl: "", 
-                        displayName: "" 
+                        displayName: "", 
+                        signOut: true 
                     } 
             }
         
