@@ -14,8 +14,8 @@ function accept(req, res) {
 }
 
 if (!module.parent) {
-    http.createServer(accept).listen(3000); 
-	console.log('listening on port 3000'); 
+    http.createServer(accept).listen(9000); 
+	console.log('listening on port 9000'); 
 } else {
     exports.accept = accept;
 }

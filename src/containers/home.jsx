@@ -53,6 +53,8 @@ class Home extends React.Component {
 
         this.onPostDeleted = this.onPostDeleted.bind(this); 
         this.addNewPost = this.addNewPost.bind(this); 
+
+        this.handleHomeFeed = this.handleHomeFeed.bind(this); 
     } 
 
 
@@ -64,10 +66,7 @@ class Home extends React.Component {
 
       this.auth.onAuthStateChanged((user) => {
 
-
           self.showHomeFeed();
-    
-
 
       }) 
 
@@ -78,11 +77,40 @@ class Home extends React.Component {
         componentHandler.upgradeDom();
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillUnmount() {
+      // clear firebase callbacks to avoid memory leaks 
 
+      function clear() {
+        return; 
+      }
+
+      this.addPosts = clear; 
+      this.addNewPost = clear; 
+      this.onPostDeleted = clear; 
+      this.handleHomeFeed = clear; 
     }
 
-    // ----------------------------------------------
+    // Callback for HomeFeed firebase handler
+    handleHomeFeed(data) {
+          const postIds = Object.keys(data.entries);
+          if (postIds.length === 0) {
+              this.setState({
+                  noPostsStyle: {
+                    display: 'block'
+                  }
+              })
+          }
+          // Listen for new posts.
+          const latestPostId = postIds[postIds.length - 1];
+          FirebaseHandler.subscribeToHomeFeed(
+              (postId, postValue) => {
+                this.addNewPost(postId, postValue);
+              }, latestPostId);
+
+          // Adds fetched posts and next page button if necessary.
+          this.addPosts(data.entries);
+          this.toggleNextPageButton(data.nextPage);
+    }
 
   /**
    * Appends the given list of `posts`.
@@ -227,24 +255,7 @@ class Home extends React.Component {
       FirebaseHandler.updateHomeFeeds().then(() => {
         // Load initial batch of posts.
         FirebaseHandler.getHomeFeedPosts().then(data => {
-          const postIds = Object.keys(data.entries);
-          if (postIds.length === 0) {
-              self.setState({
-                  noPostsStyle: {
-                    display: 'block'
-                  }
-              })
-          }
-          // Listen for new posts.
-          const latestPostId = postIds[postIds.length - 1];
-          FirebaseHandler.subscribeToHomeFeed(
-              (postId, postValue) => {
-                this.addNewPost(postId, postValue);
-              }, latestPostId);
-
-          // Adds fetched posts and next page button if necessary.
-          this.addPosts(data.entries);
-          this.toggleNextPageButton(data.nextPage);
+            self.handleHomeFeed(data)
         });
 
         // Add new posts from followers live.

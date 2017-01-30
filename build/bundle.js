@@ -88,15 +88,15 @@
 
 	var _user2 = _interopRequireDefault(_user);
 
-	var _home = __webpack_require__(280);
+	var _home = __webpack_require__(281);
 
 	var _home2 = _interopRequireDefault(_home);
 
-	var _about = __webpack_require__(281);
+	var _about = __webpack_require__(282);
 
 	var _about2 = _interopRequireDefault(_about);
 
-	var _post_wrapper = __webpack_require__(282);
+	var _post_wrapper = __webpack_require__(283);
 
 	var _post_wrapper2 = _interopRequireDefault(_post_wrapper);
 
@@ -29367,6 +29367,22 @@
 	                };
 	                return newState;
 	            }
+	        case 'NOTIFICATION':
+	            {
+	                var newState = {
+	                    errorData: null,
+	                    notificationData: action.payload
+	                };
+
+	                return newState;
+	            }
+	        case 'CLEAR_NOTIFICATION':
+	            {
+	                var newState = {
+	                    errorData: null,
+	                    notificationData: null
+	                };
+	            }
 	    }
 
 	    return state;
@@ -29669,6 +29685,20 @@
 	    };
 	};
 
+	// show notification 
+	var showNotification = exports.showNotification = function showNotification(data) {
+	    return {
+	        type: 'NOTIFICATION',
+	        payload: data
+	    };
+	};
+
+	var clearNotification = exports.clearNotification = function clearNotification() {
+	    return {
+	        type: 'CLEAR_NOTIFICATION'
+	    };
+	};
+
 /***/ },
 /* 270 */
 /***/ function(module, exports, __webpack_require__) {
@@ -29839,12 +29869,39 @@
 	            activeTab: 1
 	        };
 
+	        _this.auth = firebase.auth();
 	        _this.signOutHandler = _this.signOutHandler.bind(_this);
 	        _this.handleUpload = _this.handleUpload.bind(_this);
+
 	        return _this;
 	    }
 
+	    // upgrade the DOM for correct rendering of Material Design Lite components 
+
+
 	    _createClass(Header, [{
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+
+	            var self = this;
+	            componentHandler.upgradeDom();
+	        }
+	    }, {
+	        key: 'componentDidUpdate',
+	        value: function componentDidUpdate() {
+	            componentHandler.upgradeDom();
+	            //  FirebaseHandler.cancelAllSubscriptions(); 
+	        }
+	    }, {
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {
+
+	            function clear() {
+	                return;
+	            }
+	            // this.handleAuthChange = clear; 
+	        }
+	    }, {
 	        key: 'componentWillReceiveProps',
 	        value: function componentWillReceiveProps(nextProps) {
 
@@ -29873,21 +29930,19 @@
 	                console.log(nextProps.params.uid);
 	                window.location.reload();
 	            }
-	        }
 
-	        // upgrade the DOM for correct rendering of Material Design Lite components 
-
-	    }, {
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-
-	            componentHandler.upgradeDom();
-	        }
-	    }, {
-	        key: 'componentDidUpdate',
-	        value: function componentDidUpdate() {
-	            componentHandler.upgradeDom();
-	            //  FirebaseHandler.cancelAllSubscriptions(); 
+	            if (nextProps.user.uid == '' && this.props.user.uid != '') {
+	                this.setState({
+	                    signedOutOnlyStyle: {
+	                        display: 'block'
+	                    }
+	                });
+	                this.setState({
+	                    signedInOnlyStyle: {
+	                        display: 'none'
+	                    }
+	                });
+	            }
 	        }
 
 	        /**
@@ -30072,10 +30127,10 @@
 	                        { className: 'fp-tab mdl-layout__header-row mdl-cell--hide-phone mdl-color--light-blue-600' },
 	                        _react2.default.createElement(
 	                            'div',
-	                            { className: 'mdl-tab' },
+	                            { className: 'mdl-tab mdl-layout__tab-bar mdl-js-ripple-effect' },
 	                            _react2.default.createElement(
 	                                'a',
-	                                { href: '#/', id: 'fp-menu-home', className: 'mdl-layout__tab fp-signed-in-only is-active mdl-button mdl-js-button mdl-js-ripple-effect', style: this.state.signedInOnlyStyle },
+	                                { href: '#/', className: 'mdl-layout__tab is-active mdl-js-button mdl-button' },
 	                                ' ',
 	                                _react2.default.createElement(
 	                                    'i',
@@ -30086,23 +30141,13 @@
 	                            ),
 	                            _react2.default.createElement(
 	                                'a',
-	                                { href: '#/feed', id: 'fp-menu-feed', className: 'mdl-layout__tab mdl-button mdl-js-button mdl-js-ripple-effect' },
+	                                { href: '#feed', className: 'mdl-layout__tab mdl-js-button mdl-button' },
 	                                _react2.default.createElement(
 	                                    'i',
 	                                    { className: 'material-icons' },
 	                                    'trending_up'
 	                                ),
 	                                ' Feed'
-	                            ),
-	                            _react2.default.createElement(
-	                                'label',
-	                                { className: 'fp-signed-in-only mdl-button mdl-js-button mdl-button--fab mdl-cell--hide-tablet mdl-color--amber-400 mdl-shadow--4dp mdl-js-ripple-effect', id: 'add', style: this.state.signedInOnlyStyle },
-	                                _react2.default.createElement(
-	                                    'i',
-	                                    { className: 'material-icons' },
-	                                    'file_upload'
-	                                ),
-	                                _react2.default.createElement('input', { onChange: this.handleUpload, id: 'fp-mediacapture', type: 'file', accept: 'image/*;capture=camera' })
 	                            )
 	                        )
 	                    ),
@@ -30115,6 +30160,80 @@
 	                            'photo_camera'
 	                        ),
 	                        _react2.default.createElement('input', { onChange: this.handleUpload, id: 'fp-mediacapture-sm', type: 'file', accept: 'image/*;capture=camera' })
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'mdl-cell--hide-desktop mdl-cell--hide-tablet mdl-layout__drawer' },
+	                    _react2.default.createElement(
+	                        'a',
+	                        { href: '/', className: 'fp-signed-out-only' },
+	                        _react2.default.createElement(
+	                            'button',
+	                            { className: 'fp-sign-in-button mdl-button mdl-js-button mdl-js-ripple-effect' },
+	                            _react2.default.createElement(
+	                                'i',
+	                                { className: 'material-icons' },
+	                                'account_circle'
+	                            ),
+	                            ' Sign in'
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'fp-signed-in-user-container mdl-color--light-blue-700 fp-signed-in-only' },
+	                        _react2.default.createElement(
+	                            'a',
+	                            { className: 'fp-usernamelink' },
+	                            _react2.default.createElement('div', { className: 'fp-avatar' }),
+	                            _react2.default.createElement('div', { className: 'fp-username mdl-color-text--white' })
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'nav',
+	                        { className: 'mdl-navigation' },
+	                        _react2.default.createElement(
+	                            'a',
+	                            { className: 'mdl-navigation__link is-active fp-signed-in-only', href: '/' },
+	                            _react2.default.createElement(
+	                                'i',
+	                                { className: 'material-icons' },
+	                                'home'
+	                            ),
+	                            ' Home'
+	                        ),
+	                        _react2.default.createElement(
+	                            'a',
+	                            { className: 'mdl-navigation__link', href: '/feed' },
+	                            _react2.default.createElement(
+	                                'i',
+	                                { className: 'material-icons' },
+	                                'trending_up'
+	                            ),
+	                            ' Feed'
+	                        ),
+	                        _react2.default.createElement('hr', null),
+	                        _react2.default.createElement(
+	                            'a',
+	                            { className: 'mdl-navigation__link', href: '/about' },
+	                            _react2.default.createElement(
+	                                'i',
+	                                { className: 'material-icons' },
+	                                'perm_contact_calendar'
+	                            ),
+	                            ' About - Help - Contact'
+	                        ),
+	                        _react2.default.createElement('hr', { className: 'fp-signed-in-only' }),
+	                        _react2.default.createElement(
+	                            'a',
+	                            { className: 'fp-sign-out mdl-navigation__link fp-signed-in-only' },
+	                            _react2.default.createElement(
+	                                'i',
+	                                { className: 'material-icons' },
+	                                'exit_to_app'
+	                            ),
+	                            ' Sign Out'
+	                        )
 	                    )
 	                )
 	            );
@@ -31008,6 +31127,13 @@
 	                if ('message' in newProps.deleteData) document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.deleteData);
 	                this.props.errorHandled();
 	            }
+
+	            if (newProps.notificationData) {
+	                if ('message' in newProps.notificationData) {
+	                    document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.notificationData);
+	                    this.props.clearNotification();
+	                }
+	            }
 	        }
 	    }, {
 	        key: 'render',
@@ -31028,7 +31154,8 @@
 	    return {
 	        upload: state.upload,
 	        deleteData: state.feed.errorData,
-	        userLoadError: state.user.errorData
+	        userLoadError: state.user.errorData,
+	        notificationData: state.user.notificationData
 	    };
 	}
 
@@ -31036,7 +31163,8 @@
 	    return (0, _redux.bindActionCreators)({
 	        errorHandled: appActions.errorHandled,
 	        clearUserError: appActions.clearUserError,
-	        clearUploadError: appActions.clearUploadError
+	        clearUploadError: appActions.clearUploadError,
+	        clearNotification: appActions.clearNotification
 
 	    }, dispatch);
 	}
@@ -31133,6 +31261,9 @@
 
 	    _this.onPostDeleted = _this.onPostDeleted.bind(_this);
 	    _this.addNewPost = _this.addNewPost.bind(_this);
+	    _this.getPostData = _this.getPostData.bind(_this);
+	    _this.loadMorePosts = _this.loadMorePosts.bind(_this);
+
 	    return _this;
 	  }
 
@@ -31155,10 +31286,37 @@
 	      componentHandler.upgradeDom();
 	    }
 	  }, {
-	    key: 'componentWillReceiveProps',
-	    value: function componentWillReceiveProps(nextProps) {}
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      // Clean up firebase callbacks 
+	      function clear() {
+	        return;
+	      }
 
-	    // ----------------------------------------------
+	      this.addNewPost = clear;
+	      this.getPostData = clear;
+	      this.onPostDeleted = clear;
+	      this.loadMorePosts = clear;
+	      this.addPosts = clear;
+	    }
+
+	    // Firebase callbacks
+
+	  }, {
+	    key: 'getPostData',
+	    value: function getPostData(data) {
+	      var _this2 = this;
+
+	      // Listen for new posts.
+	      var latestPostId = Object.keys(data.entries)[Object.keys(data.entries).length - 1];
+	      _firebase2.default.subscribeToGeneralFeed(function (postId, postValue) {
+	        return _this2.addNewPost(postId, postValue);
+	      }, latestPostId);
+
+	      // Adds fetched posts and next page button if necessary.
+	      this.addPosts(data.entries);
+	      this.toggleNextPageButton(data.nextPage);
+	    }
 
 	    /**
 	     * Appends the given list of `posts`.
@@ -31215,43 +31373,33 @@
 	  }, {
 	    key: 'toggleNextPageButton',
 	    value: function toggleNextPageButton(nextPage) {
+	      var _this3 = this;
 
 	      var self = this;
 
+	      if (!self.state.clickHandlerAdded) {
+	        var btn = document.getElementById('load-more-btn');
+	        btn.onclick = function (e) {
+	          _this3.loadMorePosts(nextPage);
+	        };
+
+	        self.setState({
+	          clickHandlerAdded: true
+	        });
+	      }
 	      if (nextPage) {
-	        (function () {
 
-	          var loadMorePosts = function loadMorePosts() {
+	        self.setState({
+	          nextPageBtnStyle: {
+	            display: 'block'
+	          },
+	          nextPageBtnDisabled: false
+	        });
 
-	            self.setState({
-	              nextPageBtnDisabled: true
-	            });
-	            console.log('Loading next page of posts.');
-	            nextPage().then(function (data) {
-	              self.addPosts(data.entries);
-	              self.toggleNextPageButton(data.nextPage);
-	            });
-
-	            if (!self.state.clickHandlerAdded) {
-	              var btn = document.getElementById('load-more-btn');
-	              btn.onclick = loadMorePosts;
-
-	              self.setState({
-	                clickHandlerAdded: true
-	              });
-	            }
-	          };
-
-	          self.setState({
-	            nextPageBtnStyle: {
-	              display: 'block'
-	            },
-	            nextPageBtnDisabled: false
-	          });
-
-	          // Enable infinite Scroll
-	          _utils2.default.onEndScroll(100).then(loadMorePosts);
-	        })();
+	        // Enable infinite Scroll
+	        _utils2.default.onEndScroll(100).then(function () {
+	          self.loadMorePosts(nextPage);
+	        });
 	      } else {
 
 	        self.setState({
@@ -31261,14 +31409,28 @@
 	        });
 	      }
 	    }
+	  }, {
+	    key: 'loadMorePosts',
+	    value: function loadMorePosts(nextPage) {
+
+	      var self = this;
+	      this.setState({
+	        nextPageBtnDisabled: true
+	      });
+	      console.log('Loading next page of posts.');
+	      nextPage().then(function (data) {
+	        self.addPosts(data.entries);
+	        self.toggleNextPageButton(data.nextPage);
+	      });
+	    }
+	  }, {
+	    key: 'showNewPosts',
+
 
 	    /**
 	     * Prepends the list of new posts stored in `this.newPosts`. This happens when the user clicks on
 	     * the "Show new posts" button.
 	     */
-
-	  }, {
-	    key: 'showNewPosts',
 	    value: function showNewPosts(self) {
 
 	      self.setState({
@@ -31307,26 +31469,17 @@
 	  }, {
 	    key: 'showGeneralFeed',
 	    value: function showGeneralFeed() {
-	      var _this2 = this;
+	      var _this4 = this;
 
 	      var self = this;
 	      // Load initial batch of posts.
 	      _firebase2.default.getPosts().then(function (data) {
-
-	        // Listen for new posts.
-	        var latestPostId = Object.keys(data.entries)[Object.keys(data.entries).length - 1];
-	        _firebase2.default.subscribeToGeneralFeed(function (postId, postValue) {
-	          return _this2.addNewPost(postId, postValue);
-	        }, latestPostId);
-
-	        // Adds fetched posts and next page button if necessary.
-	        self.addPosts(data.entries);
-	        self.toggleNextPageButton(data.nextPage);
+	        _this4.getPostData(data);
 	      });
 
 	      // Listen for posts deletions.
 	      _firebase2.default.registerForPostsDeletion(function (postId) {
-	        return _this2.onPostDeleted(postId);
+	        return _this4.onPostDeleted(postId);
 	      });
 	    }
 
@@ -31387,13 +31540,10 @@
 	        }
 	      });
 	    }
-
-	    // ---------------------------------------------
-
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var _this3 = this;
+	      var _this5 = this;
 
 	      return _react2.default.createElement(
 	        'div',
@@ -31408,7 +31558,7 @@
 	            _react2.default.createElement(
 	              'button',
 	              { className: 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--amber-400', style: this.state.newPostsBtnStyle, onClick: function onClick() {
-	                  _this3.showNewPosts(_this3);
+	                  _this5.showNewPosts(_this5);
 	                } },
 	              this.state.newBtnText
 	            )
@@ -32931,6 +33081,10 @@
 
 	var _redux = __webpack_require__(227);
 
+	var _messaging = __webpack_require__(280);
+
+	var _messaging2 = _interopRequireDefault(_messaging);
+
 	var _appActions = __webpack_require__(269);
 
 	var appActions = _interopRequireWildcard(_appActions);
@@ -33015,6 +33169,13 @@
 
 	        var self = _this;
 
+	        _this.followStatusUpdated = _this.followStatusUpdated.bind(_this);
+	        _this.loadUserData = _this.loadUserData.bind(_this);
+	        _this.loadFollowing = _this.loadFollowing.bind(_this);
+	        _this.loadNbPosts = _this.loadNbPosts.bind(_this);
+	        _this.handleUserFeed = _this.handleUserFeed.bind(_this);
+	        _this.updateUserPosts = _this.updateUserPosts.bind(_this);
+	        _this.onPostDeleted = _this.onPostDeleted.bind(_this);
 	        // this.auth.onAuthStateChanged(() => this.trackFollowStatus); 
 	        return _this;
 	    }
@@ -33043,10 +33204,148 @@
 	        }
 	    }, {
 	        key: 'componentWillUnmount',
-	        value: function componentWillUnmount() {}
+	        value: function componentWillUnmount() {
 
-	        // FirebaseHandler.cancelAllSubscriptions(); 
+	            function clear() {
+	                return;
+	            }
+	            //clear callbacks for firebase handlers to avoid memory leaks 
 
+	            this.followStatusUpdated = clear;
+	            this.loadUserData = clear;
+	            this.loadNbPosts = clear;
+	            this.handleUserFeed = clear;
+	            this.updateUserPosts = clear;
+	            this.onPostDeleted = clear;
+	            // FirebaseHandler.cancelAllSubscriptions(); 
+	        }
+
+	        // callbacks for Firebase Handlers 
+
+	    }, {
+	        key: 'followStatusUpdated',
+	        value: function followStatusUpdated(data) {
+	            var checkbox = document.getElementById('follow');
+	            if (data.val() !== null) {
+
+	                checkbox.checked = true;
+
+	                this.setState({
+	                    followChecked: 'is-checked',
+	                    followLabelText: 'Following'
+	                });
+	            } else {
+
+	                this.setState({
+	                    followChecked: '',
+	                    followLabelText: 'Follow'
+	                });
+
+	                checkbox.checked = false;
+	            }
+	        }
+	    }, {
+	        key: 'loadUserData',
+	        value: function loadUserData(snapshot) {
+
+	            var userInfo = snapshot.val();
+
+	            this.setState({
+	                userDetail: userInfo
+	            });
+
+	            if (userInfo) {
+
+	                this.setState({
+	                    userInfoContainerStyle: {
+	                        display: 'flex'
+	                    },
+	                    userAvatarStyle: {
+	                        backgroundImage: 'url("' + (userInfo.profile_picture || '/images/silhouette.jpg') + '")'
+	                    },
+	                    userName: userInfo.full_name || 'Anonymous'
+
+	                });
+	            } else {
+	                var data = {
+	                    message: 'This user does not exist.',
+	                    timeout: 5000
+	                };
+
+	                this.props.userLoadError(data);
+	                this.props.router.push('/feed');
+	            }
+	        }
+	    }, {
+	        key: 'loadFollowing',
+	        value: function loadFollowing(nbFollowed) {
+
+	            this.setState({
+	                nbFollowing: nbFollowed
+	            });
+	        }
+	    }, {
+	        key: 'loadNbPosts',
+	        value: function loadNbPosts(nbPosts) {
+
+	            this.setState({
+	                nbPosts: nbPosts
+	            });
+	        }
+	    }, {
+	        key: 'handleUserFeed',
+	        value: function handleUserFeed(data, userId) {
+	            var _this3 = this;
+
+	            var postIds = Object.keys(data.entries);
+	            if (postIds.length === 0) {
+	                this.setState({
+	                    noPostsStyle: {
+	                        display: 'block'
+	                    }
+	                });
+	            }
+
+	            _firebase2.default.subscribeToUserFeed(userId, function (postId, postValue) {
+	                _this3.updateUserPosts(postId, postValue);
+	            }, postIds[postIds.length - 1]);
+
+	            // Adds fetched posts and next page button if necessary.
+	            this.addPosts(data.entries);
+	            this.toggleNextPageButton(data.nextPage);
+	        }
+	    }, {
+	        key: 'updateUserPosts',
+	        value: function updateUserPosts(postId, postValue) {
+	            var posts_array = this.state.posts.slice();
+	            posts_array.unshift(this.createImageCard(postId, postValue.thumb_url || postValue.url, postValue.text));
+
+	            this.setState({
+	                noPostsStyle: {
+	                    display: 'none'
+	                },
+	                posts: posts_array
+	            });
+	        }
+	    }, {
+	        key: 'onPostDeleted',
+	        value: function onPostDeleted(postId) {
+
+	            var posts = this.state.posts.slice();
+
+	            var filtered = posts.filter(function (el) {
+
+	                if (el.key == postId) {
+	                    return false;
+	                } else {
+	                    return true;
+	                }
+	            });
+
+	            this.setState({
+	                posts: filtered
+	            });
+	        }
 
 	        /**
 	         * Triggered when the user changes the "Follow" checkbox.
@@ -33066,30 +33365,12 @@
 	    }, {
 	        key: 'trackFollowStatus',
 	        value: function trackFollowStatus() {
+	            var _this4 = this;
+
 	            if (this.auth.currentUser) {
 
-	                var self = this;
-
 	                _firebase2.default.registerToFollowStatusUpdate(this.props.params.uid, function (data) {
-
-	                    var checkbox = document.getElementById('follow');
-	                    if (data.val() !== null) {
-
-	                        checkbox.checked = true;
-
-	                        self.setState({
-	                            followChecked: 'is-checked',
-	                            followLabelText: 'Following'
-	                        });
-	                    } else {
-
-	                        self.setState({
-	                            followChecked: '',
-	                            followLabelText: 'Follow'
-	                        });
-
-	                        checkbox.checked = false;
-	                    }
+	                    _this4.followStatusUpdated(data);
 	                });
 	            }
 	        }
@@ -33189,12 +33470,6 @@
 	                    }
 
 	                });
-
-	                // Messaging options!!! Do later
-	                // friendlyPix.messaging.enableNotificationsContainer.show();
-	                // friendlyPix.messaging.enableNotificationsCheckbox.prop('disabled', true);
-	                // Utils.refreshSwitchState(document.querySelector('.fp-name-follow-container'))
-	                // friendlyPix.messaging.trackNotificationsEnabledStatus();
 	            } else {
 
 	                this.setState({
@@ -33205,14 +33480,6 @@
 	                        display: 'none'
 	                    }
 	                });
-	                //friendlyPix.messaging.enableNotificationsContainer.hide(); 
-
-	                //  this.followContainer.show();
-	                //  this.followCheckbox.prop('disabled', true); 
-
-	                // see utils switch 
-
-	                // Start live tracking the state of the "Follow" Checkbox.
 
 	                // follow status
 	                this.trackFollowStatus();
@@ -33222,34 +33489,7 @@
 
 	            // Load user's profile.
 	            _firebase2.default.loadUserProfile(userId).then(function (snapshot) {
-
-	                var userInfo = snapshot.val();
-
-	                self.setState({
-	                    userDetail: userInfo
-	                });
-
-	                if (userInfo) {
-
-	                    self.setState({
-	                        userInfoContainerStyle: {
-	                            display: 'flex'
-	                        },
-	                        userAvatarStyle: {
-	                            backgroundImage: 'url("' + (userInfo.profile_picture || '/images/silhouette.jpg') + '")'
-	                        },
-	                        userName: userInfo.full_name || 'Anonymous'
-
-	                    });
-	                } else {
-	                    var data = {
-	                        message: 'This user does not exist.',
-	                        timeout: 5000
-	                    };
-
-	                    self.props.userLoadError(data);
-	                    self.props.router.push('/feed');
-	                }
+	                self.loadUserData(snapshot);
 	            });
 
 	            // Load user's number of followers.
@@ -33262,67 +33502,22 @@
 
 	            // Load user's number of followed users.
 	            _firebase2.default.registerForFollowingCount(this.props.params.uid, function (nbFollowed) {
-
-	                self.setState({
-	                    nbFollowing: nbFollowed
-	                });
+	                self.loadFollowing(nbFollowed);
 	            });
 
-	            // Load user's number of posts.
+	            // Load user's number of posts. 
 	            _firebase2.default.registerForPostsCount(this.props.params.uid, function (nbPosts) {
-
-	                self.setState({
-	                    nbPosts: nbPosts
-	                });
+	                self.loadNbPosts(nbPosts);
 	            });
 
 	            // Display user's posts.
 	            _firebase2.default.getUserFeedPosts(this.props.params.uid).then(function (data) {
-
-	                var postIds = Object.keys(data.entries);
-	                if (postIds.length === 0) {
-	                    self.setState({
-	                        noPostsStyle: {
-	                            display: 'block'
-	                        }
-	                    });
-	                }
-
-	                _firebase2.default.subscribeToUserFeed(userId, function (postId, postValue) {
-
-	                    var posts_array = self.state.posts.slice();
-	                    posts_array.unshift(self.createImageCard(postId, postValue.thumb_url || postValue.url, postValue.text));
-
-	                    self.setState({
-	                        noPostsStyle: {
-	                            display: 'none'
-	                        },
-	                        posts: posts_array
-	                    });
-	                }, postIds[postIds.length - 1]);
-
-	                // Adds fetched posts and next page button if necessary.
-	                self.addPosts(data.entries);
-	                self.toggleNextPageButton(data.nextPage);
+	                self.handleUserFeed(data, userId);
 	            });
 
 	            // Listen for posts deletions.
 	            _firebase2.default.registerForPostsDeletion(function (postId) {
-
-	                var posts = self.state.posts.slice();
-
-	                var filtered = posts.filter(function (el) {
-
-	                    if (el.key == postId) {
-	                        return false;
-	                    } else {
-	                        return true;
-	                    }
-	                });
-
-	                self.setState({
-	                    posts: filtered
-	                });
+	                self.onPostDeleted(postId);
 	            });
 	        }
 
@@ -33398,7 +33593,7 @@
 	    }, {
 	        key: 'createImageCard',
 	        value: function createImageCard(postId, thumbUrl, text) {
-	            var _this3 = this;
+	            var _this5 = this;
 
 	            var self = this;
 	            var thumbStyle = {
@@ -33408,7 +33603,7 @@
 	            var element = _react2.default.createElement(
 	                'a',
 	                { onClick: function onClick(e) {
-	                        _this3.hrefHandler(self, postId, 'post');
+	                        _this5.hrefHandler(self, postId, 'post');
 	                    }, key: postId, className: "fp-post-" + postId + " fp-image mdl-cell mdl-cell--12-col mdl-cell--4-col-tablet mdl-cell--4-col-desktop mdl-grid mdl-grid--no-spacing" },
 	                _react2.default.createElement(
 	                    'div',
@@ -33444,7 +33639,7 @@
 	    }, {
 	        key: 'createProfileCardJsx',
 	        value: function createProfileCardJsx(uid) {
-	            var _this4 = this;
+	            var _this6 = this;
 
 	            var profilePic = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '/images/silhouette.jpg';
 	            var fullName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'Anonymous';
@@ -33457,7 +33652,7 @@
 	            return _react2.default.createElement(
 	                'a',
 	                { onClick: function onClick() {
-	                        _this4.hrefHandler(_this4, uid, 'user');
+	                        _this6.hrefHandler(_this6, uid, 'user');
 	                    }, key: uid, className: 'fp-usernamelink mdl-button mdl-js-button' },
 	                _react2.default.createElement('div', { className: 'fp-avatar', style: avatarStyle }),
 	                _react2.default.createElement(
@@ -33470,7 +33665,7 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this5 = this;
+	            var _this7 = this;
 
 	            return _react2.default.createElement(
 	                'section',
@@ -33493,7 +33688,7 @@
 	                            _react2.default.createElement(
 	                                'label',
 	                                { className: "fp-follow mdl-switch mdl-js-switch mdl-js-ripple-effect " + this.state.followChecked, style: this.state.followContainerStyle, htmlFor: 'follow', onChange: function onChange(e) {
-	                                        _this5.onFollowChange(e, _this5);
+	                                        _this7.onFollowChange(e, _this7);
 	                                    } },
 	                                _react2.default.createElement('input', { type: 'checkbox', id: 'follow', className: 'mdl-switch__input' }),
 	                                _react2.default.createElement(
@@ -33502,16 +33697,7 @@
 	                                    this.state.followLabelText
 	                                )
 	                            ),
-	                            _react2.default.createElement(
-	                                'label',
-	                                { className: 'fp-notifications mdl-switch mdl-js-switch mdl-js-ripple-effect', htmlFor: 'notifications', style: this.state.notificationContainerStyle },
-	                                _react2.default.createElement('input', { type: 'checkbox', id: 'notifications', className: 'mdl-switch__input', value: 'true' }),
-	                                _react2.default.createElement(
-	                                    'span',
-	                                    { className: 'mdl-switch__label' },
-	                                    'Enable Notifications'
-	                                )
-	                            )
+	                            _react2.default.createElement(_messaging2.default, { style: this.state.notificationContainerStyle })
 	                        ),
 	                        _react2.default.createElement(
 	                            'div',
@@ -33539,7 +33725,7 @@
 	                            _react2.default.createElement(
 	                                'div',
 	                                { className: "fp-user-detail fp-user-nbfollowing-container " + this.state.followingContainerClass, onClick: function onClick() {
-	                                        _this5.displayFollowing(_this5);
+	                                        _this7.displayFollowing(_this7);
 	                                    } },
 	                                _react2.default.createElement(
 	                                    'span',
@@ -33560,7 +33746,7 @@
 	                    _react2.default.createElement(
 	                        'button',
 	                        { className: 'fp-close-following  mdl-button mdl-js-button mdl-button--raised mdl-button--fab', style: this.state.closeFollowingBtnStyle, onClick: function onClick() {
-	                                _this5.closeFollowing(_this5);
+	                                _this7.closeFollowing(_this7);
 	                            } },
 	                        _react2.default.createElement(
 	                            'i',
@@ -33618,7 +33804,7 @@
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'fp-next-page-button', style: this.state.nextPageButtonStyle, onClick: function onClick(e) {
-	                            _this5.showNextPage(e, _this5);
+	                            _this7.showNextPage(e, _this7);
 	                        } },
 	                    _react2.default.createElement(
 	                        'button',
@@ -33647,6 +33833,259 @@
 
 /***/ },
 /* 280 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _firebase = __webpack_require__(272);
+
+	var _firebase2 = _interopRequireDefault(_firebase);
+
+	var _reactRouter = __webpack_require__(172);
+
+	var _appActions = __webpack_require__(269);
+
+	var appActions = _interopRequireWildcard(_appActions);
+
+	var _reactRedux = __webpack_require__(248);
+
+	var _redux = __webpack_require__(227);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Messaging = function (_React$Component) {
+	  _inherits(Messaging, _React$Component);
+
+	  function Messaging(props) {
+	    _classCallCheck(this, Messaging);
+
+	    var _this = _possibleConstructorReturn(this, (Messaging.__proto__ || Object.getPrototypeOf(Messaging)).call(this, props));
+
+	    _this.state = {
+	      checked: false,
+	      disabled: false,
+	      text: 'Enable Notifications',
+	      cls: '',
+	      val: false
+	    };
+	    // Firebase SDK
+	    _this.database = firebase.database();
+	    _this.auth = firebase.auth();
+	    _this.storage = firebase.storage();
+	    _this.messaging = firebase.messaging();
+
+	    _this.saveToken = _this.saveToken.bind(_this);
+	    _this.requestPermission = _this.requestPermission.bind(_this);
+	    _this.onEnableNotificationsChange = _this.onEnableNotificationsChange.bind(_this);
+	    _this.onMessage = _this.onMessage.bind(_this);
+	    _this.trackNotificationsEnabledStatus = _this.trackNotificationsEnabledStatus.bind(_this);
+	    _this.setSwitchState = _this.setSwitchState.bind(_this);
+
+	    return _this;
+	  }
+
+	  _createClass(Messaging, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      var _this2 = this;
+
+	      this.auth.onAuthStateChanged(function () {
+	        return _this2.trackNotificationsEnabledStatus();
+	      });
+	      this.messaging.onTokenRefresh(function () {
+	        return _this2.saveToken();
+	      });
+	      this.messaging.onMessage(function (payload) {
+	        return _this2.onMessage(payload);
+	      });
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      function clear() {
+	        return;
+	      }
+
+	      this.trackNotificationsEnabledStatus = clear;
+	    }
+
+	    /**
+	     * Saves the token to the database if available. If not request permissions.
+	     */
+
+	  }, {
+	    key: 'saveToken',
+	    value: function saveToken() {
+	      var _this3 = this;
+
+	      this.messaging.getToken().then(function (currentToken) {
+	        if (currentToken) {
+	          _firebase2.default.saveNotificationToken(currentToken).then(function () {
+	            console.log('Notification Token saved to database');
+	          });
+	        } else {
+	          _this3.requestPermission();
+	        }
+	      }).catch(function (err) {
+	        console.error('Unable to get messaging token.', err);
+	      });
+	    }
+
+	    /**
+	     * Requests permission to send notifications on this browser.
+	     */
+
+	  }, {
+	    key: 'requestPermission',
+	    value: function requestPermission() {
+	      var _this4 = this;
+
+	      console.log('Requesting permission...');
+	      this.messaging.requestPermission().then(function () {
+	        console.log('Notification permission granted.');
+	        _this4.saveToken();
+	      }).catch(function (err) {
+	        console.error('Unable to get permission to notify.', err);
+	      });
+	    }
+
+	    /**
+	     * Called when the app is in focus.
+	     */
+
+	  }, {
+	    key: 'onMessage',
+	    value: function onMessage(payload) {
+	      var _this5 = this;
+
+	      console.log('Notifications received.', payload);
+
+	      var self = this;
+	      // If we get a notification while focus on the app
+	      if (payload.notification) {
+	        (function () {
+	          var userId = payload.notification.click_action.split('/user/')[1];
+
+	          var data = {
+	            message: payload.notification.body,
+	            actionHandler: function actionHandler() {
+	              if (typeof self.props.params != 'undefined') {
+	                self.props.router.push('/user/' + userId);
+	                window.location.reload();
+	              } else {
+	                self.props.router.push('/user/' + userId);
+	              }
+	            },
+	            actionText: 'Profile',
+	            timeout: 10000
+	          };
+	          _this5.props.showNotification(data);
+	        })();
+	      }
+	    }
+
+	    /**
+	     * Triggered when the user changes the "Notifications Enabled" checkbox.
+	     */
+
+	  }, {
+	    key: 'onEnableNotificationsChange',
+	    value: function onEnableNotificationsChange(e) {
+
+	      this.setState({
+	        checked: e.target.checked
+	      });
+	      var checked = this.state.checked;
+
+	      this.setState({
+	        disabled: false
+	      });
+
+	      return _firebase2.default.toggleNotificationEnabled(checked);
+	    }
+
+	    /**
+	     * Starts tracking the "Notifications Enabled" checkbox status.
+	     */
+
+	  }, {
+	    key: 'trackNotificationsEnabledStatus',
+	    value: function trackNotificationsEnabledStatus() {
+	      var _this6 = this;
+
+	      if (this.auth.currentUser) {
+	        _firebase2.default.registerToNotificationEnabledStatusUpdate(function (data) {
+	          return _this6.setSwitchState(data);
+	        });
+	      }
+	    }
+	  }, {
+	    key: 'setSwitchState',
+	    value: function setSwitchState(data) {
+	      if (data.val() !== null) {
+	        this.setState({
+	          disabled: false,
+	          text: 'Enable Notifications',
+	          cls: 'is-checked'
+	        });
+
+	        this.saveToken();
+	      } else {
+	        this.setState({
+
+	          disabled: false,
+	          text: 'Notifications Enabled',
+	          cls: ''
+	        });
+	      }
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'label',
+	        { className: 'fp-notifications mdl-switch mdl-js-switch mdl-js-ripple-effect', htmlFor: 'notifications', style: this.props.style },
+	        _react2.default.createElement('input', { type: 'checkbox', id: 'notifications', className: 'mdl-switch__input', onChange: this.onEnableNotificationsChange, value: this.state.val, disabled: this.state.disabled, checked: this.state.checked }),
+	        _react2.default.createElement(
+	          'span',
+	          { className: 'mdl-switch__label' },
+	          this.state.text
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Messaging;
+	}(_react2.default.Component);
+
+	function matchDispatchToProps(dispatch) {
+	  return (0, _redux.bindActionCreators)({
+	    showNotification: appActions.showNotification
+	  }, dispatch);
+	}
+
+	exports.default = (0, _reactRedux.connect)(null, matchDispatchToProps)(Messaging);
+
+/***/ },
+/* 281 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33735,6 +34174,8 @@
 
 	    _this.onPostDeleted = _this.onPostDeleted.bind(_this);
 	    _this.addNewPost = _this.addNewPost.bind(_this);
+
+	    _this.handleHomeFeed = _this.handleHomeFeed.bind(_this);
 	    return _this;
 	  }
 
@@ -33757,10 +34198,45 @@
 	      componentHandler.upgradeDom();
 	    }
 	  }, {
-	    key: 'componentWillReceiveProps',
-	    value: function componentWillReceiveProps(nextProps) {}
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      // clear firebase callbacks to avoid memory leaks 
 
-	    // ----------------------------------------------
+	      function clear() {
+	        return;
+	      }
+
+	      this.addPosts = clear;
+	      this.addNewPost = clear;
+	      this.onPostDeleted = clear;
+	      this.handleHomeFeed = clear;
+	    }
+
+	    // Callback for HomeFeed firebase handler
+
+	  }, {
+	    key: 'handleHomeFeed',
+	    value: function handleHomeFeed(data) {
+	      var _this2 = this;
+
+	      var postIds = Object.keys(data.entries);
+	      if (postIds.length === 0) {
+	        this.setState({
+	          noPostsStyle: {
+	            display: 'block'
+	          }
+	        });
+	      }
+	      // Listen for new posts.
+	      var latestPostId = postIds[postIds.length - 1];
+	      _firebase2.default.subscribeToHomeFeed(function (postId, postValue) {
+	        _this2.addNewPost(postId, postValue);
+	      }, latestPostId);
+
+	      // Adds fetched posts and next page button if necessary.
+	      this.addPosts(data.entries);
+	      this.toggleNextPageButton(data.nextPage);
+	    }
 
 	    /**
 	     * Appends the given list of `posts`.
@@ -33892,7 +34368,7 @@
 	  }, {
 	    key: 'showHomeFeed',
 	    value: function showHomeFeed() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      var self = this;
 
@@ -33901,23 +34377,7 @@
 	        _firebase2.default.updateHomeFeeds().then(function () {
 	          // Load initial batch of posts.
 	          _firebase2.default.getHomeFeedPosts().then(function (data) {
-	            var postIds = Object.keys(data.entries);
-	            if (postIds.length === 0) {
-	              self.setState({
-	                noPostsStyle: {
-	                  display: 'block'
-	                }
-	              });
-	            }
-	            // Listen for new posts.
-	            var latestPostId = postIds[postIds.length - 1];
-	            _firebase2.default.subscribeToHomeFeed(function (postId, postValue) {
-	              _this2.addNewPost(postId, postValue);
-	            }, latestPostId);
-
-	            // Adds fetched posts and next page button if necessary.
-	            _this2.addPosts(data.entries);
-	            _this2.toggleNextPageButton(data.nextPage);
+	            self.handleHomeFeed(data);
 	          });
 
 	          // Add new posts from followers live.
@@ -33925,7 +34385,7 @@
 
 	          // Listen for posts deletions.
 	          _firebase2.default.registerForPostsDeletion(function (postId) {
-	            return _this2.onPostDeleted(postId);
+	            return _this3.onPostDeleted(postId);
 	          });
 	        });
 	      }
@@ -33994,7 +34454,7 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      return _react2.default.createElement(
 	        'div',
@@ -34009,7 +34469,7 @@
 	            _react2.default.createElement(
 	              'button',
 	              { className: 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--amber-400', style: this.state.newPostsBtnStyle, onClick: function onClick() {
-	                  _this3.showNewPosts(_this3);
+	                  _this4.showNewPosts(_this4);
 	                } },
 	              this.state.newBtnText
 	            )
@@ -34109,7 +34569,7 @@
 	exports.default = Home;
 
 /***/ },
-/* 281 */
+/* 282 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34311,7 +34771,7 @@
 	exports.default = About;
 
 /***/ },
-/* 282 */
+/* 283 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';

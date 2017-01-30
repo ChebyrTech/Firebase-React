@@ -18,6 +18,20 @@ const userReducer = (state = {
                 errorData: null
             } 
             return newState
+        } 
+        case 'NOTIFICATION': {
+            var newState = {
+                errorData: null, 
+                notificationData: action.payload
+            } 
+
+            return newState
+        }
+        case 'CLEAR_NOTIFICATION': {
+            var newState = {
+                errorData: null, 
+                notificationData: null
+            }
         }
     }
 

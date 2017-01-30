@@ -49,4 +49,8 @@ body {
 
 #follow {
     opacity: 0;
+} 
+
+.mdl-layout__tab-bar {
+	background-color: transparent; 
 }

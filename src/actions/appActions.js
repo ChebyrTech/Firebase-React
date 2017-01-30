@@ -91,4 +91,17 @@ export const clearUserError = () => {
         type: 'CLEAR_USER_ERROR'
     }
 } 
+ 
+// show notification 
+export const showNotification = (data) => {
+    return {
+        type: 'NOTIFICATION', 
+        payload: data
+    }
+}
 
+export const clearNotification = () => {
+    return {
+        type: 'CLEAR_NOTIFICATION'
+    }
+}

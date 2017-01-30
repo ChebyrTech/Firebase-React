@@ -53,6 +53,13 @@ class Toast extends React.Component {
 
         } 
 
+        if (newProps.notificationData) {
+            if ('message' in newProps.notificationData) {
+                 document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.notificationData); 
+                 this.props.clearNotification(); 
+            }
+        }
+
         
     }
 
@@ -75,7 +82,8 @@ function mapStateToProps(state) {
     return {
         upload: state.upload, 
         deleteData: state.feed.errorData, 
-        userLoadError: state.user.errorData
+        userLoadError: state.user.errorData, 
+        notificationData: state.user.notificationData
     }
 } 
 
@@ -83,7 +91,8 @@ function matchDispatchToProps(dispatch) {
     return bindActionCreators({
         errorHandled: appActions.errorHandled, 
         clearUserError: appActions.clearUserError, 
-        clearUploadError: appActions.clearUploadError
+        clearUploadError: appActions.clearUploadError, 
+        clearNotification: appActions.clearNotification
 
        
     }, dispatch)

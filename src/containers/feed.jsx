@@ -53,6 +53,9 @@ class Feed extends React.Component {
 
         this.onPostDeleted = this.onPostDeleted.bind(this); 
         this.addNewPost = this.addNewPost.bind(this); 
+        this.getPostData = this.getPostData.bind(this); 
+        this.loadMorePosts = this.loadMorePosts.bind(this); 
+
     } 
 
 
@@ -77,12 +80,34 @@ class Feed extends React.Component {
     componentDidUpdate() {
         componentHandler.upgradeDom();
     }
+    componentWillUnmount() {
+      // Clean up firebase callbacks 
+      function clear() {
+        return; 
+      } 
 
-    componentWillReceiveProps(nextProps) {
-
+      this.addNewPost = clear; 
+      this.getPostData = clear;  
+      this.onPostDeleted = clear; 
+      this.loadMorePosts = clear; 
+      this.addPosts = clear; 
+    
     }
 
-    // ----------------------------------------------
+    // Firebase callbacks
+
+    getPostData(data) {
+  
+      // Listen for new posts.
+      const latestPostId = Object.keys(data.entries)[Object.keys(data.entries).length - 1];
+      FirebaseHandler.subscribeToGeneralFeed(
+          (postId, postValue) => this.addNewPost(postId, postValue), latestPostId);
+
+      // Adds fetched posts and next page button if necessary.
+      this.addPosts(data.entries);
+      this.toggleNextPageButton(data.nextPage);
+    
+    }
 
   /**
    * Appends the given list of `posts`.
@@ -143,30 +168,15 @@ class Feed extends React.Component {
 
     var self = this; 
 
-
-    if (nextPage) {
-
-
-      const loadMorePosts = () => {
-
-        self.setState({
-          nextPageBtnDisabled: true
-        })
-        console.log('Loading next page of posts.');
-        nextPage().then(data => {
-          self.addPosts(data.entries);
-          self.toggleNextPageButton(data.nextPage);
-        }); 
-
-        if (!self.state.clickHandlerAdded) {
+    if (!self.state.clickHandlerAdded) {
           var btn = document.getElementById('load-more-btn'); 
-          btn.onclick = loadMorePosts; 
+          btn.onclick = (e) => {this.loadMorePosts(nextPage)}; 
 
           self.setState({
             clickHandlerAdded: true 
           })
-        }
-      };
+    }
+    if (nextPage) {
 
       
       self.setState({
@@ -177,7 +187,9 @@ class Feed extends React.Component {
       }) 
 
       // Enable infinite Scroll
-        Utils.onEndScroll(100).then(loadMorePosts); 
+        Utils.onEndScroll(100).then(() => {
+          self.loadMorePosts(nextPage)
+        }); 
       
 
 
@@ -191,6 +203,21 @@ class Feed extends React.Component {
 
     }
   }
+
+    loadMorePosts (nextPage)  {
+
+      var self = this; 
+      this.setState({
+          nextPageBtnDisabled: true
+        })
+        console.log('Loading next page of posts.');
+        nextPage().then(data => {
+          self.addPosts(data.entries);
+          self.toggleNextPageButton(data.nextPage);
+        }); 
+
+
+      };
 
   
   /**
@@ -241,18 +268,7 @@ class Feed extends React.Component {
 
     var self = this; 
     // Load initial batch of posts.
-    FirebaseHandler.getPosts().then(data => {
-      
-
-      // Listen for new posts.
-      const latestPostId = Object.keys(data.entries)[Object.keys(data.entries).length - 1];
-      FirebaseHandler.subscribeToGeneralFeed(
-          (postId, postValue) => this.addNewPost(postId, postValue), latestPostId);
-
-      // Adds fetched posts and next page button if necessary.
-      self.addPosts(data.entries);
-      self.toggleNextPageButton(data.nextPage);
-    });
+    FirebaseHandler.getPosts().then((data) => {this.getPostData(data)});
 
     // Listen for posts deletions.
     FirebaseHandler.registerForPostsDeletion(postId => this.onPostDeleted(postId));
@@ -314,14 +330,7 @@ class Feed extends React.Component {
         display: 'flex'
       }
     }) 
-
-
-
   }
-
-
-
-    // ---------------------------------------------
 
     render () {
         return (
