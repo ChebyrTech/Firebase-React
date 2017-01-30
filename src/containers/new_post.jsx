@@ -60,8 +60,13 @@ class NewPost extends React.Component {
         if (this.props.file.filename == '') {
             this.props.router.push('/');
         }
-        componentHandler.upgradeDom();
+        componentHandler.upgradeDom(); 
+  
 
+    } 
+
+    componentWillUnmount() {
+      //  FirebaseHandler.cancelAllSubscriptions(); 
     }
 
     componentDidUpdate() {

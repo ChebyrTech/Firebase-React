@@ -11,7 +11,7 @@ import {connect} from 'react-redux'
 import { bindActionCreators} from 'redux' 
 
 
-class Feed extends React.Component { 
+class Home extends React.Component { 
 
     constructor(props) {
 
@@ -49,7 +49,7 @@ class Feed extends React.Component {
         this.toggleNextPageButton = this.toggleNextPageButton.bind(this); 
         this.showNewPosts = this.showNewPosts.bind(this);  
 
-        this.showGeneralFeed = this.showGeneralFeed.bind(this); 
+        this.showHomeFeed =  this.showHomeFeed.bind(this); 
 
         this.onPostDeleted = this.onPostDeleted.bind(this); 
         this.addNewPost = this.addNewPost.bind(this); 
@@ -65,7 +65,7 @@ class Feed extends React.Component {
       this.auth.onAuthStateChanged((user) => {
 
 
-          self.showGeneralFeed();
+          self.showHomeFeed();
     
 
 
@@ -90,10 +90,8 @@ class Feed extends React.Component {
   addPosts(posts) {
 
     // Displays the list of posts
-
-      var posts_arr = this.state.posts.slice(); 
   
-      //var posts_arr = [];
+    var posts_arr = [];
     
     const postIds = Object.keys(posts);
     for (let i = postIds.length - 1; i >= 0; i--) {
@@ -111,22 +109,10 @@ class Feed extends React.Component {
         <Post postId={postIds[i]} key={postIds[i]} hideDeleteBtn={true}></Post>
       )
 
-      posts_arr.push(post)
+      posts_arr.push(post)}
 
 
-      // const postElement = post.fillPostData(postIds[i], postData.thumb_url || postData.url,
-      //     postData.text, postData.author, postData.timestamp, null, null, postData.full_url); 
-
-      // If a post with similar ID is already in the feed we replace it instead of appending.
-      // const existingPostElement = $(`.fp-post-${postIds[i]}`, this.feedImageContainer);
-      // if (existingPostElement.length) {
-      //   existingPostElement.replaceWith(postElement);
-      // } else {
-      //   this.feedImageContainer.append(postElement.addClass(`fp-post-${postIds[i]}`));
-      // }
-
-
-    } 
+    
 
     this.setState({
       posts: posts_arr
@@ -175,10 +161,6 @@ class Feed extends React.Component {
         }, 
         nextPageBtnDisabled: false
       }) 
-
-      // Enable infinite Scroll
-        Utils.onEndScroll(100).then(loadMorePosts); 
-      
 
 
     } else {
@@ -232,33 +214,47 @@ class Feed extends React.Component {
 
   }
 
+
   /**
-   * Displays the general posts feed.
+   * Shows the feed showing all followed users.
    */
-  showGeneralFeed() { 
-
-
+  showHomeFeed() { 
 
     var self = this; 
-    // Load initial batch of posts.
-    FirebaseHandler.getPosts().then(data => {
-      
 
-      // Listen for new posts.
-      const latestPostId = Object.keys(data.entries)[Object.keys(data.entries).length - 1];
-      FirebaseHandler.subscribeToGeneralFeed(
-          (postId, postValue) => this.addNewPost(postId, postValue), latestPostId);
+    if (this.auth.currentUser) {
+      // Make sure the home feed is updated with followed users's new posts.
+      FirebaseHandler.updateHomeFeeds().then(() => {
+        // Load initial batch of posts.
+        FirebaseHandler.getHomeFeedPosts().then(data => {
+          const postIds = Object.keys(data.entries);
+          if (postIds.length === 0) {
+              self.setState({
+                  noPostsStyle: {
+                    display: 'block'
+                  }
+              })
+          }
+          // Listen for new posts.
+          const latestPostId = postIds[postIds.length - 1];
+          FirebaseHandler.subscribeToHomeFeed(
+              (postId, postValue) => {
+                this.addNewPost(postId, postValue);
+              }, latestPostId);
 
-      // Adds fetched posts and next page button if necessary.
-      self.addPosts(data.entries);
-      self.toggleNextPageButton(data.nextPage);
-    });
+          // Adds fetched posts and next page button if necessary.
+          this.addPosts(data.entries);
+          this.toggleNextPageButton(data.nextPage);
+        });
 
-    // Listen for posts deletions.
-    FirebaseHandler.registerForPostsDeletion(postId => this.onPostDeleted(postId));
+        // Add new posts from followers live.
+        FirebaseHandler.startHomeFeedLiveUpdaters();
+
+        // Listen for posts deletions.
+        FirebaseHandler.registerForPostsDeletion(postId => this.onPostDeleted(postId));
+      });
+    }
   }
-
-
 
   /**
    * Triggered when a post has been deleted.
@@ -365,4 +361,4 @@ class Feed extends React.Component {
     }
 }
 
-export default withRouter(Feed)
+export default Home

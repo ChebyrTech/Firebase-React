@@ -2,7 +2,7 @@ import React from 'react'
 import {Link, withRouter} from 'react-router' 
 
 import {connect} from 'react-redux'
-import { bindActionCreators} from 'redux'
+import { bindActionCreators} from 'redux' 
 
 import * as appActions from '../actions/appActions' 
 
@@ -95,9 +95,11 @@ class SinglePost extends React.Component {
         }, 
         nextPage: '', 
 
-        textTime: 'now'
-        
+        textTime: 'now', 
+        mounted: false  
+
         }
+
     
     }
     
@@ -105,9 +107,21 @@ class SinglePost extends React.Component {
 
 componentDidMount(){
 
+    this.setState({
+        mounted: true 
+    })
     var postId = this.props.params.postid || this.props.postId; 
     this.loadPost(postId); 
 } 
+
+componentWillUnmount() {
+    this.setState({
+        mounted: false 
+    })
+
+   // FirebaseHandler.cancelAllSubscriptions();
+}
+
 
 
   /**
@@ -123,7 +137,7 @@ componentDidMount(){
 
       if (!post) {
         var data = {
-          message: 'This post does not exists.',
+          message: 'This post does not exist.',
           timeout: 5000
         };
 
@@ -160,7 +174,6 @@ componentDidMount(){
    */
   displayComments(comments) {
 
-      console.log(comments)
       var self = this; 
 
     var comments_state = self.state.comments.slice(); 
@@ -331,18 +344,21 @@ componentDidMount(){
       const commentIds = Object.keys(data.entries);
       FirebaseHandler.subscribeToComments(postId, (commentId, commentData) => { 
 
+          if (self.state.mounted) {
           var comment_array = this.state.comments;  
 
           var new_comment =  self.createCommentJsx(commentData.author, commentData.text)
 
           comment_array.push(new_comment)
+          }
 
       }, commentIds ? commentIds[commentIds.length - 1] : 0);
     });
 
-    if (this.auth.currentUser) {
+    if (this.auth.currentUser && self.state.mounted) {
 
       const ran = Math.floor(Math.random() * 10000000); 
+
 
       self.setState({
           commentId:  `${postId}-${ran}-comment`
@@ -388,9 +404,11 @@ componentDidMount(){
         } 
 
         FirebaseHandler.addComment(self.state.postId, self.state.newCommentText);
-        self.setState({
-            newCommentText: ''
-        })
+        if (self.state.mounted) {
+            self.setState({
+                newCommentText: ''
+            })
+        }
   }
 
   /**
@@ -398,9 +416,12 @@ componentDidMount(){
    * @private
    */
   _setupDeleteButton(postId, author, picStorageUri, thumbStorageUri) {
-    const post = document.getElementById('post'); 
+    
+    if (!this.state.mounted) return; 
 
-    if (this.auth.currentUser && this.auth.currentUser.uid === author.uid && picStorageUri && this.props.params.postId) { 
+    if (this.auth.currentUser && this.auth.currentUser.uid === author.uid && picStorageUri && this.props.params.postid) { 
+
+        
         this.setState({
           deleteBtnStyle: {
               display: 'block'
@@ -479,6 +500,7 @@ componentDidMount(){
     if (this.auth.currentUser) { 
       // Listen to like status.
       FirebaseHandler.registerToUserLike(postId, isliked => { 
+        if (!self.state.mounted) return; 
         if (isliked) { 
 
             self.setState({
@@ -509,7 +531,8 @@ componentDidMount(){
       }); 
 
 
-        FirebaseHandler.registerForLikesCount(postId, nbLikes => {
+        FirebaseHandler.registerForLikesCount(postId, nbLikes => { 
+            if (!self.state.mounted) return; 
             if (nbLikes > 0) {
                 self.setState({
                     likesCount: nbLikes
@@ -541,7 +564,7 @@ componentDidMount(){
         var postId = this.props.params.postid || this.props.postId; 
         FirebaseHandler.updateLike(postId, willBeLiked); 
 
-
+        if (!this.state.mounted) return; 
         if (willBeLiked) { 
 
             this.setState({ 

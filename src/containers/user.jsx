@@ -42,6 +42,7 @@ class UserProfile extends React.Component {
                 display: 'none'
             },
             nextPageBtnDisabled: false, 
+            followChecked: true, 
             followingContainerClass: '', 
             nbFollowing: 0, 
             nbFollowers: 0, 
@@ -81,8 +82,10 @@ class UserProfile extends React.Component {
 
 
     componentDidMount() {
-
+       console.log('mounted')
        var self = this; 
+
+       
        this.auth.onAuthStateChanged((user)=> {
             
             this.trackFollowStatus(); 
@@ -96,11 +99,14 @@ class UserProfile extends React.Component {
                 })
             }  
 
-        })
+        }) 
 
-        
-     
     } 
+
+    componentWillUnmount() {
+
+       // FirebaseHandler.cancelAllSubscriptions(); 
+    }
 
     
   /**
@@ -108,20 +114,7 @@ class UserProfile extends React.Component {
    */
   onFollowChange(e, self) {
 
-    if (e.target.checked) {
-        var label = 'Following'
-
-    } else {
-       var label = 'Follow'
-    }
-    self.setState({
-        followCheckboxChecked: e.target.checked, 
-        followLabelText: label
-    }) 
-
-    console.log(this.state.followCheckboxChecked)
-
-    FirebaseHandler.toggleFollowUser(this.props.params.uid, this.state.followCheckboxChecked); 
+     FirebaseHandler.toggleFollowUser(self.props.params.uid, e.target.checked); 
 
   }
 
@@ -134,22 +127,41 @@ class UserProfile extends React.Component {
     var self = this; 
 
  
-    FirebaseHandler.registerToFollowStatusUpdate(this.auth.currentUser.uid, data => { 
-         if (data.val() !== null) {
-            //Utils.refreshSwitchState(document.querySelector('.fp-name-follow-container'))
-         }
-    
- 
-       }); 
+    FirebaseHandler.registerToFollowStatusUpdate(this.props.params.uid, data => {  
 
-    }
+       var checkbox = document.getElementById('follow'); 
+       if (data.val() !== null) { 
+
+           checkbox.checked = true; 
+
+  
+            self.setState({
+                followChecked: 'is-checked', 
+                followLabelText : 'Following'
+            })
+           
+
+     } else {
+  
+           self.setState({
+               followChecked: '', 
+               followLabelText : 'Follow'
+           }) 
+         
+             checkbox.checked = false; 
+            }
+          }); 
+
+     }
   }
 
 
   /**
    * Adds the list of posts to the UI.
    */
-  addPosts(posts) {
+  addPosts(posts) { 
+
+
     const postIds = Object.keys(posts); 
     var self = this; 
 
@@ -204,6 +216,7 @@ class UserProfile extends React.Component {
    * Next page button click handler 
    */
   showNextPage(e, self) {
+    
       self.setState({
           nextPageBtnDisabled: true 
       }) 
@@ -221,11 +234,11 @@ class UserProfile extends React.Component {
    * Displays the given user information in the UI.
    */
   loadUser(userId) {
-    
+
     // If users is the currently signed-in user we hide the "Follow" checkbox and the opposite for
     // the "Notifications" checkbox.
     if (this.auth.currentUser && userId == this.auth.currentUser.uid) {
-     // this.followContainer.hide();
+
         this.setState({
             followContainerStyle: {
                 display: 'none'
@@ -269,7 +282,9 @@ class UserProfile extends React.Component {
 
     // Load user's profile.
     FirebaseHandler.loadUserProfile(userId).then(snapshot => {
-      const userInfo = snapshot.val();
+  
+      const userInfo = snapshot.val(); 
+
       self.setState({
           userDetail: userInfo
       })
@@ -300,15 +315,17 @@ class UserProfile extends React.Component {
     });
 
     // Load user's number of followers.
-    FirebaseHandler.registerForFollowersCount(userId,
+    FirebaseHandler.registerForFollowersCount(this.props.params.uid,
         nbFollowers => {
+     
             self.setState({
                 nbFollowers: nbFollowers
             })
+
     })
 
     // Load user's number of followed users.
-    FirebaseHandler.registerForFollowingCount(this.auth.currentUser.uid,
+    FirebaseHandler.registerForFollowingCount(this.props.params.uid,
         nbFollowed => {
 
             self.setState({
@@ -318,42 +335,50 @@ class UserProfile extends React.Component {
 
 
     // Load user's number of posts.
-    FirebaseHandler.registerForPostsCount(userId,
-    nbPosts => {
-        self.setState({
-            nbPosts: nbPosts
-        })
+    FirebaseHandler.registerForPostsCount(this.props.params.uid,
+    nbPosts => { 
+ 
+
+            self.setState({
+                nbPosts: nbPosts
+            })
+        
     })
 
     // Display user's posts.
-    FirebaseHandler.getUserFeedPosts(userId).then(data => {
-      const postIds = Object.keys(data.entries);
-      if (postIds.length === 0) {
-        self.setState({
-            noPostsStyle: {
-                display: 'block'
-            }
-        }) 
+    FirebaseHandler.getUserFeedPosts(this.props.params.uid).then(data => {
+
+ 
+        const postIds = Object.keys(data.entries);
+        if (postIds.length === 0) {
+            self.setState({
+                noPostsStyle: {
+                    display: 'block'
+                }
+            }) 
+        }
         
-      }
+      
+    
       FirebaseHandler.subscribeToUserFeed(userId,
         (postId, postValue) => { 
-
+     
           var posts_array = self.state.posts.slice();  
           posts_array.unshift(self.createImageCard(postId,
           postValue.thumb_url || postValue.url, postValue.text)) 
          
  
-         self.setState({
-             noPostsStyle: {
-                 display :'none'
-             }, 
-             posts: posts_array
-         }) 
-
-         
+    
+            self.setState({
+                noPostsStyle: {
+                    display :'none'
+                }, 
+                posts: posts_array
+            }) 
+           
+      
         }, postIds[postIds.length - 1]);
-
+    
       // Adds fetched posts and next page button if necessary.
     self.addPosts(data.entries);
     self.toggleNextPageButton(data.nextPage);
@@ -365,8 +390,6 @@ class UserProfile extends React.Component {
     
        var posts = self.state.posts.slice();  
 
-
-       console.log('post stuff')
        var filtered = posts.filter((el) => {
 
            if (el.key == postId) {
@@ -389,13 +412,8 @@ class UserProfile extends React.Component {
    * Displays the list of followed people.
    */
   displayFollowing(self) { 
-    
+ 
     FirebaseHandler.getFollowingProfiles(this.props.params.uid).then(profiles => {
-
-
-    //   self.setState({
-    //       nbFollowing: 0
-    //   })
 
       var profiles_arr = []; 
 
@@ -420,14 +438,14 @@ class UserProfile extends React.Component {
 
       } 
 
-      console.log(profiles_arr); 
     });
   } 
 
 /**
  * Hides the list of followed people
  */
-  closeFollowing(self) {
+  closeFollowing(self) { 
+ 
       self.setState({
           followingContainerClass: '', 
           followingContainerStyle: {
@@ -453,19 +471,21 @@ class UserProfile extends React.Component {
    * Returns an image Card element for the image with the given URL.
    */
   createImageCard(postId, thumbUrl, text) {
-
+ 
     var self = this; 
     var thumbStyle = {
         backgroundImage: `url("${thumbUrl.replace(/"/g, '\\"')}")`
     } 
 
 
-
     const element = (
     <a onClick={(e)=>{this.hrefHandler(self, postId, 'post')}} key={postId} className={"fp-post-" + postId + " fp-image mdl-cell mdl-cell--12-col mdl-cell--4-col-tablet mdl-cell--4-col-desktop mdl-grid mdl-grid--no-spacing"}>
+             
+            
+
              <div className="fp-overlay">
-                  <i className="material-icons">favorite</i><span className={"likes " + "likes" + postId}>0</span>
-                  <i className="material-icons">mode_comment</i><span className={"comments " + "comments" + postId}>0</span>
+                  <i className="material-icons">favorite</i><span className={"likes " + "likes" + postId}></span>
+                  <i className="material-icons">mode_comment</i><span className={"comments " + "comments" + postId}></span>
                   <div className="fp-pic-text">{text}</div>
               </div>
               <div className="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop" style={thumbStyle}></div>
@@ -480,10 +500,12 @@ class UserProfile extends React.Component {
    * Returns an image Card element for the image with the given URL.
    */
   createProfileCardJsx(uid, profilePic = '/images/silhouette.jpg', fullName = 'Anonymous') {
-
+  
     var avatarStyle = {
         backgroundImage: `url('${profilePic}'`
     }
+
+
     return (
     <a onClick={()=>{this.hrefHandler(this,uid,'user')}} key={uid} className="fp-usernamelink mdl-button mdl-js-button">
             <div className="fp-avatar" style={avatarStyle}></div>
@@ -500,8 +522,8 @@ class UserProfile extends React.Component {
                 <div className="fp-name-follow-container mdl-cell mdl-cell--5-col">
                 <div className="fp-user-username">{this.state.userName}</div>
                 <div className="fp-signed-in-only">
-                    <label className="fp-follow mdl-switch mdl-js-switch mdl-js-ripple-effect" style={this.state.followContainerStyle} htmlFor="follow" >
-                    <input type="checkbox" id="follow" className="mdl-switch__input" checked={this.state.followCheckboxChecked} disabled={this.state.followCheckboxDisabled} onChange={(e)=>{this.onFollowChange(e, this)}}/>
+                    <label className={"fp-follow mdl-switch mdl-js-switch mdl-js-ripple-effect " + this.state.followChecked} style={this.state.followContainerStyle} htmlFor="follow" onChange={(e)=>{this.onFollowChange(e, this)}}>
+                    <input type="checkbox" id="follow" className="mdl-switch__input" />
                     <span className="mdl-switch__label">{this.state.followLabelText}</span>
                     </label>
                     <label className="fp-notifications mdl-switch mdl-js-switch mdl-js-ripple-effect" htmlFor="notifications" style={this.state.notificationContainerStyle}>
@@ -531,23 +553,39 @@ class UserProfile extends React.Component {
                 {this.state.posts.map((post) => { 
 
                     var postId = post.key;  
+                
+               
 
-                    try {
-                            //Start listening for comments and likes counts.
-                            FirebaseHandler.registerForLikesCount(postId, (nbLikes) => {    
+                    var likes, comments = null;      
+                    setTimeout(get_post_status, 20)
+
+                        function get_post_status() {
                         
-                                document.querySelector('.likes' + postId).innerHTML = nbLikes; 
-                                
-                                
-                            })
-                            FirebaseHandler.registerForCommentsCount(postId, (nbComments) => {
+                                //Start listening for comments and likes counts.
+                                FirebaseHandler.registerForLikesCount(postId, (nbLikes) => {    
+                            
 
-                                document.querySelector('.comments' + postId).innerHTML = nbComments; 
-                            }) 
-                        } 
-                    catch(e) {
-                            console.log('error loading user posts')
+                                    if (document.querySelectorAll('.likes' + postId).length > 0) { 
+                                        likes = nbLikes
+                                        document.querySelector('.likes' + postId).innerHTML = nbLikes; 
+                                    }
+                                    
+                                })
+                                FirebaseHandler.registerForCommentsCount(postId, (nbComments) => {
+                                
+
+                                    if (document.querySelectorAll('.comments' + postId).length > 0) {
+                                        comments = comments; 
+                                        document.querySelector('.comments' + postId).innerHTML = nbComments; 
+                                    }
+                                }) 
+
+                                if (!comments || !likes) {
+                                    setTimeout(get_post_status, 20)
+                                }
+                         
                         }
+
 
                     return post;  
 

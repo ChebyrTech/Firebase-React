@@ -16,7 +16,7 @@ class FirebaseHandler {
 
         // settings 
         this.COMMENTS_PAGE_SIZE = 3; 
-        this.POSTS_PAGE_SIZE = 6; 
+        this.POSTS_PAGE_SIZE = 4; 
         this.USER_PAGE_POSTS_PAGE_SIZE = 6; 
 
     }
@@ -82,6 +82,7 @@ class FirebaseHandler {
    * Turns off all Firebase listeners.
    */
   cancelAllSubscriptions() {
+
     this.firebaseRefs.forEach(ref => ref.off());
     this.firebaseRefs = [];
   }

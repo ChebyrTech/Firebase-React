@@ -13,14 +13,22 @@ import Dashboard from './containers/dashboard.jsx'
 import NewPost from './containers/new_post.jsx' 
 import Feed from './containers/feed.jsx'
 import User from './containers/user.jsx'
+import Home from './containers/home.jsx'
 
 // components
 import About from './components/about.jsx'
-import PostWrap from './components/post_wrapper.jsx'
+import PostWrap from './components/post_wrapper.jsx' 
+
 
 
 class App extends React.Component {
+    componentDidUpdate() {
+        componentHandler.upgradeDom();
+    } 
 
+    componentDidMount() {
+        componentHandler.upgradeDom();
+    }
     render() {
 
         return ( 
@@ -37,7 +45,7 @@ var container = document.getElementById('app');
 ReactDOM.render(<Provider store={store}>
     <Router history={hashHistory}>
         <Route path="/" component={App}>
-                    <IndexRoute component={Feed}></IndexRoute>
+                    <IndexRoute component={Home}></IndexRoute>
                     <Route path="/about" component={About}></Route>
                     <Route path="/feed" component={Feed}></Route>
                     <Route path="/add" component={NewPost}></Route>

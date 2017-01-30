@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux'
 import Header from './header.jsx'
 
 import Toast from './toast.jsx'
-
+import Feed from './feed.jsx'
 
 class Dashboard extends React.Component {
 

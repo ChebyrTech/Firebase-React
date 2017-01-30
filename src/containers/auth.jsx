@@ -38,26 +38,14 @@ class Auth extends React.Component {
         var firebaseUi = new firebaseui.auth.AuthUI(firebase.auth());
         firebaseUi.start('#firebaseui-auth-container', uiConfig);
 
-        if (this.props.location.pathname != '') {
+
+        if (this.props.location.pathname != '/') {
             this.setState({ loggedInCls: "login-fadeout" });
-        }
+        } 
 
     }
 
 
-    componentWillReceiveProps(nextProps) {
-
-        // Check if the user is authorized 
-        if (nextProps.user.uid != '') {
-
-
-            this.setState({ loggedInCls: "login-fadeout" });
-            this.setState({ signOutOnlyStyle: { display: 'none' } });
-
-        }
-
-
-    }
 
     /**
     * Authentication
@@ -68,11 +56,17 @@ class Auth extends React.Component {
             this.props.signIn(user);
             console.log('logged in');
 
+            this.setState({
+                loggedInCls: 'login-fadeout'
+            })
+
             FirebaseHandler.saveUserData(user.photoURL, user.displayName);
         } else {
 
-            this.setState({ signOutOnlyStyle: { display: 'block' } });
-
+            this.setState({ 
+                signOutOnlyStyle: { display: 'block' } 
+         });
+            
             console.log('logged out');
         }
     }

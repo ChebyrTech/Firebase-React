@@ -9,6 +9,7 @@ import authReducer from '../reducers/auth.js'
 
 import { Link, withRouter } from 'react-router'
 
+import FirebaseHandler from '../firebase'
 
 class Header extends React.Component {
 
@@ -85,6 +86,7 @@ class Header extends React.Component {
 
     componentDidUpdate() {
         componentHandler.upgradeDom();
+      //  FirebaseHandler.cancelAllSubscriptions(); 
     }
 
 
@@ -138,8 +140,6 @@ class Header extends React.Component {
         });
     }
 
-
-
     render() {
         return (<div>
 
@@ -190,8 +190,8 @@ class Header extends React.Component {
                 <div className="fp-tab mdl-layout__header-row mdl-cell--hide-phone mdl-color--light-blue-600">
 
                     <div className="mdl-tab">
-                        <Link to="/"><span id="fp-menu-home" className="mdl-layout__tab fp-signed-in-only is-active mdl-button mdl-js-button mdl-js-ripple-effect" style={this.state.signedInOnlyStyle}> <i className="material-icons">home</i> Home</span></Link>
-                        <Link to="/feed"><span id="fp-menu-feed" className="mdl-layout__tab mdl-button mdl-js-button mdl-js-ripple-effect"><i className="material-icons">trending_up</i> Feed</span></Link>
+                        <a href="#/" id="fp-menu-home" className="mdl-layout__tab fp-signed-in-only is-active mdl-button mdl-js-button mdl-js-ripple-effect" style={this.state.signedInOnlyStyle}> <i className="material-icons">home</i> Home</a>
+                       <a href="#/feed" id="fp-menu-feed" className="mdl-layout__tab mdl-button mdl-js-button mdl-js-ripple-effect"><i className="material-icons">trending_up</i> Feed</a>
 
                         <label className="fp-signed-in-only mdl-button mdl-js-button mdl-button--fab mdl-cell--hide-tablet mdl-color--amber-400 mdl-shadow--4dp mdl-js-ripple-effect" id="add" style={this.state.signedInOnlyStyle}>
                             <i className="material-icons">file_upload</i>

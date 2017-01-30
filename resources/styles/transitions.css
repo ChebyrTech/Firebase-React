@@ -47,3 +47,6 @@ body {
 	left: 0;
 } 
 
+#follow {
+    opacity: 0;
+}

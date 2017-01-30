@@ -76,11 +76,11 @@
 
 	var _dashboard2 = _interopRequireDefault(_dashboard);
 
-	var _new_post = __webpack_require__(274);
+	var _new_post = __webpack_require__(278);
 
 	var _new_post2 = _interopRequireDefault(_new_post);
 
-	var _feed = __webpack_require__(275);
+	var _feed = __webpack_require__(274);
 
 	var _feed2 = _interopRequireDefault(_feed);
 
@@ -88,11 +88,15 @@
 
 	var _user2 = _interopRequireDefault(_user);
 
-	var _about = __webpack_require__(280);
+	var _home = __webpack_require__(280);
+
+	var _home2 = _interopRequireDefault(_home);
+
+	var _about = __webpack_require__(281);
 
 	var _about2 = _interopRequireDefault(_about);
 
-	var _post_wrapper = __webpack_require__(281);
+	var _post_wrapper = __webpack_require__(282);
 
 	var _post_wrapper2 = _interopRequireDefault(_post_wrapper);
 
@@ -123,6 +127,16 @@
 	    }
 
 	    _createClass(App, [{
+	        key: 'componentDidUpdate',
+	        value: function componentDidUpdate() {
+	            componentHandler.upgradeDom();
+	        }
+	    }, {
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            componentHandler.upgradeDom();
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 
@@ -153,7 +167,7 @@
 	        _react2.default.createElement(
 	            _reactRouter.Route,
 	            { path: '/', component: App },
-	            _react2.default.createElement(_reactRouter.IndexRoute, { component: _feed2.default }),
+	            _react2.default.createElement(_reactRouter.IndexRoute, { component: _home2.default }),
 	            _react2.default.createElement(_reactRouter.Route, { path: '/about', component: _about2.default }),
 	            _react2.default.createElement(_reactRouter.Route, { path: '/feed', component: _feed2.default }),
 	            _react2.default.createElement(_reactRouter.Route, { path: '/add', component: _new_post2.default }),
@@ -29394,7 +29408,7 @@
 
 	var _auth2 = _interopRequireDefault(_auth);
 
-	var _firebase = __webpack_require__(273);
+	var _firebase = __webpack_require__(272);
 
 	var _firebase2 = _interopRequireDefault(_firebase);
 
@@ -29436,19 +29450,8 @@
 	            var firebaseUi = new firebaseui.auth.AuthUI(firebase.auth());
 	            firebaseUi.start('#firebaseui-auth-container', uiConfig);
 
-	            if (this.props.location.pathname != '') {
+	            if (this.props.location.pathname != '/') {
 	                this.setState({ loggedInCls: "login-fadeout" });
-	            }
-	        }
-	    }, {
-	        key: 'componentWillReceiveProps',
-	        value: function componentWillReceiveProps(nextProps) {
-
-	            // Check if the user is authorized 
-	            if (nextProps.user.uid != '') {
-
-	                this.setState({ loggedInCls: "login-fadeout" });
-	                this.setState({ signOutOnlyStyle: { display: 'none' } });
 	            }
 	        }
 
@@ -29464,10 +29467,16 @@
 	                this.props.signIn(user);
 	                console.log('logged in');
 
+	                this.setState({
+	                    loggedInCls: 'login-fadeout'
+	                });
+
 	                _firebase2.default.saveUserData(user.photoURL, user.displayName);
 	            } else {
 
-	                this.setState({ signOutOnlyStyle: { display: 'block' } });
+	                this.setState({
+	                    signOutOnlyStyle: { display: 'block' }
+	                });
 
 	                console.log('logged out');
 	            }
@@ -29684,9 +29693,13 @@
 
 	var _header2 = _interopRequireDefault(_header);
 
-	var _toast = __webpack_require__(272);
+	var _toast = __webpack_require__(273);
 
 	var _toast2 = _interopRequireDefault(_toast);
+
+	var _feed = __webpack_require__(274);
+
+	var _feed2 = _interopRequireDefault(_feed);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -29782,6 +29795,10 @@
 
 	var _reactRouter = __webpack_require__(172);
 
+	var _firebase = __webpack_require__(272);
+
+	var _firebase2 = _interopRequireDefault(_firebase);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -29870,6 +29887,7 @@
 	        key: 'componentDidUpdate',
 	        value: function componentDidUpdate() {
 	            componentHandler.upgradeDom();
+	            //  FirebaseHandler.cancelAllSubscriptions(); 
 	        }
 
 	        /**
@@ -30056,33 +30074,25 @@
 	                            'div',
 	                            { className: 'mdl-tab' },
 	                            _react2.default.createElement(
-	                                _reactRouter.Link,
-	                                { to: '/' },
+	                                'a',
+	                                { href: '#/', id: 'fp-menu-home', className: 'mdl-layout__tab fp-signed-in-only is-active mdl-button mdl-js-button mdl-js-ripple-effect', style: this.state.signedInOnlyStyle },
+	                                ' ',
 	                                _react2.default.createElement(
-	                                    'span',
-	                                    { id: 'fp-menu-home', className: 'mdl-layout__tab fp-signed-in-only is-active mdl-button mdl-js-button mdl-js-ripple-effect', style: this.state.signedInOnlyStyle },
-	                                    ' ',
-	                                    _react2.default.createElement(
-	                                        'i',
-	                                        { className: 'material-icons' },
-	                                        'home'
-	                                    ),
-	                                    ' Home'
-	                                )
+	                                    'i',
+	                                    { className: 'material-icons' },
+	                                    'home'
+	                                ),
+	                                ' Home'
 	                            ),
 	                            _react2.default.createElement(
-	                                _reactRouter.Link,
-	                                { to: '/feed' },
+	                                'a',
+	                                { href: '#/feed', id: 'fp-menu-feed', className: 'mdl-layout__tab mdl-button mdl-js-button mdl-js-ripple-effect' },
 	                                _react2.default.createElement(
-	                                    'span',
-	                                    { id: 'fp-menu-feed', className: 'mdl-layout__tab mdl-button mdl-js-button mdl-js-ripple-effect' },
-	                                    _react2.default.createElement(
-	                                        'i',
-	                                        { className: 'material-icons' },
-	                                        'trending_up'
-	                                    ),
-	                                    ' Feed'
-	                                )
+	                                    'i',
+	                                    { className: 'material-icons' },
+	                                    'trending_up'
+	                                ),
+	                                ' Feed'
 	                            ),
 	                            _react2.default.createElement(
 	                                'label',
@@ -30132,121 +30142,6 @@
 
 /***/ },
 /* 272 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(248);
-
-	var _redux = __webpack_require__(227);
-
-	var _appActions = __webpack_require__(269);
-
-	var appActions = _interopRequireWildcard(_appActions);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Toast = function (_React$Component) {
-	    _inherits(Toast, _React$Component);
-
-	    function Toast(props) {
-	        _classCallCheck(this, Toast);
-
-	        return _possibleConstructorReturn(this, (Toast.__proto__ || Object.getPrototypeOf(Toast)).call(this, props));
-	    }
-
-	    _createClass(Toast, [{
-	        key: 'componentWillReceiveProps',
-	        value: function componentWillReceiveProps(newProps) {
-
-	            // user load error 
-	            if (newProps.userLoadError) {
-
-	                if ('message' in newProps.userLoadError) {
-	                    document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.userLoadError);
-	                    this.props.clearUserError();
-	                }
-	            }
-
-	            if ("successData" in newProps.upload) {
-
-	                // show snackbar if the image was uploaded successfully 
-	                if (typeof this.props.successData == 'undefined' || newProps.upload.successData.postid != this.props.successData.postid) {
-	                    if ('message' in newProps.upload.successData) {
-	                        document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.upload.successData);
-	                    }
-	                }
-	            } else if ("errorData" in newProps.upload) {
-
-	                // show snackbar error message  
-	                if (typeof newProps.errorData == 'undefined' || newProps.upload.errorData.index != this.props.upload.errorData.index) {
-	                    if ('message' in newProps.upload.errorData) {
-	                        document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.upload.errorData);
-	                        this.props.clearUploadError();
-	                    }
-	                }
-	            }
-
-	            // error deleting post 
-	            if (newProps.deleteData) {
-	                if ('message' in newProps.deleteData) document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.deleteData);
-	                this.props.errorHandled();
-	            }
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            return _react2.default.createElement(
-	                'div',
-	                { 'aria-live': 'assertive', 'aria-atomic': 'true', 'aria-relevant': 'text', className: 'mdl-snackbar mdl-js-snackbar' },
-	                _react2.default.createElement('div', { className: 'mdl-snackbar__text' }),
-	                _react2.default.createElement('button', { type: 'button', className: 'mdl-snackbar__action' })
-	            );
-	        }
-	    }]);
-
-	    return Toast;
-	}(_react2.default.Component);
-
-	function mapStateToProps(state) {
-	    return {
-	        upload: state.upload,
-	        deleteData: state.feed.errorData,
-	        userLoadError: state.user.errorData
-	    };
-	}
-
-	function matchDispatchToProps(dispatch) {
-	    return (0, _redux.bindActionCreators)({
-	        errorHandled: appActions.errorHandled,
-	        clearUserError: appActions.clearUserError,
-	        clearUploadError: appActions.clearUploadError
-
-	    }, dispatch);
-	}
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, matchDispatchToProps)(Toast);
-
-/***/ },
-/* 273 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -30275,7 +30170,7 @@
 
 	    // settings 
 	    this.COMMENTS_PAGE_SIZE = 3;
-	    this.POSTS_PAGE_SIZE = 6;
+	    this.POSTS_PAGE_SIZE = 4;
 	    this.USER_PAGE_POSTS_PAGE_SIZE = 6;
 	  }
 
@@ -30350,6 +30245,7 @@
 	  }, {
 	    key: 'cancelAllSubscriptions',
 	    value: function cancelAllSubscriptions() {
+
 	      this.firebaseRefs.forEach(function (ref) {
 	        return ref.off();
 	      });
@@ -31033,7 +30929,703 @@
 	exports.default = new FirebaseHandler();
 
 /***/ },
+/* 273 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(248);
+
+	var _redux = __webpack_require__(227);
+
+	var _appActions = __webpack_require__(269);
+
+	var appActions = _interopRequireWildcard(_appActions);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Toast = function (_React$Component) {
+	    _inherits(Toast, _React$Component);
+
+	    function Toast(props) {
+	        _classCallCheck(this, Toast);
+
+	        return _possibleConstructorReturn(this, (Toast.__proto__ || Object.getPrototypeOf(Toast)).call(this, props));
+	    }
+
+	    _createClass(Toast, [{
+	        key: 'componentWillReceiveProps',
+	        value: function componentWillReceiveProps(newProps) {
+
+	            // user load error 
+	            if (newProps.userLoadError) {
+
+	                if ('message' in newProps.userLoadError) {
+	                    document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.userLoadError);
+	                    this.props.clearUserError();
+	                }
+	            }
+
+	            if ("successData" in newProps.upload) {
+
+	                // show snackbar if the image was uploaded successfully 
+	                if (typeof this.props.successData == 'undefined' || newProps.upload.successData.postid != this.props.successData.postid) {
+	                    if ('message' in newProps.upload.successData) {
+	                        document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.upload.successData);
+	                    }
+	                }
+	            } else if ("errorData" in newProps.upload) {
+
+	                // show snackbar error message  
+	                if (typeof newProps.errorData == 'undefined' || newProps.upload.errorData.index != this.props.upload.errorData.index) {
+	                    if ('message' in newProps.upload.errorData) {
+	                        document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.upload.errorData);
+	                        this.props.clearUploadError();
+	                    }
+	                }
+	            }
+
+	            // error deleting post 
+	            if (newProps.deleteData) {
+	                if ('message' in newProps.deleteData) document.getElementsByClassName('mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar(newProps.deleteData);
+	                this.props.errorHandled();
+	            }
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            return _react2.default.createElement(
+	                'div',
+	                { 'aria-live': 'assertive', 'aria-atomic': 'true', 'aria-relevant': 'text', className: 'mdl-snackbar mdl-js-snackbar' },
+	                _react2.default.createElement('div', { className: 'mdl-snackbar__text' }),
+	                _react2.default.createElement('button', { type: 'button', className: 'mdl-snackbar__action' })
+	            );
+	        }
+	    }]);
+
+	    return Toast;
+	}(_react2.default.Component);
+
+	function mapStateToProps(state) {
+	    return {
+	        upload: state.upload,
+	        deleteData: state.feed.errorData,
+	        userLoadError: state.user.errorData
+	    };
+	}
+
+	function matchDispatchToProps(dispatch) {
+	    return (0, _redux.bindActionCreators)({
+	        errorHandled: appActions.errorHandled,
+	        clearUserError: appActions.clearUserError,
+	        clearUploadError: appActions.clearUploadError
+
+	    }, dispatch);
+	}
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, matchDispatchToProps)(Toast);
+
+/***/ },
 /* 274 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRouter = __webpack_require__(172);
+
+	var _theatre = __webpack_require__(275);
+
+	var _theatre2 = _interopRequireDefault(_theatre);
+
+	var _single_post = __webpack_require__(276);
+
+	var _single_post2 = _interopRequireDefault(_single_post);
+
+	var _firebase = __webpack_require__(272);
+
+	var _firebase2 = _interopRequireDefault(_firebase);
+
+	var _utils = __webpack_require__(277);
+
+	var _utils2 = _interopRequireDefault(_utils);
+
+	var _reactRedux = __webpack_require__(248);
+
+	var _redux = __webpack_require__(227);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Feed = function (_React$Component) {
+	  _inherits(Feed, _React$Component);
+
+	  function Feed(props) {
+	    _classCallCheck(this, Feed);
+
+	    // List of all posts on the page.
+	    var _this = _possibleConstructorReturn(this, (Feed.__proto__ || Object.getPrototypeOf(Feed)).call(this, props));
+
+	    _this.posts = [];
+	    // Map of posts that can be displayed.
+	    _this.newPosts = {};
+
+	    // Firebase SDK.
+	    _this.auth = firebase.auth();
+
+	    _this.state = {
+	      posts: [],
+	      noPostsStyle: {
+	        display: 'block'
+	      },
+	      nextPageBtnDisabled: true,
+	      nextPageBtnStyle: {
+	        display: 'none'
+	      },
+
+	      newPostsBtnStyle: {
+	        display: 'none'
+	      },
+	      nbNewPosts: 0,
+	      newPosts: {},
+	      newPostsArr: [],
+	      newBtnText: 'Show new posts...',
+	      clickHandlerAdded: false
+	    };
+
+	    _this.addPosts = _this.addPosts.bind(_this);
+	    _this.toggleNextPageButton = _this.toggleNextPageButton.bind(_this);
+	    _this.showNewPosts = _this.showNewPosts.bind(_this);
+
+	    _this.showGeneralFeed = _this.showGeneralFeed.bind(_this);
+
+	    _this.onPostDeleted = _this.onPostDeleted.bind(_this);
+	    _this.addNewPost = _this.addNewPost.bind(_this);
+	    return _this;
+	  }
+
+	  _createClass(Feed, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+
+	      var self = this;
+
+	      this.auth.onAuthStateChanged(function (user) {
+
+	        self.showGeneralFeed();
+	      });
+
+	      componentHandler.upgradeDom();
+	    }
+	  }, {
+	    key: 'componentDidUpdate',
+	    value: function componentDidUpdate() {
+	      componentHandler.upgradeDom();
+	    }
+	  }, {
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {}
+
+	    // ----------------------------------------------
+
+	    /**
+	     * Appends the given list of `posts`.
+	     */
+
+	  }, {
+	    key: 'addPosts',
+	    value: function addPosts(posts) {
+
+	      // Displays the list of posts
+
+	      var posts_arr = this.state.posts.slice();
+
+	      //var posts_arr = [];
+
+	      var postIds = Object.keys(posts);
+	      for (var i = postIds.length - 1; i >= 0; i--) {
+
+	        this.setState({
+	          noPostsStyle: {
+	            display: 'none'
+	          }
+	        });
+
+	        var postData = posts[postIds[i]];
+
+	        var post = _react2.default.createElement(_single_post2.default, { postId: postIds[i], key: postIds[i], hideDeleteBtn: true });
+
+	        posts_arr.push(post);
+
+	        // const postElement = post.fillPostData(postIds[i], postData.thumb_url || postData.url,
+	        //     postData.text, postData.author, postData.timestamp, null, null, postData.full_url); 
+
+	        // If a post with similar ID is already in the feed we replace it instead of appending.
+	        // const existingPostElement = $(`.fp-post-${postIds[i]}`, this.feedImageContainer);
+	        // if (existingPostElement.length) {
+	        //   existingPostElement.replaceWith(postElement);
+	        // } else {
+	        //   this.feedImageContainer.append(postElement.addClass(`fp-post-${postIds[i]}`));
+	        // }
+
+	      }
+
+	      this.setState({
+	        posts: posts_arr
+	      });
+	    }
+
+	    /**
+	     * Shows the "load next page" button and binds it the `nextPage` callback. If `nextPage` is `null`
+	     * then the button is hidden.
+	     */
+
+	  }, {
+	    key: 'toggleNextPageButton',
+	    value: function toggleNextPageButton(nextPage) {
+
+	      var self = this;
+
+	      if (nextPage) {
+	        (function () {
+
+	          var loadMorePosts = function loadMorePosts() {
+
+	            self.setState({
+	              nextPageBtnDisabled: true
+	            });
+	            console.log('Loading next page of posts.');
+	            nextPage().then(function (data) {
+	              self.addPosts(data.entries);
+	              self.toggleNextPageButton(data.nextPage);
+	            });
+
+	            if (!self.state.clickHandlerAdded) {
+	              var btn = document.getElementById('load-more-btn');
+	              btn.onclick = loadMorePosts;
+
+	              self.setState({
+	                clickHandlerAdded: true
+	              });
+	            }
+	          };
+
+	          self.setState({
+	            nextPageBtnStyle: {
+	              display: 'block'
+	            },
+	            nextPageBtnDisabled: false
+	          });
+
+	          // Enable infinite Scroll
+	          _utils2.default.onEndScroll(100).then(loadMorePosts);
+	        })();
+	      } else {
+
+	        self.setState({
+	          nextPageBtnStyle: {
+	            display: 'none'
+	          }
+	        });
+	      }
+	    }
+
+	    /**
+	     * Prepends the list of new posts stored in `this.newPosts`. This happens when the user clicks on
+	     * the "Show new posts" button.
+	     */
+
+	  }, {
+	    key: 'showNewPosts',
+	    value: function showNewPosts(self) {
+
+	      self.setState({
+	        newPostsBtnStyle: {
+	          display: 'none'
+	        },
+	        noPostsStyle: {
+	          display: 'none'
+	        }
+	      });
+
+	      var newPosts = Object.assign({}, self.state.newPosts);
+
+	      var allPosts = self.state.posts.slice();
+	      var updatedPosts = [];
+
+	      var postKeys = Object.keys(newPosts);
+
+	      for (var i = 0; i < postKeys.length; i++) {
+
+	        var post = _react2.default.createElement(_single_post2.default, { postId: postKeys[i], key: postKeys[i], hideDeleteBtn: true });
+
+	        allPosts.unshift(post);
+	      }
+
+	      self.setState({
+	        posts: allPosts,
+	        newPosts: []
+	      });
+	    }
+
+	    /**
+	     * Displays the general posts feed.
+	     */
+
+	  }, {
+	    key: 'showGeneralFeed',
+	    value: function showGeneralFeed() {
+	      var _this2 = this;
+
+	      var self = this;
+	      // Load initial batch of posts.
+	      _firebase2.default.getPosts().then(function (data) {
+
+	        // Listen for new posts.
+	        var latestPostId = Object.keys(data.entries)[Object.keys(data.entries).length - 1];
+	        _firebase2.default.subscribeToGeneralFeed(function (postId, postValue) {
+	          return _this2.addNewPost(postId, postValue);
+	        }, latestPostId);
+
+	        // Adds fetched posts and next page button if necessary.
+	        self.addPosts(data.entries);
+	        self.toggleNextPageButton(data.nextPage);
+	      });
+
+	      // Listen for posts deletions.
+	      _firebase2.default.registerForPostsDeletion(function (postId) {
+	        return _this2.onPostDeleted(postId);
+	      });
+	    }
+
+	    /**
+	     * Triggered when a post has been deleted.
+	     */
+
+	  }, {
+	    key: 'onPostDeleted',
+	    value: function onPostDeleted(postId) {
+
+	      // Potentially remove post from in-memory new post list. 
+
+	      var allPosts = this.state.posts.slice();
+	      var newPosts = Object.assign({}, this.state.newPosts);
+
+	      var filtered_posts = allPosts.filter(function (post) {
+	        if (post.key == postId) return false;else return true;
+	      });
+
+	      delete newPosts[postId];
+
+	      this.setState({
+	        posts: filtered_posts,
+	        newPosts: newPosts
+	      });
+
+	      if (Object.keys(newPosts).length == 0) {
+	        this.setState({
+	          newPostsBtnStyle: {
+	            display: 'none'
+	          }
+	        });
+	      } else {
+	        this.setState({
+	          newBtnText: 'Display ' + Object.keys(newPosts).length + ' new posts'
+	        });
+	      }
+	    }
+
+	    /**
+	     * Adds a new post to display in the queue.
+	     */
+
+	  }, {
+	    key: 'addNewPost',
+	    value: function addNewPost(postId, postValue) {
+	      // this.newPosts[postId] = postValue;
+
+	      var postObj = Object.assign({}, this.state.newPosts);
+	      postObj[postId] = postValue;
+
+	      this.setState({
+	        newPosts: postObj,
+	        newBtnText: 'Display ' + Object.keys(postObj).length + ' new posts',
+	        newPostsBtnStyle: {
+	          display: 'flex'
+	        }
+	      });
+	    }
+
+	    // ---------------------------------------------
+
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this3 = this;
+
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(_theatre2.default, null),
+	        _react2.default.createElement(
+	          'section',
+	          { id: 'page-feed', className: 'mdl-grid fp-content' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'fp-new-posts-button', style: this.state.newPostsBtnStyle },
+	            _react2.default.createElement(
+	              'button',
+	              { className: 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--amber-400', style: this.state.newPostsBtnStyle, onClick: function onClick() {
+	                  _this3.showNewPosts(_this3);
+	                } },
+	              this.state.newBtnText
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'fp-image-container mdl-cell mdl-cell--12-col mdl-grid' },
+	            this.state.posts.map(function (post) {
+	              return post;
+	            }),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'fp-no-posts fp-help mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--8-col-desktop mdl-grid mdl-grid--no-spacing', style: this.state.noPostsStyle },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'mdl-card__supporting-text mdl-color-text--grey-600' },
+	                _react2.default.createElement(
+	                  'i',
+	                  { className: 'fp-info material-icons' },
+	                  'help'
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  null,
+	                  _react2.default.createElement(
+	                    'p',
+	                    null,
+	                    'Start following people to see their posts!'
+	                  ),
+	                  _react2.default.createElement(
+	                    'p',
+	                    null,
+	                    'Use the ',
+	                    _react2.default.createElement(
+	                      'strong',
+	                      null,
+	                      _react2.default.createElement(
+	                        'i',
+	                        { className: 'material-icons' },
+	                        'search'
+	                      ),
+	                      ' search bar'
+	                    ),
+	                    ' to find people you know and have a look at the ',
+	                    _react2.default.createElement(
+	                      _reactRouter.Link,
+	                      { to: '/feed' },
+	                      _react2.default.createElement(
+	                        'span',
+	                        null,
+	                        _react2.default.createElement(
+	                          'i',
+	                          { className: 'material-icons' },
+	                          'trending_up'
+	                        ),
+	                        ' feed'
+	                      )
+	                    ),
+	                    ' to discover interesting people.'
+	                  ),
+	                  _react2.default.createElement(
+	                    'p',
+	                    null,
+	                    'Then ',
+	                    _react2.default.createElement(
+	                      'i',
+	                      { className: 'material-icons' },
+	                      'favorite'
+	                    ),
+	                    ' like and comment their posts!'
+	                  )
+	                )
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'fp-next-page-button', id: 'more-posts', style: this.state.nextPageBtnStyle, disabled: this.state.nextPageBtnDisabled },
+	            _react2.default.createElement(
+	              'button',
+	              { className: 'mdl-button mdl-js-button mdl-button--raised mdl-button--fab', id: 'load-more-btn' },
+	              _react2.default.createElement(
+	                'i',
+	                { className: 'material-icons' },
+	                'expand_more'
+	              )
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Feed;
+	}(_react2.default.Component);
+
+	exports.default = (0, _reactRouter.withRouter)(Feed);
+
+/***/ },
+/* 275 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(248);
+
+	var _redux = __webpack_require__(227);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Theatre = function (_React$Component) {
+	    _inherits(Theatre, _React$Component);
+
+	    function Theatre(props) {
+	        _classCallCheck(this, Theatre);
+
+	        var _this = _possibleConstructorReturn(this, (Theatre.__proto__ || Object.getPrototypeOf(Theatre)).call(this, props));
+
+	        _this.state = {
+	            viewModeChanged: 0
+	        };
+	        return _this;
+	    }
+
+	    _createClass(Theatre, [{
+	        key: 'componentWillReceiveProps',
+	        value: function componentWillReceiveProps(newProps) {
+	            if (newProps.picUrl != '' && newProps.index != this.props.index) {
+	                this.enterTheatreMode(this);
+	            }
+	        }
+
+	        // Leave theatre mode 
+
+	    }, {
+	        key: 'leaveTheatreMode',
+	        value: function leaveTheatreMode(self) {
+
+	            document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-show');
+	            document.querySelector('.fp-theatre-fullpic').classList.add('theatre-hide');
+	            document.removeEventListener('keydown', self.escHandler);
+	        }
+	    }, {
+	        key: 'escHandler',
+	        value: function escHandler(e) {
+
+	            if (e.which === 27) {
+	                document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-show');
+	                document.querySelector('.fp-theatre-fullpic').classList.add('theatre-hide');
+	            }
+	        }
+
+	        // Enter theatre mode 
+
+	    }, {
+	        key: 'enterTheatreMode',
+	        value: function enterTheatreMode(self) {
+
+	            var timestamp = function timestamp() {
+	                return new Date.getTime();
+	            };
+
+	            if (timestamp - self.state.viewModeChanged < 300) return;
+
+	            document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-hide');
+	            document.querySelector('.fp-theatre-fullpic').classList.add('theatre-show');
+	            self.setState({
+	                viewModeChanged: timestamp
+	            });
+
+	            document.addEventListener('keydown', self.escHandler);
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this2 = this;
+
+	            return _react2.default.createElement(
+	                'div',
+	                { className: 'fp-theatre fp-theatre-fullpic theatre-hide', onClick: function onClick() {
+	                        _this2.leaveTheatreMode(_this2);
+	                    } },
+	                _react2.default.createElement('img', { className: 'fp-fullpic', src: this.props.picUrl })
+	            );
+	        }
+	    }]);
+
+	    return Theatre;
+	}(_react2.default.Component);
+
+	function mapStateToProps(state) {
+	    return {
+	        picUrl: state.feed.picUrl,
+	        index: state.feed.index
+	    };
+	}
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps)(Theatre);
+
+/***/ },
+/* 276 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31058,7 +31650,933 @@
 
 	var appActions = _interopRequireWildcard(_appActions);
 
-	var _firebase = __webpack_require__(273);
+	var _theatre = __webpack_require__(275);
+
+	var _theatre2 = _interopRequireDefault(_theatre);
+
+	var _firebase = __webpack_require__(272);
+
+	var _firebase2 = _interopRequireDefault(_firebase);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var SinglePost = function (_React$Component) {
+	    _inherits(SinglePost, _React$Component);
+
+	    function SinglePost(props) {
+	        _classCallCheck(this, SinglePost);
+
+	        // List of all times running on the page.
+	        var _this = _possibleConstructorReturn(this, (SinglePost.__proto__ || Object.getPrototypeOf(SinglePost)).call(this, props));
+
+	        _this.timers = [];
+
+	        // Firebase SDK.
+	        _this.database = firebase.database();
+	        _this.storage = firebase.storage();
+	        _this.auth = firebase.auth();
+
+	        // class methods 
+	        _this.loadPost = _this.loadPost.bind(_this);
+	        _this.clear = _this.clear.bind(_this);
+	        _this.displayComments = _this.displayComments.bind(_this);
+	        _this.displayNextPageButton = _this.displayNextPageButton.bind(_this);
+	        _this.fillPostData = _this.fillPostData.bind(_this);
+
+	        _this._setupThumb = _this._setupThumb.bind(_this);
+	        _this._setupDate = _this._setupDate.bind(_this);
+	        _this._setupComments = _this._setupComments.bind(_this);
+	        _this._setupDeleteButton = _this._setupDeleteButton.bind(_this);
+	        _this._setupLikeCountAndStatus = _this._setupLikeCountAndStatus.bind(_this);
+	        _this._changeLikeStatus = _this._changeLikeStatus.bind(_this);
+
+	        _this.state = {
+	            post: {
+	                author: {
+	                    full_name: '',
+	                    profile_picture: '',
+	                    uid: ''
+	                },
+	                full_storage_uri: '',
+	                full_url: '',
+	                text: '',
+	                thumb_storage_uri: '',
+	                thumb_url: '',
+	                timestamp: 0
+	            },
+	            postId: '',
+
+	            avatarStyle: {
+	                backgroundImage: 'url()'
+	            },
+	            thumbStyle: {
+	                backgroundImage: 'url()'
+	            },
+	            fullStyle: {
+	                backgroundImage: 'url()'
+	            },
+
+	            deleteBtnStyle: {
+	                display: 'block'
+	            },
+	            deleteBtnDisabled: false,
+
+	            likedStyle: {
+	                display: 'none'
+	            },
+	            notLikedStyle: {
+	                display: 'block'
+	            },
+	            likePanelStyle: {
+	                display: 'none'
+	            },
+	            likesCount: 0,
+
+	            firstComment: '',
+	            comments: [],
+	            commentId: '',
+	            newCommentText: '',
+
+	            commentsFormStyle: {
+	                display: 'none'
+	            },
+
+	            nextPageBtnDisabled: true,
+	            nextPageBtnStyle: {
+	                display: 'none'
+	            },
+	            nextPage: '',
+
+	            textTime: 'now',
+	            mounted: false
+
+	        };
+
+	        return _this;
+	    }
+
+	    _createClass(SinglePost, [{
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+
+	            this.setState({
+	                mounted: true
+	            });
+	            var postId = this.props.params.postid || this.props.postId;
+	            this.loadPost(postId);
+	        }
+	    }, {
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {
+	            this.setState({
+	                mounted: false
+	            });
+
+	            // FirebaseHandler.cancelAllSubscriptions();
+	        }
+
+	        /**
+	         * Loads the given post's details.
+	         */
+
+	    }, {
+	        key: 'loadPost',
+	        value: function loadPost(postId) {
+	            var _this2 = this;
+
+	            var self = this;
+	            // Load the posts information.
+	            _firebase2.default.getPostData(postId).then(function (snapshot) {
+	                var post = snapshot.val();
+
+	                if (!post) {
+	                    var data = {
+	                        message: 'This post does not exist.',
+	                        timeout: 5000
+	                    };
+
+	                    self.props.deleteError(data);
+	                    // this.toast[0].MaterialSnackbar.showSnackbar(data);
+	                    if (_this2.auth.currentUser) {
+	                        self.props.router.push('/user/' + _this2.auth.currentUser.uid);
+	                    } else {
+	                        self.props.router.push('/feed');
+	                    }
+	                } else {
+
+	                    _this2.setState({ post: post });
+	                    _this2.fillPostData(snapshot.key, post.thumb_url || post.url, post.text, post.author, post.timestamp, post.thumb_storage_uri, post.full_storage_uri, post.full_url);
+	                }
+	            });
+	        }
+
+	        /**
+	         * Clears all listeners and timers in the given element.
+	         */
+
+	    }, {
+	        key: 'clear',
+	        value: function clear() {
+	            // Stops all timers if any.
+	            this.timers.forEach(function (timer) {
+	                return clearInterval(timer);
+	            });
+	            this.timers = [];
+
+	            // Remove Firebase listeners.
+	            _firebase2.default.cancelAllSubscriptions();
+	        }
+
+	        /**
+	         * Displays the given list of `comments` in the post.
+	         */
+
+	    }, {
+	        key: 'displayComments',
+	        value: function displayComments(comments) {
+
+	            var self = this;
+
+	            var comments_state = self.state.comments.slice();
+	            if (comments.length == 0) return;
+
+	            var commentsIds = Object.keys(comments);
+	            for (var i = commentsIds.length - 1; i >= 0; i--) {
+
+	                var comment = self.createCommentJsx(comments[commentsIds[i]].author, comments[commentsIds[i]].text);
+
+	                comments_state.push(comment);
+	            }
+
+	            this.setState({
+	                comments: comments_state
+	            });
+	        }
+
+	        /**
+	         * Shows the "show more comments" button. If `nextPage` is
+	         * `null` then the button is hidden.
+	         */
+
+	    }, {
+	        key: 'displayNextPageButton',
+	        value: function displayNextPageButton(nextPage) {
+
+	            if (nextPage) {
+
+	                this.setState({
+	                    nextPageBtnStyle: {
+	                        display: 'block'
+	                    }
+	                });
+
+	                this.setState({
+	                    nextPageBtnDisabled: false
+	                });
+
+	                this.setState({
+	                    nextPage: nextPage
+	                });
+	            } else {
+	                this.setState({
+	                    nextPageBtnStyle: {
+	                        display: 'none'
+	                    }
+	                });
+	            }
+	        }
+
+	        /**
+	        * Clickhandler to show more comments 
+	        */
+
+	    }, {
+	        key: 'showMoreComments',
+	        value: function showMoreComments(self) {
+	            if (self.state.nextPage != '') {
+
+	                self.state.nextPage().then(function (data) {
+	                    self.setState({
+	                        nextPageBtnDisabled: true
+	                    });
+	                    self.displayComments(data.entries);
+	                    self.displayNextPageButton(data.nextPage);
+	                });
+	            }
+	        }
+
+	        /**
+	         * Fills the post's Card with the given details.
+	         * Also sets all auto updates and listeners on the UI elements of the post.
+	         */
+
+	    }, {
+	        key: 'fillPostData',
+	        value: function fillPostData(postId, thumbUrl, imageText, author, timestamp, thumbStorageUri, picStorageUri, picUrl) {
+	            var _this3 = this;
+
+	            var post = document.getElementById('post');
+
+	            this.setState({
+	                postId: postId
+	            });
+	            this.setState({
+	                avatarStyle: {
+	                    backgroundImage: 'url(' + (this.state.post.author.profile_picture || '/images/silhouette.jpg') + ')'
+	                }
+	            });
+
+	            // Shows the pic's thumbnail.
+	            this._setupThumb(thumbUrl, picUrl);
+
+	            // Make sure we update if the thumb or pic URL changes.
+	            _firebase2.default.registerForThumbChanges(postId, function (thumbUrl) {
+	                _this3._setupThumb(thumbUrl, picUrl);
+	            });
+
+	            this._setupDate(postId, timestamp);
+	            this._setupDeleteButton(postId, author, picStorageUri, thumbStorageUri);
+	            this._setupLikeCountAndStatus(postId);
+	            this._setupComments(postId, author, imageText);
+	            return post;
+	        }
+
+	        /**
+	         * Shows the thumbnail and sets up the click to see the full size image.
+	         * @private
+	         */
+
+	    }, {
+	        key: '_setupThumb',
+	        value: function _setupThumb(thumbUrl, picUrl) {
+	            var post = document.getElementById('post');
+
+	            var thumb_url = this.state.thumb_url;
+
+	            this.setState({
+	                thumbStyle: {
+	                    backgroundImage: 'url(' + (thumbUrl ? thumbUrl.replace(/"/g, '\\"') : '') + ')'
+	                }
+	            });
+	        }
+
+	        /**
+	         * Shows the publishing date of the post and updates this date live.
+	         * @private
+	         */
+
+	    }, {
+	        key: '_setupDate',
+	        value: function _setupDate(postId, timestamp) {
+	            var _this4 = this;
+
+	            var post = document.getElementById('post');
+
+	            var time = this.getTimeText(timestamp);
+	            this.setState({
+	                textTime: time
+	            });
+
+	            // Update the time counter every minutes.
+	            this.timers.push(setInterval(function () {
+	                var newTime = _this4.getTimeText(timestamp);
+	                _this4.setState({
+	                    textTime: newTime
+	                });
+	            }, 60000));
+	        }
+
+	        /**
+	         * Shows comments and binds actions to the comments form.
+	         * @private
+	         */
+
+	    }, {
+	        key: '_setupComments',
+	        value: function _setupComments(postId, author, imageText) {
+	            var _this5 = this;
+
+	            var post = document.getElementById('post');
+	            var self = this;
+
+	            // first post html
+	            this.setState({
+	                firstComment: _react2.default.createElement(
+	                    'div',
+	                    { className: 'fp-comment' },
+	                    _react2.default.createElement(
+	                        _reactRouter.Link,
+	                        { to: "user/" + author.uid },
+	                        _react2.default.createElement(
+	                            'span',
+	                            { className: 'fp-author' },
+	                            author.full_name || 'Anonymous'
+	                        )
+	                    ),
+	                    ':',
+	                    _react2.default.createElement(
+	                        'span',
+	                        { className: 'fp-text' },
+	                        ' ',
+	                        imageText
+	                    )
+	                )
+	            });
+
+	            // Load first page of comments and listen to new comments.
+	            _firebase2.default.getComments(postId).then(function (data) {
+
+	                self.displayComments(data.entries);
+
+	                self.displayNextPageButton(data.nextPage);
+
+	                // Display any new comments.
+	                var commentIds = Object.keys(data.entries);
+	                _firebase2.default.subscribeToComments(postId, function (commentId, commentData) {
+
+	                    if (self.state.mounted) {
+	                        var comment_array = _this5.state.comments;
+
+	                        var new_comment = self.createCommentJsx(commentData.author, commentData.text);
+
+	                        comment_array.push(new_comment);
+	                    }
+	                }, commentIds ? commentIds[commentIds.length - 1] : 0);
+	            });
+
+	            if (this.auth.currentUser && self.state.mounted) {
+
+	                var ran = Math.floor(Math.random() * 10000000);
+
+	                self.setState({
+	                    commentId: postId + '-' + ran + '-comment'
+	                });
+
+	                // Show comments form
+	                self.setState({
+	                    commentsFormStyle: {
+	                        display: 'flex'
+	                    }
+	                });
+	            }
+	        }
+
+	        /**
+	         * Generate enter theatre mode event 
+	         */
+
+	    }, {
+	        key: 'enterTheatreMode',
+	        value: function enterTheatreMode(self) {
+
+	            self.props.enterTheatreMode(self.state.post.full_url);
+	        }
+
+	        /**
+	         * Captures the value of comment form input 
+	         */
+
+	    }, {
+	        key: 'commentTextChangeHandler',
+	        value: function commentTextChangeHandler(e, self) {
+	            self.setState({
+	                newCommentText: e.target.value
+	            });
+	        }
+
+	        /**
+	         * Submit comment handler 
+	         */
+
+	    }, {
+	        key: 'submitCommentHandler',
+	        value: function submitCommentHandler(e, self) {
+
+	            e.preventDefault();
+
+	            // const commentText = document.querySelector(`.mdl-textfield__input`).value; 
+	            if (self.state.newCommentText.length === 0 || self.state.postId == '') {
+	                return;
+	            }
+
+	            _firebase2.default.addComment(self.state.postId, self.state.newCommentText);
+	            if (self.state.mounted) {
+	                self.setState({
+	                    newCommentText: ''
+	                });
+	            }
+	        }
+
+	        /**
+	         * Shows/Hides the Delete button.
+	         * @private
+	         */
+
+	    }, {
+	        key: '_setupDeleteButton',
+	        value: function _setupDeleteButton(postId, author, picStorageUri, thumbStorageUri) {
+
+	            if (!this.state.mounted) return;
+
+	            if (this.auth.currentUser && this.auth.currentUser.uid === author.uid && picStorageUri && this.props.params.postid) {
+
+	                this.setState({
+	                    deleteBtnStyle: {
+	                        display: 'block'
+	                    }
+	                });
+	            } else {
+	                this.setState({
+	                    deleteBtnStyle: {
+	                        display: 'none'
+	                    }
+	                });
+	            }
+	        }
+
+	        /** 
+	         *  Click handler for the Delete button 
+	         */
+
+	    }, {
+	        key: 'deletePostHandler',
+	        value: function deletePostHandler(self) {
+	            var _this6 = this;
+
+	            swal({
+	                title: 'Are you sure?',
+	                text: 'You will not be able to recover this post!',
+	                type: 'warning',
+	                showCancelButton: true,
+	                confirmButtonColor: '#DD6B55',
+	                confirmButtonText: 'Yes, delete it!',
+	                closeOnConfirm: false,
+	                showLoaderOnConfirm: true,
+	                allowEscapeKey: true
+	            }, function () {
+
+	                self.setState({
+	                    deleteBtnDisabled: true
+	                });
+
+	                var pid = self.props.params.postid || _this6.props.postId;
+	                _firebase2.default.deletePost(pid, _this6.state.post.full_storage_uri, _this6.state.post.thumb_storage_uri).then(function () {
+	                    swal({
+	                        title: 'Deleted!',
+	                        text: 'Your post has been deleted.',
+	                        type: 'success',
+	                        timer: 2000
+	                    });
+
+	                    self.setState({
+	                        deleteBtnDisabled: false
+	                    });
+
+	                    self.props.router.push('/user/' + _this6.state.post.author.uid);
+	                }).catch(function (error) {
+	                    swal.close();
+	                    self.setState({
+	                        deleteBtnDisabled: false
+	                    });
+
+	                    var data = {
+	                        message: 'There was an error deleting your post: ' + error,
+	                        timeout: 5000
+	                    };
+
+	                    self.props.deleteError(data);
+	                });
+	            });
+	        }
+
+	        /**
+	         * Starts Likes count listener and on/off like status.
+	         * @private
+	         */
+
+	    }, {
+	        key: '_setupLikeCountAndStatus',
+	        value: function _setupLikeCountAndStatus(postId) {
+	            var post = document.getElementById('post');
+
+	            var self = this;
+	            if (this.auth.currentUser) {
+	                // Listen to like status.
+	                _firebase2.default.registerToUserLike(postId, function (isliked) {
+	                    if (!self.state.mounted) return;
+	                    if (isliked) {
+
+	                        self.setState({
+	                            likedStyle: {
+	                                display: 'block'
+	                            }
+	                        });
+	                        self.setState({
+	                            notLikedStyle: {
+	                                display: 'none'
+	                            }
+	                        });
+	                    } else {
+
+	                        self.setState({
+	                            likedStyle: {
+	                                display: 'none'
+	                            }
+	                        });
+	                        self.setState({
+	                            notLikedStyle: {
+	                                display: 'block'
+	                            }
+	                        });
+	                    }
+	                });
+
+	                _firebase2.default.registerForLikesCount(postId, function (nbLikes) {
+	                    if (!self.state.mounted) return;
+	                    if (nbLikes > 0) {
+	                        self.setState({
+	                            likesCount: nbLikes
+	                        });
+
+	                        self.setState({
+	                            likePanelStyle: {
+	                                display: 'block'
+	                            }
+	                        });
+	                    } else {
+	                        self.setState({
+	                            likePanelStyle: {
+	                                display: 'none'
+	                            }
+	                        });
+	                    }
+	                });
+	            }
+	        }
+
+	        /**
+	         * Click handler for changing like status 
+	         * @private 
+	         */
+
+	    }, {
+	        key: '_changeLikeStatus',
+	        value: function _changeLikeStatus(willBeLiked) {
+
+	            var postId = this.props.params.postid || this.props.postId;
+	            _firebase2.default.updateLike(postId, willBeLiked);
+
+	            if (!this.state.mounted) return;
+	            if (willBeLiked) {
+
+	                this.setState({
+
+	                    likedStyle: {
+	                        display: 'none'
+	                    }
+	                });
+	                this.setState({
+	                    notLikedStyle: {
+	                        display: 'block'
+	                    }
+	                });
+	            } else {
+	                this.setState({
+	                    likedStyle: {
+	                        display: 'none'
+	                    }
+	                });
+	                this.setState({
+	                    notLikedStyle: {
+	                        display: 'block'
+	                    }
+	                });
+	            }
+	        }
+
+	        /**
+	         * Given the time of creation of a post returns how long since the creation of the post in text
+	         * format. e.g. 5d, 10h, now...
+	         */
+
+	    }, {
+	        key: 'getTimeText',
+	        value: function getTimeText(postCreationTimestamp) {
+	            var millis = Date.now() - postCreationTimestamp;
+	            var ms = millis % 1000;
+	            millis = (millis - ms) / 1000;
+	            var secs = millis % 60;
+	            millis = (millis - secs) / 60;
+	            var mins = millis % 60;
+	            millis = (millis - mins) / 60;
+	            var hrs = millis % 24;
+	            var days = (millis - hrs) / 24;
+	            var timeSinceCreation = [days, hrs, mins, secs, ms];
+
+	            var timeText = 'Now';
+	            if (timeSinceCreation[0] !== 0) {
+	                timeText = timeSinceCreation[0] + 'd';
+	            } else if (timeSinceCreation[1] !== 0) {
+	                timeText = timeSinceCreation[1] + 'h';
+	            } else if (timeSinceCreation[2] !== 0) {
+	                timeText = timeSinceCreation[2] + 'm';
+	            }
+	            return timeText;
+	        }
+
+	        /**
+	         * Returns the JSX for a post's comment.
+	         */
+
+	    }, {
+	        key: 'createCommentJsx',
+	        value: function createCommentJsx(author, text) {
+	            return _react2.default.createElement(
+	                'div',
+	                { className: 'fp-comment', key: Math.random() * 10000 },
+	                _react2.default.createElement(
+	                    _reactRouter.Link,
+	                    { to: "/user/" + author.uid },
+	                    _react2.default.createElement(
+	                        'span',
+	                        { className: 'fp-author' },
+	                        author.full_name || 'Anonymous'
+	                    )
+	                ),
+	                ':',
+	                _react2.default.createElement(
+	                    'span',
+	                    { className: 'fp-text' },
+	                    ' ',
+	                    text
+	                )
+	            );
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this7 = this;
+
+	            return _react2.default.createElement(
+	                'div',
+	                { className: 'fp-post mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--8-col-desktop mdl-grid mdl-grid--no-spacing' },
+	                _react2.default.createElement(_theatre2.default, { picUrl: this.state.post.full_url }),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'fp-header' },
+	                        _react2.default.createElement(
+	                            _reactRouter.Link,
+	                            { to: "/user/" + this.state.post.author.uid },
+	                            _react2.default.createElement(
+	                                'span',
+	                                { className: 'fp-usernamelink mdl-button mdl-js-button' },
+	                                _react2.default.createElement('div', { className: 'fp-avatar', style: this.state.avatarStyle }),
+	                                _react2.default.createElement(
+	                                    'div',
+	                                    { className: 'fp-username mdl-color-text--black' },
+	                                    this.state.post.author.full_name
+	                                )
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            'button',
+	                            { className: 'fp-delete-post mdl-button mdl-js-button', disabled: this.state.deleteBtnDisabled, onClick: function onClick() {
+	                                    _this7.deletePostHandler(_this7);
+	                                }, style: this.state.deleteBtnStyle },
+	                            'Delete'
+	                        ),
+	                        _react2.default.createElement(
+	                            _reactRouter.Link,
+	                            { to: "/post/" + this.props.params.postid || this.props.postId },
+	                            _react2.default.createElement(
+	                                'span',
+	                                { className: 'fp-time' },
+	                                this.state.textTime
+	                            )
+	                        )
+	                    ),
+	                    _react2.default.createElement('div', { className: 'fp-image', onClick: function onClick() {
+	                            _this7.enterTheatreMode(_this7);
+	                        }, style: this.state.thumbStyle }),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'fp-likes', style: this.state.likePanelStyle },
+	                        this.state.likesCount,
+	                        ' like',
+	                        this.state.likesCount == 1 ? "" : "s"
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'fp-first-comment' },
+	                        this.state.firstComment
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'fp-morecomments', style: this.state.nextPageBtnStyle, disabled: this.nextPageBtnDisabled, onClick: function onClick() {
+	                                _this7.showMoreComments(_this7);
+	                            } },
+	                        'View more comments...'
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'fp-comments' },
+	                        this.state.comments.map(function (comment) {
+
+	                            return comment;
+	                        })
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'fp-action', style: this.state.commentsFormStyle },
+	                        _react2.default.createElement(
+	                            'span',
+	                            { className: 'fp-like' },
+	                            _react2.default.createElement(
+	                                'div',
+	                                { className: 'fp-not-liked material-icons', onClick: function onClick() {
+	                                        _this7._changeLikeStatus(true);
+	                                    }, style: this.state.notLikedStyle },
+	                                'favorite_border'
+	                            ),
+	                            _react2.default.createElement(
+	                                'div',
+	                                { className: 'fp-liked material-icons', onClick: function onClick() {
+	                                        _this7._changeLikeStatus(false);
+	                                    }, style: this.state.likedStyle },
+	                                'favorite'
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            'form',
+	                            { className: 'fp-add-comment', action: '#', onSubmit: function onSubmit(e) {
+	                                    _this7.submitCommentHandler(e, _this7);
+	                                } },
+	                            _react2.default.createElement(
+	                                'div',
+	                                { className: 'mdl-textfield mdl-js-textfield' },
+	                                _react2.default.createElement('input', { className: 'mdl-textfield__input', id: this.state.commentId, type: 'text', value: this.state.newCommentText, onChange: function onChange(e) {
+	                                        _this7.commentTextChangeHandler(e, _this7);
+	                                    } }),
+	                                _react2.default.createElement(
+	                                    'label',
+	                                    { className: 'mdl-textfield__label', htmlFor: this.state.commentId },
+	                                    'Comment...'
+	                                )
+	                            )
+	                        )
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+
+	    return SinglePost;
+	}(_react2.default.Component);
+
+	function matchDispatchToProps(dispatch) {
+	    return (0, _redux.bindActionCreators)({
+	        deleteError: appActions.postDeleteError,
+	        enterTheatreMode: appActions.enterTheatreMode
+	    }, dispatch);
+	}
+
+	exports.default = (0, _reactRouter.withRouter)((0, _reactRedux.connect)(null, matchDispatchToProps)(SinglePost));
+
+/***/ },
+/* 277 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Utils = function () {
+	    function Utils() {
+	        _classCallCheck(this, Utils);
+	    }
+
+	    /**
+	     * Returns a Promise which resolves when the user has reached the bottom of the page while
+	     * scrolling.
+	     * If an `offset` is specified the promise will resolve before reaching the bottom of
+	     * the page by the given amount offset in pixels.
+	     */
+
+
+	    _createClass(Utils, [{
+	        key: 'onEndScroll',
+	        value: function onEndScroll() {
+	            var offset = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+
+	            var promise = new Promise(function (resolve, reject) {
+	                var mdlLayoutElement = document.querySelector('#page-feed');
+	                document.onscroll = function () {
+
+	                    if (window.pageYOffset + window.innerHeight + offset >= mdlLayoutElement.scrollHeight) {
+	                        console.log('Scroll End Reached!');
+	                        // mdlLayoutElement.unbind('scroll');
+	                        resolve();
+	                    }
+	                };
+	            }).then(function () {
+
+	                console.log('Now watching for Scroll End.');
+	            });
+
+	            return promise;
+	        }
+	    }]);
+
+	    return Utils;
+	}();
+
+	exports.default = new Utils();
+
+/***/ },
+/* 278 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRouter = __webpack_require__(172);
+
+	var _reactRedux = __webpack_require__(248);
+
+	var _redux = __webpack_require__(227);
+
+	var _appActions = __webpack_require__(269);
+
+	var appActions = _interopRequireWildcard(_appActions);
+
+	var _firebase = __webpack_require__(272);
 
 	var _firebase2 = _interopRequireDefault(_firebase);
 
@@ -31129,6 +32647,11 @@
 	                this.props.router.push('/');
 	            }
 	            componentHandler.upgradeDom();
+	        }
+	    }, {
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {
+	            //  FirebaseHandler.cancelAllSubscriptions(); 
 	        }
 	    }, {
 	        key: 'componentDidUpdate',
@@ -31379,1467 +32902,6 @@
 	exports.default = (0, _reactRouter.withRouter)((0, _reactRedux.connect)(mapStateToProps, matchDispatchToProps)(NewPost));
 
 /***/ },
-/* 275 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRouter = __webpack_require__(172);
-
-	var _theatre = __webpack_require__(276);
-
-	var _theatre2 = _interopRequireDefault(_theatre);
-
-	var _single_post = __webpack_require__(277);
-
-	var _single_post2 = _interopRequireDefault(_single_post);
-
-	var _firebase = __webpack_require__(273);
-
-	var _firebase2 = _interopRequireDefault(_firebase);
-
-	var _utils = __webpack_require__(278);
-
-	var _utils2 = _interopRequireDefault(_utils);
-
-	var _reactRedux = __webpack_require__(248);
-
-	var _redux = __webpack_require__(227);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Feed = function (_React$Component) {
-	  _inherits(Feed, _React$Component);
-
-	  function Feed(props) {
-	    _classCallCheck(this, Feed);
-
-	    // List of all posts on the page.
-	    var _this = _possibleConstructorReturn(this, (Feed.__proto__ || Object.getPrototypeOf(Feed)).call(this, props));
-
-	    _this.posts = [];
-	    // Map of posts that can be displayed.
-	    _this.newPosts = {};
-
-	    // Firebase SDK.
-	    _this.auth = firebase.auth();
-
-	    _this.state = {
-	      posts: [],
-	      noPostsStyle: {
-	        display: 'block'
-	      },
-	      nextPageBtnDisabled: true,
-	      nextPageBtnStyle: {
-	        display: 'none'
-	      },
-	      nbNewPosts: 0
-	    };
-
-	    _this.addPosts = _this.addPosts.bind(_this);
-	    _this.toggleNextPageButton = _this.toggleNextPageButton.bind(_this);
-	    _this.showNewPosts = _this.showNewPosts.bind(_this);
-
-	    _this.showGeneralFeed = _this.showGeneralFeed.bind(_this);
-	    _this.showHomeFeed = _this.showHomeFeed.bind(_this);
-
-	    _this.onPostDeleted = _this.onPostDeleted.bind(_this);
-	    _this.addNewPost = _this.addNewPost.bind(_this);
-	    return _this;
-	  }
-
-	  _createClass(Feed, [{
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
-
-	      var self = this;
-	      this.auth.onAuthStateChanged(function (user) {
-	        self.showGeneralFeed();
-	      });
-	    }
-
-	    // ----------------------------------------------
-
-	    /**
-	     * Appends the given list of `posts`.
-	     */
-
-	  }, {
-	    key: 'addPosts',
-	    value: function addPosts(posts) {
-	      // Displays the list of posts
-
-	      var posts_arr = [];
-	      var postIds = Object.keys(posts);
-	      for (var i = postIds.length - 1; i >= 0; i--) {
-
-	        this.setState({
-	          noPostsStyle: {
-	            display: 'none'
-	          }
-	        });
-
-	        var postData = posts[postIds[i]];
-
-	        var post = _react2.default.createElement(_single_post2.default, { postId: postIds[i], key: postIds[i], hideDeleteBtn: true });
-
-	        posts_arr.push(post);
-
-	        // const postElement = post.fillPostData(postIds[i], postData.thumb_url || postData.url,
-	        //     postData.text, postData.author, postData.timestamp, null, null, postData.full_url); 
-
-	        // If a post with similar ID is already in the feed we replace it instead of appending.
-	        // const existingPostElement = $(`.fp-post-${postIds[i]}`, this.feedImageContainer);
-	        // if (existingPostElement.length) {
-	        //   existingPostElement.replaceWith(postElement);
-	        // } else {
-	        //   this.feedImageContainer.append(postElement.addClass(`fp-post-${postIds[i]}`));
-	        // }
-
-	      }
-
-	      console.log(posts_arr);
-	      this.setState({
-	        posts: posts_arr
-	      });
-	    }
-
-	    /**
-	     * Shows the "load next page" button and binds it the `nextPage` callback. If `nextPage` is `null`
-	     * then the button is hidden.
-	     */
-
-	  }, {
-	    key: 'toggleNextPageButton',
-	    value: function toggleNextPageButton(nextPage) {
-
-	      var self = this;
-	      if (nextPage) {
-	        var loadMorePosts = function loadMorePosts() {
-
-	          self.nextPageButton.prop('disabled', true);
-	          console.log('Loading next page of posts.');
-	          nextPage().then(function (data) {
-	            self.addPosts(data.entries);
-	            self.toggleNextPageButton(data.nextPage);
-	          });
-	        };
-	        self.setState({
-	          nextPageBtnStyle: {
-	            display: 'block'
-	          },
-	          nextPageBtnDisabled: false
-	        });
-
-	        // Enable infinite Scroll.
-	        _utils2.default.onEndScroll(100).then(loadMorePosts);
-
-	        document.getElementById('more-posts').onclick = loadMorePosts;
-	      } else {
-
-	        self.setState({
-	          nextPageBtnStyle: {
-	            display: 'none'
-	          }
-	        });
-	      }
-	    }
-
-	    /**
-	     * Prepends the list of new posts stored in `this.newPosts`. This happens when the user clicks on
-	     * the "Show new posts" button.
-	     */
-
-	  }, {
-	    key: 'showNewPosts',
-	    value: function showNewPosts() {
-	      var newPosts = this.newPosts;
-	      this.newPosts = {};
-	      this.newPostsButton.hide();
-	      var postKeys = Object.keys(newPosts);
-
-	      for (var i = 0; i < postKeys.length; i++) {
-	        this.noPostsMessage.hide();
-	        var post = newPosts[postKeys[i]];
-	        var postElement = new friendlyPix.Post();
-	        this.posts.push(postElement);
-	        this.feedImageContainer.prepend(postElement.fillPostData(postKeys[i], post.thumb_url || post.url, post.text, post.author, post.timestamp, null, null, post.full_url));
-	      }
-	    }
-
-	    /**
-	     * Displays the general posts feed.
-	     */
-
-	  }, {
-	    key: 'showGeneralFeed',
-	    value: function showGeneralFeed() {
-	      var _this2 = this;
-
-	      var self = this;
-	      // Load initial batch of posts.
-	      _firebase2.default.getPosts().then(function (data) {
-	        // Listen for new posts.
-	        var latestPostId = Object.keys(data.entries)[Object.keys(data.entries).length - 1];
-	        _firebase2.default.subscribeToGeneralFeed(function (postId, postValue) {
-	          return _this2.addNewPost(postId, postValue);
-	        }, latestPostId);
-
-	        // Adds fetched posts and next page button if necessary.
-	        self.addPosts(data.entries);
-	        self.toggleNextPageButton(data.nextPage);
-	      });
-
-	      // Listen for posts deletions.
-	      _firebase2.default.registerForPostsDeletion(function (postId) {
-	        return _this2.onPostDeleted(postId);
-	      });
-	    }
-
-	    /**
-	     * Shows the feed showing all followed users.
-	     */
-
-	  }, {
-	    key: 'showHomeFeed',
-	    value: function showHomeFeed() {
-	      var _this3 = this;
-
-	      var self = this;
-
-	      if (this.auth.currentUser) {
-	        // Make sure the home feed is updated with followed users's new posts.
-	        _firebase2.default.updateHomeFeeds().then(function () {
-	          // Load initial batch of posts.
-	          _firebase2.default.getHomeFeedPosts().then(function (data) {
-	            var postIds = Object.keys(data.entries);
-	            if (postIds.length === 0) {
-	              self.setState({
-	                noPostsStyle: {
-	                  display: 'block'
-	                }
-	              });
-	            }
-	            // Listen for new posts.
-	            var latestPostId = postIds[postIds.length - 1];
-	            _firebase2.default.subscribeToHomeFeed(function (postId, postValue) {
-	              _this3.addNewPost(postId, postValue);
-	            }, latestPostId);
-
-	            // Adds fetched posts and next page button if necessary.
-	            _this3.addPosts(data.entries);
-	            _this3.toggleNextPageButton(data.nextPage);
-	          });
-
-	          // Add new posts from followers live.
-	          _firebase2.default.startHomeFeedLiveUpdaters();
-
-	          // Listen for posts deletions.
-	          _firebase2.default.registerForPostsDeletion(function (postId) {
-	            return _this3.onPostDeleted(postId);
-	          });
-	        });
-	      }
-	    }
-
-	    /**
-	     * Triggered when a post has been deleted.
-	     */
-
-	  }, {
-	    key: 'onPostDeleted',
-	    value: function onPostDeleted(postId) {
-	      // Potentially remove post from in-memory new post list.
-	      if (this.newPosts[postId]) {
-
-	        delete this.newPosts[postId];
-	        var nbNewPosts = Object.keys(this.newPosts).length;
-	        this.newPostsButton.text('Display ' + nbNewPosts + ' new posts');
-	        if (nbNewPosts === 0) {
-	          this.newPostsButton.hide();
-	        }
-	      }
-	    }
-
-	    /**
-	     * Adds a new post to display in the queue.
-	     */
-
-	  }, {
-	    key: 'addNewPost',
-	    value: function addNewPost(postId, postValue) {
-	      this.newPosts[postId] = postValue;
-	      this.newPostsButton.text('Display ' + Object.keys(this.newPosts).length + ' new posts');
-	      this.newPostsButton.show();
-	    }
-
-	    // ---------------------------------------------
-
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(_theatre2.default, null),
-	        _react2.default.createElement(
-	          'section',
-	          { id: 'page-feed', className: 'mdl-grid fp-content' },
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'fp-new-posts-button' },
-	            _react2.default.createElement(
-	              'button',
-	              { className: 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--amber-400' },
-	              'Show new posts...'
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'fp-image-container mdl-cell mdl-cell--12-col mdl-grid' },
-	            this.state.posts.map(function (post) {
-	              return post;
-	            }),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'fp-no-posts fp-help mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--8-col-desktop mdl-grid mdl-grid--no-spacing', style: this.state.noPostsStyle },
-	              _react2.default.createElement(
-	                'div',
-	                { className: 'mdl-card__supporting-text mdl-color-text--grey-600' },
-	                _react2.default.createElement(
-	                  'i',
-	                  { className: 'fp-info material-icons' },
-	                  'help'
-	                ),
-	                _react2.default.createElement(
-	                  'div',
-	                  null,
-	                  _react2.default.createElement(
-	                    'p',
-	                    null,
-	                    'Start following people to see their posts!'
-	                  ),
-	                  _react2.default.createElement(
-	                    'p',
-	                    null,
-	                    'Use the ',
-	                    _react2.default.createElement(
-	                      'strong',
-	                      null,
-	                      _react2.default.createElement(
-	                        'i',
-	                        { className: 'material-icons' },
-	                        'search'
-	                      ),
-	                      ' search bar'
-	                    ),
-	                    ' to find people you know and have a look at the ',
-	                    _react2.default.createElement(
-	                      _reactRouter.Link,
-	                      { to: '/feed' },
-	                      _react2.default.createElement(
-	                        'span',
-	                        null,
-	                        _react2.default.createElement(
-	                          'i',
-	                          { className: 'material-icons' },
-	                          'trending_up'
-	                        ),
-	                        ' feed'
-	                      )
-	                    ),
-	                    ' to discover interesting people.'
-	                  ),
-	                  _react2.default.createElement(
-	                    'p',
-	                    null,
-	                    'Then ',
-	                    _react2.default.createElement(
-	                      'i',
-	                      { className: 'material-icons' },
-	                      'favorite'
-	                    ),
-	                    ' like and comment their posts!'
-	                  )
-	                )
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'fp-next-page-button', id: 'more-posts', style: this.state.nextPageBtnStyle, disabled: this.state.nextPageBtnDisabled },
-	            _react2.default.createElement(
-	              'button',
-	              { className: 'mdl-button mdl-js-button mdl-button--raised mdl-button--fab' },
-	              _react2.default.createElement(
-	                'i',
-	                { className: 'material-icons' },
-	                'expand_more'
-	              )
-	            )
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return Feed;
-	}(_react2.default.Component);
-
-	exports.default = Feed;
-
-/***/ },
-/* 276 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(248);
-
-	var _redux = __webpack_require__(227);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Theatre = function (_React$Component) {
-	    _inherits(Theatre, _React$Component);
-
-	    function Theatre(props) {
-	        _classCallCheck(this, Theatre);
-
-	        var _this = _possibleConstructorReturn(this, (Theatre.__proto__ || Object.getPrototypeOf(Theatre)).call(this, props));
-
-	        _this.state = {
-	            viewModeChanged: 0
-	        };
-	        return _this;
-	    }
-
-	    _createClass(Theatre, [{
-	        key: 'componentWillReceiveProps',
-	        value: function componentWillReceiveProps(newProps) {
-	            if (newProps.picUrl != '' && newProps.index != this.props.index) {
-	                this.enterTheatreMode(this);
-	            }
-	        }
-
-	        // Leave theatre mode 
-
-	    }, {
-	        key: 'leaveTheatreMode',
-	        value: function leaveTheatreMode(self) {
-
-	            document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-show');
-	            document.querySelector('.fp-theatre-fullpic').classList.add('theatre-hide');
-	            document.removeEventListener('keydown', self.escHandler);
-	        }
-	    }, {
-	        key: 'escHandler',
-	        value: function escHandler(e) {
-
-	            if (e.which === 27) {
-	                document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-show');
-	                document.querySelector('.fp-theatre-fullpic').classList.add('theatre-hide');
-	            }
-	        }
-
-	        // Enter theatre mode 
-
-	    }, {
-	        key: 'enterTheatreMode',
-	        value: function enterTheatreMode(self) {
-
-	            var timestamp = function timestamp() {
-	                return new Date.getTime();
-	            };
-
-	            if (timestamp - self.state.viewModeChanged < 300) return;
-
-	            document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-hide');
-	            document.querySelector('.fp-theatre-fullpic').classList.add('theatre-show');
-	            self.setState({
-	                viewModeChanged: timestamp
-	            });
-
-	            document.addEventListener('keydown', self.escHandler);
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            var _this2 = this;
-
-	            return _react2.default.createElement(
-	                'div',
-	                { className: 'fp-theatre fp-theatre-fullpic theatre-hide', onClick: function onClick() {
-	                        _this2.leaveTheatreMode(_this2);
-	                    } },
-	                _react2.default.createElement('img', { className: 'fp-fullpic', src: this.props.picUrl })
-	            );
-	        }
-	    }]);
-
-	    return Theatre;
-	}(_react2.default.Component);
-
-	function mapStateToProps(state) {
-	    return {
-	        picUrl: state.feed.picUrl,
-	        index: state.feed.index
-	    };
-	}
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps)(Theatre);
-
-/***/ },
-/* 277 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRouter = __webpack_require__(172);
-
-	var _reactRedux = __webpack_require__(248);
-
-	var _redux = __webpack_require__(227);
-
-	var _appActions = __webpack_require__(269);
-
-	var appActions = _interopRequireWildcard(_appActions);
-
-	var _theatre = __webpack_require__(276);
-
-	var _theatre2 = _interopRequireDefault(_theatre);
-
-	var _firebase = __webpack_require__(273);
-
-	var _firebase2 = _interopRequireDefault(_firebase);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var SinglePost = function (_React$Component) {
-	    _inherits(SinglePost, _React$Component);
-
-	    function SinglePost(props) {
-	        _classCallCheck(this, SinglePost);
-
-	        // List of all times running on the page.
-	        var _this = _possibleConstructorReturn(this, (SinglePost.__proto__ || Object.getPrototypeOf(SinglePost)).call(this, props));
-
-	        _this.timers = [];
-
-	        // Firebase SDK.
-	        _this.database = firebase.database();
-	        _this.storage = firebase.storage();
-	        _this.auth = firebase.auth();
-
-	        // class methods 
-	        _this.loadPost = _this.loadPost.bind(_this);
-	        _this.clear = _this.clear.bind(_this);
-	        _this.displayComments = _this.displayComments.bind(_this);
-	        _this.displayNextPageButton = _this.displayNextPageButton.bind(_this);
-	        _this.fillPostData = _this.fillPostData.bind(_this);
-
-	        _this._setupThumb = _this._setupThumb.bind(_this);
-	        _this._setupDate = _this._setupDate.bind(_this);
-	        _this._setupComments = _this._setupComments.bind(_this);
-	        _this._setupDeleteButton = _this._setupDeleteButton.bind(_this);
-	        _this._setupLikeCountAndStatus = _this._setupLikeCountAndStatus.bind(_this);
-	        _this._changeLikeStatus = _this._changeLikeStatus.bind(_this);
-
-	        _this.state = {
-	            post: {
-	                author: {
-	                    full_name: '',
-	                    profile_picture: '',
-	                    uid: ''
-	                },
-	                full_storage_uri: '',
-	                full_url: '',
-	                text: '',
-	                thumb_storage_uri: '',
-	                thumb_url: '',
-	                timestamp: 0
-	            },
-	            postId: '',
-
-	            avatarStyle: {
-	                backgroundImage: 'url()'
-	            },
-	            thumbStyle: {
-	                backgroundImage: 'url()'
-	            },
-	            fullStyle: {
-	                backgroundImage: 'url()'
-	            },
-
-	            deleteBtnStyle: {
-	                display: 'block'
-	            },
-	            deleteBtnDisabled: false,
-
-	            likedStyle: {
-	                display: 'none'
-	            },
-	            notLikedStyle: {
-	                display: 'block'
-	            },
-	            likePanelStyle: {
-	                display: 'none'
-	            },
-	            likesCount: 0,
-
-	            firstComment: '',
-	            comments: [],
-	            commentId: '',
-	            newCommentText: '',
-
-	            commentsFormStyle: {
-	                display: 'none'
-	            },
-
-	            nextPageBtnDisabled: true,
-	            nextPageBtnStyle: {
-	                display: 'none'
-	            },
-	            nextPage: '',
-
-	            textTime: 'now'
-
-	        };
-
-	        return _this;
-	    }
-
-	    _createClass(SinglePost, [{
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-
-	            var postId = this.props.params.postid || this.props.postId;
-	            this.loadPost(postId);
-	        }
-
-	        /**
-	         * Loads the given post's details.
-	         */
-
-	    }, {
-	        key: 'loadPost',
-	        value: function loadPost(postId) {
-	            var _this2 = this;
-
-	            var self = this;
-	            // Load the posts information.
-	            _firebase2.default.getPostData(postId).then(function (snapshot) {
-	                var post = snapshot.val();
-
-	                if (!post) {
-	                    var data = {
-	                        message: 'This post does not exists.',
-	                        timeout: 5000
-	                    };
-
-	                    self.props.deleteError(data);
-	                    // this.toast[0].MaterialSnackbar.showSnackbar(data);
-	                    if (_this2.auth.currentUser) {
-	                        self.props.router.push('/user/' + _this2.auth.currentUser.uid);
-	                    } else {
-	                        self.props.router.push('/feed');
-	                    }
-	                } else {
-
-	                    _this2.setState({ post: post });
-	                    _this2.fillPostData(snapshot.key, post.thumb_url || post.url, post.text, post.author, post.timestamp, post.thumb_storage_uri, post.full_storage_uri, post.full_url);
-	                }
-	            });
-	        }
-
-	        /**
-	         * Clears all listeners and timers in the given element.
-	         */
-
-	    }, {
-	        key: 'clear',
-	        value: function clear() {
-	            // Stops all timers if any.
-	            this.timers.forEach(function (timer) {
-	                return clearInterval(timer);
-	            });
-	            this.timers = [];
-
-	            // Remove Firebase listeners.
-	            _firebase2.default.cancelAllSubscriptions();
-	        }
-
-	        /**
-	         * Displays the given list of `comments` in the post.
-	         */
-
-	    }, {
-	        key: 'displayComments',
-	        value: function displayComments(comments) {
-
-	            console.log(comments);
-	            var self = this;
-
-	            var comments_state = self.state.comments.slice();
-	            if (comments.length == 0) return;
-
-	            var commentsIds = Object.keys(comments);
-	            for (var i = commentsIds.length - 1; i >= 0; i--) {
-
-	                var comment = self.createCommentJsx(comments[commentsIds[i]].author, comments[commentsIds[i]].text);
-
-	                comments_state.push(comment);
-	            }
-
-	            this.setState({
-	                comments: comments_state
-	            });
-	        }
-
-	        /**
-	         * Shows the "show more comments" button. If `nextPage` is
-	         * `null` then the button is hidden.
-	         */
-
-	    }, {
-	        key: 'displayNextPageButton',
-	        value: function displayNextPageButton(nextPage) {
-
-	            if (nextPage) {
-
-	                this.setState({
-	                    nextPageBtnStyle: {
-	                        display: 'block'
-	                    }
-	                });
-
-	                this.setState({
-	                    nextPageBtnDisabled: false
-	                });
-
-	                this.setState({
-	                    nextPage: nextPage
-	                });
-	            } else {
-	                this.setState({
-	                    nextPageBtnStyle: {
-	                        display: 'none'
-	                    }
-	                });
-	            }
-	        }
-
-	        /**
-	        * Clickhandler to show more comments 
-	        */
-
-	    }, {
-	        key: 'showMoreComments',
-	        value: function showMoreComments(self) {
-	            if (self.state.nextPage != '') {
-
-	                self.state.nextPage().then(function (data) {
-	                    self.setState({
-	                        nextPageBtnDisabled: true
-	                    });
-	                    self.displayComments(data.entries);
-	                    self.displayNextPageButton(data.nextPage);
-	                });
-	            }
-	        }
-
-	        /**
-	         * Fills the post's Card with the given details.
-	         * Also sets all auto updates and listeners on the UI elements of the post.
-	         */
-
-	    }, {
-	        key: 'fillPostData',
-	        value: function fillPostData(postId, thumbUrl, imageText, author, timestamp, thumbStorageUri, picStorageUri, picUrl) {
-	            var _this3 = this;
-
-	            var post = document.getElementById('post');
-
-	            this.setState({
-	                postId: postId
-	            });
-	            this.setState({
-	                avatarStyle: {
-	                    backgroundImage: 'url(' + (this.state.post.author.profile_picture || '/images/silhouette.jpg') + ')'
-	                }
-	            });
-
-	            // Shows the pic's thumbnail.
-	            this._setupThumb(thumbUrl, picUrl);
-
-	            // Make sure we update if the thumb or pic URL changes.
-	            _firebase2.default.registerForThumbChanges(postId, function (thumbUrl) {
-	                _this3._setupThumb(thumbUrl, picUrl);
-	            });
-
-	            this._setupDate(postId, timestamp);
-	            this._setupDeleteButton(postId, author, picStorageUri, thumbStorageUri);
-	            this._setupLikeCountAndStatus(postId);
-	            this._setupComments(postId, author, imageText);
-	            return post;
-	        }
-
-	        /**
-	         * Shows the thumbnail and sets up the click to see the full size image.
-	         * @private
-	         */
-
-	    }, {
-	        key: '_setupThumb',
-	        value: function _setupThumb(thumbUrl, picUrl) {
-	            var post = document.getElementById('post');
-
-	            var thumb_url = this.state.thumb_url;
-
-	            this.setState({
-	                thumbStyle: {
-	                    backgroundImage: 'url(' + (thumbUrl ? thumbUrl.replace(/"/g, '\\"') : '') + ')'
-	                }
-	            });
-	        }
-
-	        /**
-	         * Shows the publishing date of the post and updates this date live.
-	         * @private
-	         */
-
-	    }, {
-	        key: '_setupDate',
-	        value: function _setupDate(postId, timestamp) {
-	            var _this4 = this;
-
-	            var post = document.getElementById('post');
-
-	            var time = this.getTimeText(timestamp);
-	            this.setState({
-	                textTime: time
-	            });
-
-	            // Update the time counter every minutes.
-	            this.timers.push(setInterval(function () {
-	                var newTime = _this4.getTimeText(timestamp);
-	                _this4.setState({
-	                    textTime: newTime
-	                });
-	            }, 60000));
-	        }
-
-	        /**
-	         * Shows comments and binds actions to the comments form.
-	         * @private
-	         */
-
-	    }, {
-	        key: '_setupComments',
-	        value: function _setupComments(postId, author, imageText) {
-	            var _this5 = this;
-
-	            var post = document.getElementById('post');
-	            var self = this;
-
-	            // first post html
-	            this.setState({
-	                firstComment: _react2.default.createElement(
-	                    'div',
-	                    { className: 'fp-comment' },
-	                    _react2.default.createElement(
-	                        _reactRouter.Link,
-	                        { to: "user/" + author.uid },
-	                        _react2.default.createElement(
-	                            'span',
-	                            { className: 'fp-author' },
-	                            author.full_name || 'Anonymous'
-	                        )
-	                    ),
-	                    ':',
-	                    _react2.default.createElement(
-	                        'span',
-	                        { className: 'fp-text' },
-	                        ' ',
-	                        imageText
-	                    )
-	                )
-	            });
-
-	            // Load first page of comments and listen to new comments.
-	            _firebase2.default.getComments(postId).then(function (data) {
-
-	                self.displayComments(data.entries);
-
-	                self.displayNextPageButton(data.nextPage);
-
-	                // Display any new comments.
-	                var commentIds = Object.keys(data.entries);
-	                _firebase2.default.subscribeToComments(postId, function (commentId, commentData) {
-
-	                    var comment_array = _this5.state.comments;
-
-	                    var new_comment = self.createCommentJsx(commentData.author, commentData.text);
-
-	                    comment_array.push(new_comment);
-	                }, commentIds ? commentIds[commentIds.length - 1] : 0);
-	            });
-
-	            if (this.auth.currentUser) {
-
-	                var ran = Math.floor(Math.random() * 10000000);
-
-	                self.setState({
-	                    commentId: postId + '-' + ran + '-comment'
-	                });
-
-	                // Show comments form
-	                self.setState({
-	                    commentsFormStyle: {
-	                        display: 'flex'
-	                    }
-	                });
-	            }
-	        }
-
-	        /**
-	         * Generate enter theatre mode event 
-	         */
-
-	    }, {
-	        key: 'enterTheatreMode',
-	        value: function enterTheatreMode(self) {
-
-	            self.props.enterTheatreMode(self.state.post.full_url);
-	        }
-
-	        /**
-	         * Captures the value of comment form input 
-	         */
-
-	    }, {
-	        key: 'commentTextChangeHandler',
-	        value: function commentTextChangeHandler(e, self) {
-	            self.setState({
-	                newCommentText: e.target.value
-	            });
-	        }
-
-	        /**
-	         * Submit comment handler 
-	         */
-
-	    }, {
-	        key: 'submitCommentHandler',
-	        value: function submitCommentHandler(e, self) {
-
-	            e.preventDefault();
-
-	            // const commentText = document.querySelector(`.mdl-textfield__input`).value; 
-	            if (self.state.newCommentText.length === 0 || self.state.postId == '') {
-	                return;
-	            }
-
-	            _firebase2.default.addComment(self.state.postId, self.state.newCommentText);
-	            self.setState({
-	                newCommentText: ''
-	            });
-	        }
-
-	        /**
-	         * Shows/Hides the Delete button.
-	         * @private
-	         */
-
-	    }, {
-	        key: '_setupDeleteButton',
-	        value: function _setupDeleteButton(postId, author, picStorageUri, thumbStorageUri) {
-	            var post = document.getElementById('post');
-
-	            if (this.auth.currentUser && this.auth.currentUser.uid === author.uid && picStorageUri && this.props.params.postId) {
-	                this.setState({
-	                    deleteBtnStyle: {
-	                        display: 'block'
-	                    }
-	                });
-	            } else {
-	                this.setState({
-	                    deleteBtnStyle: {
-	                        display: 'none'
-	                    }
-	                });
-	            }
-	        }
-
-	        /** 
-	         *  Click handler for the Delete button 
-	         */
-
-	    }, {
-	        key: 'deletePostHandler',
-	        value: function deletePostHandler(self) {
-	            var _this6 = this;
-
-	            swal({
-	                title: 'Are you sure?',
-	                text: 'You will not be able to recover this post!',
-	                type: 'warning',
-	                showCancelButton: true,
-	                confirmButtonColor: '#DD6B55',
-	                confirmButtonText: 'Yes, delete it!',
-	                closeOnConfirm: false,
-	                showLoaderOnConfirm: true,
-	                allowEscapeKey: true
-	            }, function () {
-
-	                self.setState({
-	                    deleteBtnDisabled: true
-	                });
-
-	                var pid = self.props.params.postid || _this6.props.postId;
-	                _firebase2.default.deletePost(pid, _this6.state.post.full_storage_uri, _this6.state.post.thumb_storage_uri).then(function () {
-	                    swal({
-	                        title: 'Deleted!',
-	                        text: 'Your post has been deleted.',
-	                        type: 'success',
-	                        timer: 2000
-	                    });
-
-	                    self.setState({
-	                        deleteBtnDisabled: false
-	                    });
-
-	                    self.props.router.push('/user/' + _this6.state.post.author.uid);
-	                }).catch(function (error) {
-	                    swal.close();
-	                    self.setState({
-	                        deleteBtnDisabled: false
-	                    });
-
-	                    var data = {
-	                        message: 'There was an error deleting your post: ' + error,
-	                        timeout: 5000
-	                    };
-
-	                    self.props.deleteError(data);
-	                });
-	            });
-	        }
-
-	        /**
-	         * Starts Likes count listener and on/off like status.
-	         * @private
-	         */
-
-	    }, {
-	        key: '_setupLikeCountAndStatus',
-	        value: function _setupLikeCountAndStatus(postId) {
-	            var post = document.getElementById('post');
-
-	            var self = this;
-	            if (this.auth.currentUser) {
-	                // Listen to like status.
-	                _firebase2.default.registerToUserLike(postId, function (isliked) {
-	                    if (isliked) {
-
-	                        self.setState({
-	                            likedStyle: {
-	                                display: 'block'
-	                            }
-	                        });
-	                        self.setState({
-	                            notLikedStyle: {
-	                                display: 'none'
-	                            }
-	                        });
-	                    } else {
-
-	                        self.setState({
-	                            likedStyle: {
-	                                display: 'none'
-	                            }
-	                        });
-	                        self.setState({
-	                            notLikedStyle: {
-	                                display: 'block'
-	                            }
-	                        });
-	                    }
-	                });
-
-	                _firebase2.default.registerForLikesCount(postId, function (nbLikes) {
-	                    if (nbLikes > 0) {
-	                        self.setState({
-	                            likesCount: nbLikes
-	                        });
-
-	                        self.setState({
-	                            likePanelStyle: {
-	                                display: 'block'
-	                            }
-	                        });
-	                    } else {
-	                        self.setState({
-	                            likePanelStyle: {
-	                                display: 'none'
-	                            }
-	                        });
-	                    }
-	                });
-	            }
-	        }
-
-	        /**
-	         * Click handler for changing like status 
-	         * @private 
-	         */
-
-	    }, {
-	        key: '_changeLikeStatus',
-	        value: function _changeLikeStatus(willBeLiked) {
-
-	            var postId = this.props.params.postid || this.props.postId;
-	            _firebase2.default.updateLike(postId, willBeLiked);
-
-	            if (willBeLiked) {
-
-	                this.setState({
-
-	                    likedStyle: {
-	                        display: 'none'
-	                    }
-	                });
-	                this.setState({
-	                    notLikedStyle: {
-	                        display: 'block'
-	                    }
-	                });
-	            } else {
-	                this.setState({
-	                    likedStyle: {
-	                        display: 'none'
-	                    }
-	                });
-	                this.setState({
-	                    notLikedStyle: {
-	                        display: 'block'
-	                    }
-	                });
-	            }
-	        }
-
-	        /**
-	         * Given the time of creation of a post returns how long since the creation of the post in text
-	         * format. e.g. 5d, 10h, now...
-	         */
-
-	    }, {
-	        key: 'getTimeText',
-	        value: function getTimeText(postCreationTimestamp) {
-	            var millis = Date.now() - postCreationTimestamp;
-	            var ms = millis % 1000;
-	            millis = (millis - ms) / 1000;
-	            var secs = millis % 60;
-	            millis = (millis - secs) / 60;
-	            var mins = millis % 60;
-	            millis = (millis - mins) / 60;
-	            var hrs = millis % 24;
-	            var days = (millis - hrs) / 24;
-	            var timeSinceCreation = [days, hrs, mins, secs, ms];
-
-	            var timeText = 'Now';
-	            if (timeSinceCreation[0] !== 0) {
-	                timeText = timeSinceCreation[0] + 'd';
-	            } else if (timeSinceCreation[1] !== 0) {
-	                timeText = timeSinceCreation[1] + 'h';
-	            } else if (timeSinceCreation[2] !== 0) {
-	                timeText = timeSinceCreation[2] + 'm';
-	            }
-	            return timeText;
-	        }
-
-	        /**
-	         * Returns the JSX for a post's comment.
-	         */
-
-	    }, {
-	        key: 'createCommentJsx',
-	        value: function createCommentJsx(author, text) {
-	            return _react2.default.createElement(
-	                'div',
-	                { className: 'fp-comment', key: Math.random() * 10000 },
-	                _react2.default.createElement(
-	                    _reactRouter.Link,
-	                    { to: "/user/" + author.uid },
-	                    _react2.default.createElement(
-	                        'span',
-	                        { className: 'fp-author' },
-	                        author.full_name || 'Anonymous'
-	                    )
-	                ),
-	                ':',
-	                _react2.default.createElement(
-	                    'span',
-	                    { className: 'fp-text' },
-	                    ' ',
-	                    text
-	                )
-	            );
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            var _this7 = this;
-
-	            return _react2.default.createElement(
-	                'div',
-	                { className: 'fp-post mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--8-col-desktop mdl-grid mdl-grid--no-spacing' },
-	                _react2.default.createElement(_theatre2.default, { picUrl: this.state.post.full_url }),
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop' },
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'fp-header' },
-	                        _react2.default.createElement(
-	                            _reactRouter.Link,
-	                            { to: "/user/" + this.state.post.author.uid },
-	                            _react2.default.createElement(
-	                                'span',
-	                                { className: 'fp-usernamelink mdl-button mdl-js-button' },
-	                                _react2.default.createElement('div', { className: 'fp-avatar', style: this.state.avatarStyle }),
-	                                _react2.default.createElement(
-	                                    'div',
-	                                    { className: 'fp-username mdl-color-text--black' },
-	                                    this.state.post.author.full_name
-	                                )
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            'button',
-	                            { className: 'fp-delete-post mdl-button mdl-js-button', disabled: this.state.deleteBtnDisabled, onClick: function onClick() {
-	                                    _this7.deletePostHandler(_this7);
-	                                }, style: this.state.deleteBtnStyle },
-	                            'Delete'
-	                        ),
-	                        _react2.default.createElement(
-	                            _reactRouter.Link,
-	                            { to: "/post/" + this.props.params.postid || this.props.postId },
-	                            _react2.default.createElement(
-	                                'span',
-	                                { className: 'fp-time' },
-	                                this.state.textTime
-	                            )
-	                        )
-	                    ),
-	                    _react2.default.createElement('div', { className: 'fp-image', onClick: function onClick() {
-	                            _this7.enterTheatreMode(_this7);
-	                        }, style: this.state.thumbStyle }),
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'fp-likes', style: this.state.likePanelStyle },
-	                        this.state.likesCount,
-	                        ' like',
-	                        this.state.likesCount == 1 ? "" : "s"
-	                    ),
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'fp-first-comment' },
-	                        this.state.firstComment
-	                    ),
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'fp-morecomments', style: this.state.nextPageBtnStyle, disabled: this.nextPageBtnDisabled, onClick: function onClick() {
-	                                _this7.showMoreComments(_this7);
-	                            } },
-	                        'View more comments...'
-	                    ),
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'fp-comments' },
-	                        this.state.comments.map(function (comment) {
-
-	                            return comment;
-	                        })
-	                    ),
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'fp-action', style: this.state.commentsFormStyle },
-	                        _react2.default.createElement(
-	                            'span',
-	                            { className: 'fp-like' },
-	                            _react2.default.createElement(
-	                                'div',
-	                                { className: 'fp-not-liked material-icons', onClick: function onClick() {
-	                                        _this7._changeLikeStatus(true);
-	                                    }, style: this.state.notLikedStyle },
-	                                'favorite_border'
-	                            ),
-	                            _react2.default.createElement(
-	                                'div',
-	                                { className: 'fp-liked material-icons', onClick: function onClick() {
-	                                        _this7._changeLikeStatus(false);
-	                                    }, style: this.state.likedStyle },
-	                                'favorite'
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            'form',
-	                            { className: 'fp-add-comment', action: '#', onSubmit: function onSubmit(e) {
-	                                    _this7.submitCommentHandler(e, _this7);
-	                                } },
-	                            _react2.default.createElement(
-	                                'div',
-	                                { className: 'mdl-textfield mdl-js-textfield' },
-	                                _react2.default.createElement('input', { className: 'mdl-textfield__input', id: this.state.commentId, type: 'text', value: this.state.newCommentText, onChange: function onChange(e) {
-	                                        _this7.commentTextChangeHandler(e, _this7);
-	                                    } }),
-	                                _react2.default.createElement(
-	                                    'label',
-	                                    { className: 'mdl-textfield__label', htmlFor: this.state.commentId },
-	                                    'Comment...'
-	                                )
-	                            )
-	                        )
-	                    )
-	                )
-	            );
-	        }
-	    }]);
-
-	    return SinglePost;
-	}(_react2.default.Component);
-
-	function matchDispatchToProps(dispatch) {
-	    return (0, _redux.bindActionCreators)({
-	        deleteError: appActions.postDeleteError,
-	        enterTheatreMode: appActions.enterTheatreMode
-	    }, dispatch);
-	}
-
-	exports.default = (0, _reactRouter.withRouter)((0, _reactRedux.connect)(null, matchDispatchToProps)(SinglePost));
-
-/***/ },
-/* 278 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var Utils = function () {
-	    function Utils() {
-	        _classCallCheck(this, Utils);
-	    }
-
-	    /**
-	    * Refreshes the UI state of the given Material Design Checkbox / Switch element.
-	    */
-
-
-	    _createClass(Utils, [{
-	        key: 'refreshSwitchState',
-	        value: function refreshSwitchState(element) {
-
-	            if (element.MaterialSwitch) {
-	                element.MaterialSwitch.checkDisabled();
-	                element.MaterialSwitch.checkToggleState();
-	            }
-	        }
-
-	        /**
-	         * Returns a Promise which resolves when the user has reached the bottom of the page while
-	         * scrolling.
-	         * If an `offset` is specified the promise will resolve before reaching the bottom of
-	         * the page by the given amount offset in pixels.
-	         */
-
-	    }, {
-	        key: 'onEndScroll',
-	        value: function onEndScroll() {
-	            var offset = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
-
-	            var promise = new Promise(function (resolve, reject) {
-	                var mdlLayoutElement = document.querySelector('.content-container');
-	                mdlLayoutElement.onscroll = function () {
-	                    if (window.innerHeight + mdlLayoutElement.scrollTop + offset >= mdlLayoutElement.scrollHeight) {
-	                        console.log('Scroll End Reached!');
-	                        // mdlLayoutElement.unbind('scroll');
-	                        resolve();
-	                    }
-	                };
-	            }).then(function () {
-
-	                console.log('Now watching for Scroll End.');
-	            });
-
-	            return promise;
-	        }
-	    }]);
-
-	    return Utils;
-	}();
-
-	exports.default = new Utils();
-
-/***/ },
 /* 279 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -32857,11 +32919,11 @@
 
 	var _reactRouter = __webpack_require__(172);
 
-	var _firebase = __webpack_require__(273);
+	var _firebase = __webpack_require__(272);
 
 	var _firebase2 = _interopRequireDefault(_firebase);
 
-	var _utils = __webpack_require__(278);
+	var _utils = __webpack_require__(277);
 
 	var _utils2 = _interopRequireDefault(_utils);
 
@@ -32918,6 +32980,7 @@
 	                display: 'none'
 	            },
 	            nextPageBtnDisabled: false,
+	            followChecked: true,
 	            followingContainerClass: '',
 	            nbFollowing: 0,
 	            nbFollowers: 0,
@@ -32961,7 +33024,9 @@
 	        value: function componentDidMount() {
 	            var _this2 = this;
 
+	            console.log('mounted');
 	            var self = this;
+
 	            this.auth.onAuthStateChanged(function (user) {
 
 	                _this2.trackFollowStatus();
@@ -32976,6 +33041,12 @@
 	                }
 	            });
 	        }
+	    }, {
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {}
+
+	        // FirebaseHandler.cancelAllSubscriptions(); 
+
 
 	        /**
 	         * Triggered when the user changes the "Follow" checkbox.
@@ -32985,19 +33056,7 @@
 	        key: 'onFollowChange',
 	        value: function onFollowChange(e, self) {
 
-	            if (e.target.checked) {
-	                var label = 'Following';
-	            } else {
-	                var label = 'Follow';
-	            }
-	            self.setState({
-	                followCheckboxChecked: e.target.checked,
-	                followLabelText: label
-	            });
-
-	            console.log(this.state.followCheckboxChecked);
-
-	            _firebase2.default.toggleFollowUser(this.props.params.uid, this.state.followCheckboxChecked);
+	            _firebase2.default.toggleFollowUser(self.props.params.uid, e.target.checked);
 	        }
 
 	        /**
@@ -33011,9 +33070,25 @@
 
 	                var self = this;
 
-	                _firebase2.default.registerToFollowStatusUpdate(this.auth.currentUser.uid, function (data) {
+	                _firebase2.default.registerToFollowStatusUpdate(this.props.params.uid, function (data) {
+
+	                    var checkbox = document.getElementById('follow');
 	                    if (data.val() !== null) {
-	                        //Utils.refreshSwitchState(document.querySelector('.fp-name-follow-container'))
+
+	                        checkbox.checked = true;
+
+	                        self.setState({
+	                            followChecked: 'is-checked',
+	                            followLabelText: 'Following'
+	                        });
+	                    } else {
+
+	                        self.setState({
+	                            followChecked: '',
+	                            followLabelText: 'Follow'
+	                        });
+
+	                        checkbox.checked = false;
 	                    }
 	                });
 	            }
@@ -33026,6 +33101,7 @@
 	    }, {
 	        key: 'addPosts',
 	        value: function addPosts(posts) {
+
 	            var postIds = Object.keys(posts);
 	            var self = this;
 
@@ -33081,6 +33157,7 @@
 	    }, {
 	        key: 'showNextPage',
 	        value: function showNextPage(e, self) {
+
 	            self.setState({
 	                nextPageBtnDisabled: true
 	            });
@@ -33102,7 +33179,7 @@
 	            // If users is the currently signed-in user we hide the "Follow" checkbox and the opposite for
 	            // the "Notifications" checkbox.
 	            if (this.auth.currentUser && userId == this.auth.currentUser.uid) {
-	                // this.followContainer.hide();
+
 	                this.setState({
 	                    followContainerStyle: {
 	                        display: 'none'
@@ -33145,7 +33222,9 @@
 
 	            // Load user's profile.
 	            _firebase2.default.loadUserProfile(userId).then(function (snapshot) {
+
 	                var userInfo = snapshot.val();
+
 	                self.setState({
 	                    userDetail: userInfo
 	                });
@@ -33174,14 +33253,15 @@
 	            });
 
 	            // Load user's number of followers.
-	            _firebase2.default.registerForFollowersCount(userId, function (nbFollowers) {
+	            _firebase2.default.registerForFollowersCount(this.props.params.uid, function (nbFollowers) {
+
 	                self.setState({
 	                    nbFollowers: nbFollowers
 	                });
 	            });
 
 	            // Load user's number of followed users.
-	            _firebase2.default.registerForFollowingCount(this.auth.currentUser.uid, function (nbFollowed) {
+	            _firebase2.default.registerForFollowingCount(this.props.params.uid, function (nbFollowed) {
 
 	                self.setState({
 	                    nbFollowing: nbFollowed
@@ -33189,14 +33269,16 @@
 	            });
 
 	            // Load user's number of posts.
-	            _firebase2.default.registerForPostsCount(userId, function (nbPosts) {
+	            _firebase2.default.registerForPostsCount(this.props.params.uid, function (nbPosts) {
+
 	                self.setState({
 	                    nbPosts: nbPosts
 	                });
 	            });
 
 	            // Display user's posts.
-	            _firebase2.default.getUserFeedPosts(userId).then(function (data) {
+	            _firebase2.default.getUserFeedPosts(this.props.params.uid).then(function (data) {
+
 	                var postIds = Object.keys(data.entries);
 	                if (postIds.length === 0) {
 	                    self.setState({
@@ -33205,6 +33287,7 @@
 	                        }
 	                    });
 	                }
+
 	                _firebase2.default.subscribeToUserFeed(userId, function (postId, postValue) {
 
 	                    var posts_array = self.state.posts.slice();
@@ -33228,7 +33311,6 @@
 
 	                var posts = self.state.posts.slice();
 
-	                console.log('post stuff');
 	                var filtered = posts.filter(function (el) {
 
 	                    if (el.key == postId) {
@@ -33254,10 +33336,6 @@
 
 	            _firebase2.default.getFollowingProfiles(this.props.params.uid).then(function (profiles) {
 
-	                //   self.setState({
-	                //       nbFollowing: 0
-	                //   })
-
 	                var profiles_arr = [];
 
 	                Object.keys(profiles).forEach(function (uid) {
@@ -33279,8 +33357,6 @@
 
 	                    });
 	                }
-
-	                console.log(profiles_arr);
 	            });
 	        }
 
@@ -33291,6 +33367,7 @@
 	    }, {
 	        key: 'closeFollowing',
 	        value: function closeFollowing(self) {
+
 	            self.setState({
 	                followingContainerClass: '',
 	                followingContainerStyle: {
@@ -33341,21 +33418,13 @@
 	                        { className: 'material-icons' },
 	                        'favorite'
 	                    ),
-	                    _react2.default.createElement(
-	                        'span',
-	                        { className: "likes " + "likes" + postId },
-	                        '0'
-	                    ),
+	                    _react2.default.createElement('span', { className: "likes " + "likes" + postId }),
 	                    _react2.default.createElement(
 	                        'i',
 	                        { className: 'material-icons' },
 	                        'mode_comment'
 	                    ),
-	                    _react2.default.createElement(
-	                        'span',
-	                        { className: "comments " + "comments" + postId },
-	                        '0'
-	                    ),
+	                    _react2.default.createElement('span', { className: "comments " + "comments" + postId }),
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'fp-pic-text' },
@@ -33384,6 +33453,7 @@
 	            var avatarStyle = {
 	                backgroundImage: 'url(\'' + profilePic + '\''
 	            };
+
 	            return _react2.default.createElement(
 	                'a',
 	                { onClick: function onClick() {
@@ -33422,10 +33492,10 @@
 	                            { className: 'fp-signed-in-only' },
 	                            _react2.default.createElement(
 	                                'label',
-	                                { className: 'fp-follow mdl-switch mdl-js-switch mdl-js-ripple-effect', style: this.state.followContainerStyle, htmlFor: 'follow' },
-	                                _react2.default.createElement('input', { type: 'checkbox', id: 'follow', className: 'mdl-switch__input', checked: this.state.followCheckboxChecked, disabled: this.state.followCheckboxDisabled, onChange: function onChange(e) {
+	                                { className: "fp-follow mdl-switch mdl-js-switch mdl-js-ripple-effect " + this.state.followChecked, style: this.state.followContainerStyle, htmlFor: 'follow', onChange: function onChange(e) {
 	                                        _this5.onFollowChange(e, _this5);
-	                                    } }),
+	                                    } },
+	                                _react2.default.createElement('input', { type: 'checkbox', id: 'follow', className: 'mdl-switch__input' }),
 	                                _react2.default.createElement(
 	                                    'span',
 	                                    { className: 'mdl-switch__label' },
@@ -33506,18 +33576,31 @@
 
 	                        var postId = post.key;
 
-	                        try {
+	                        var likes,
+	                            comments = null;
+	                        setTimeout(get_post_status, 20);
+
+	                        function get_post_status() {
+
 	                            //Start listening for comments and likes counts.
 	                            _firebase2.default.registerForLikesCount(postId, function (nbLikes) {
 
-	                                document.querySelector('.likes' + postId).innerHTML = nbLikes;
+	                                if (document.querySelectorAll('.likes' + postId).length > 0) {
+	                                    likes = nbLikes;
+	                                    document.querySelector('.likes' + postId).innerHTML = nbLikes;
+	                                }
 	                            });
 	                            _firebase2.default.registerForCommentsCount(postId, function (nbComments) {
 
-	                                document.querySelector('.comments' + postId).innerHTML = nbComments;
+	                                if (document.querySelectorAll('.comments' + postId).length > 0) {
+	                                    comments = comments;
+	                                    document.querySelector('.comments' + postId).innerHTML = nbComments;
+	                                }
 	                            });
-	                        } catch (e) {
-	                            console.log('error loading user posts');
+
+	                            if (!comments || !likes) {
+	                                setTimeout(get_post_status, 20);
+	                            }
 	                        }
 
 	                        return post;
@@ -33564,6 +33647,469 @@
 
 /***/ },
 /* 280 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRouter = __webpack_require__(172);
+
+	var _theatre = __webpack_require__(275);
+
+	var _theatre2 = _interopRequireDefault(_theatre);
+
+	var _single_post = __webpack_require__(276);
+
+	var _single_post2 = _interopRequireDefault(_single_post);
+
+	var _firebase = __webpack_require__(272);
+
+	var _firebase2 = _interopRequireDefault(_firebase);
+
+	var _utils = __webpack_require__(277);
+
+	var _utils2 = _interopRequireDefault(_utils);
+
+	var _reactRedux = __webpack_require__(248);
+
+	var _redux = __webpack_require__(227);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Home = function (_React$Component) {
+	  _inherits(Home, _React$Component);
+
+	  function Home(props) {
+	    _classCallCheck(this, Home);
+
+	    // List of all posts on the page.
+	    var _this = _possibleConstructorReturn(this, (Home.__proto__ || Object.getPrototypeOf(Home)).call(this, props));
+
+	    _this.posts = [];
+	    // Map of posts that can be displayed.
+	    _this.newPosts = {};
+
+	    // Firebase SDK.
+	    _this.auth = firebase.auth();
+
+	    _this.state = {
+	      posts: [],
+	      noPostsStyle: {
+	        display: 'block'
+	      },
+	      nextPageBtnDisabled: true,
+	      nextPageBtnStyle: {
+	        display: 'none'
+	      },
+
+	      newPostsBtnStyle: {
+	        display: 'none'
+	      },
+	      nbNewPosts: 0,
+	      newPosts: {},
+	      newPostsArr: [],
+	      newBtnText: 'Show new posts...',
+	      clickHandlerAdded: false
+	    };
+
+	    _this.addPosts = _this.addPosts.bind(_this);
+	    _this.toggleNextPageButton = _this.toggleNextPageButton.bind(_this);
+	    _this.showNewPosts = _this.showNewPosts.bind(_this);
+
+	    _this.showHomeFeed = _this.showHomeFeed.bind(_this);
+
+	    _this.onPostDeleted = _this.onPostDeleted.bind(_this);
+	    _this.addNewPost = _this.addNewPost.bind(_this);
+	    return _this;
+	  }
+
+	  _createClass(Home, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+
+	      var self = this;
+
+	      this.auth.onAuthStateChanged(function (user) {
+
+	        self.showHomeFeed();
+	      });
+
+	      componentHandler.upgradeDom();
+	    }
+	  }, {
+	    key: 'componentDidUpdate',
+	    value: function componentDidUpdate() {
+	      componentHandler.upgradeDom();
+	    }
+	  }, {
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {}
+
+	    // ----------------------------------------------
+
+	    /**
+	     * Appends the given list of `posts`.
+	     */
+
+	  }, {
+	    key: 'addPosts',
+	    value: function addPosts(posts) {
+
+	      // Displays the list of posts
+
+	      var posts_arr = [];
+
+	      var postIds = Object.keys(posts);
+	      for (var i = postIds.length - 1; i >= 0; i--) {
+
+	        this.setState({
+	          noPostsStyle: {
+	            display: 'none'
+	          }
+	        });
+
+	        var postData = posts[postIds[i]];
+
+	        var post = _react2.default.createElement(_single_post2.default, { postId: postIds[i], key: postIds[i], hideDeleteBtn: true });
+
+	        posts_arr.push(post);
+	      }
+
+	      this.setState({
+	        posts: posts_arr
+	      });
+	    }
+
+	    /**
+	     * Shows the "load next page" button and binds it the `nextPage` callback. If `nextPage` is `null`
+	     * then the button is hidden.
+	     */
+
+	  }, {
+	    key: 'toggleNextPageButton',
+	    value: function toggleNextPageButton(nextPage) {
+
+	      var self = this;
+
+	      if (nextPage) {
+	        (function () {
+
+	          var loadMorePosts = function loadMorePosts() {
+
+	            self.setState({
+	              nextPageBtnDisabled: true
+	            });
+	            console.log('Loading next page of posts.');
+	            nextPage().then(function (data) {
+	              self.addPosts(data.entries);
+	              self.toggleNextPageButton(data.nextPage);
+	            });
+
+	            if (!self.state.clickHandlerAdded) {
+	              var btn = document.getElementById('load-more-btn');
+	              btn.onclick = loadMorePosts;
+
+	              self.setState({
+	                clickHandlerAdded: true
+	              });
+	            }
+	          };
+
+	          self.setState({
+	            nextPageBtnStyle: {
+	              display: 'block'
+	            },
+	            nextPageBtnDisabled: false
+	          });
+	        })();
+	      } else {
+
+	        self.setState({
+	          nextPageBtnStyle: {
+	            display: 'none'
+	          }
+	        });
+	      }
+	    }
+
+	    /**
+	     * Prepends the list of new posts stored in `this.newPosts`. This happens when the user clicks on
+	     * the "Show new posts" button.
+	     */
+
+	  }, {
+	    key: 'showNewPosts',
+	    value: function showNewPosts(self) {
+
+	      self.setState({
+	        newPostsBtnStyle: {
+	          display: 'none'
+	        },
+	        noPostsStyle: {
+	          display: 'none'
+	        }
+	      });
+
+	      var newPosts = Object.assign({}, self.state.newPosts);
+
+	      var allPosts = self.state.posts.slice();
+	      var updatedPosts = [];
+
+	      var postKeys = Object.keys(newPosts);
+
+	      for (var i = 0; i < postKeys.length; i++) {
+
+	        var post = _react2.default.createElement(_single_post2.default, { postId: postKeys[i], key: postKeys[i], hideDeleteBtn: true });
+
+	        allPosts.unshift(post);
+	      }
+
+	      self.setState({
+	        posts: allPosts,
+	        newPosts: []
+	      });
+	    }
+
+	    /**
+	     * Shows the feed showing all followed users.
+	     */
+
+	  }, {
+	    key: 'showHomeFeed',
+	    value: function showHomeFeed() {
+	      var _this2 = this;
+
+	      var self = this;
+
+	      if (this.auth.currentUser) {
+	        // Make sure the home feed is updated with followed users's new posts.
+	        _firebase2.default.updateHomeFeeds().then(function () {
+	          // Load initial batch of posts.
+	          _firebase2.default.getHomeFeedPosts().then(function (data) {
+	            var postIds = Object.keys(data.entries);
+	            if (postIds.length === 0) {
+	              self.setState({
+	                noPostsStyle: {
+	                  display: 'block'
+	                }
+	              });
+	            }
+	            // Listen for new posts.
+	            var latestPostId = postIds[postIds.length - 1];
+	            _firebase2.default.subscribeToHomeFeed(function (postId, postValue) {
+	              _this2.addNewPost(postId, postValue);
+	            }, latestPostId);
+
+	            // Adds fetched posts and next page button if necessary.
+	            _this2.addPosts(data.entries);
+	            _this2.toggleNextPageButton(data.nextPage);
+	          });
+
+	          // Add new posts from followers live.
+	          _firebase2.default.startHomeFeedLiveUpdaters();
+
+	          // Listen for posts deletions.
+	          _firebase2.default.registerForPostsDeletion(function (postId) {
+	            return _this2.onPostDeleted(postId);
+	          });
+	        });
+	      }
+	    }
+
+	    /**
+	     * Triggered when a post has been deleted.
+	     */
+
+	  }, {
+	    key: 'onPostDeleted',
+	    value: function onPostDeleted(postId) {
+
+	      // Potentially remove post from in-memory new post list. 
+
+	      var allPosts = this.state.posts.slice();
+	      var newPosts = Object.assign({}, this.state.newPosts);
+
+	      var filtered_posts = allPosts.filter(function (post) {
+	        if (post.key == postId) return false;else return true;
+	      });
+
+	      delete newPosts[postId];
+
+	      this.setState({
+	        posts: filtered_posts,
+	        newPosts: newPosts
+	      });
+
+	      if (Object.keys(newPosts).length == 0) {
+	        this.setState({
+	          newPostsBtnStyle: {
+	            display: 'none'
+	          }
+	        });
+	      } else {
+	        this.setState({
+	          newBtnText: 'Display ' + Object.keys(newPosts).length + ' new posts'
+	        });
+	      }
+	    }
+
+	    /**
+	     * Adds a new post to display in the queue.
+	     */
+
+	  }, {
+	    key: 'addNewPost',
+	    value: function addNewPost(postId, postValue) {
+	      // this.newPosts[postId] = postValue;
+
+	      var postObj = Object.assign({}, this.state.newPosts);
+	      postObj[postId] = postValue;
+
+	      this.setState({
+	        newPosts: postObj,
+	        newBtnText: 'Display ' + Object.keys(postObj).length + ' new posts',
+	        newPostsBtnStyle: {
+	          display: 'flex'
+	        }
+	      });
+	    }
+
+	    // ---------------------------------------------
+
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this3 = this;
+
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(_theatre2.default, null),
+	        _react2.default.createElement(
+	          'section',
+	          { id: 'page-feed', className: 'mdl-grid fp-content' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'fp-new-posts-button', style: this.state.newPostsBtnStyle },
+	            _react2.default.createElement(
+	              'button',
+	              { className: 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--amber-400', style: this.state.newPostsBtnStyle, onClick: function onClick() {
+	                  _this3.showNewPosts(_this3);
+	                } },
+	              this.state.newBtnText
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'fp-image-container mdl-cell mdl-cell--12-col mdl-grid' },
+	            this.state.posts.map(function (post) {
+	              return post;
+	            }),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'fp-no-posts fp-help mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--8-col-desktop mdl-grid mdl-grid--no-spacing', style: this.state.noPostsStyle },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'mdl-card__supporting-text mdl-color-text--grey-600' },
+	                _react2.default.createElement(
+	                  'i',
+	                  { className: 'fp-info material-icons' },
+	                  'help'
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  null,
+	                  _react2.default.createElement(
+	                    'p',
+	                    null,
+	                    'Start following people to see their posts!'
+	                  ),
+	                  _react2.default.createElement(
+	                    'p',
+	                    null,
+	                    'Use the ',
+	                    _react2.default.createElement(
+	                      'strong',
+	                      null,
+	                      _react2.default.createElement(
+	                        'i',
+	                        { className: 'material-icons' },
+	                        'search'
+	                      ),
+	                      ' search bar'
+	                    ),
+	                    ' to find people you know and have a look at the ',
+	                    _react2.default.createElement(
+	                      _reactRouter.Link,
+	                      { to: '/feed' },
+	                      _react2.default.createElement(
+	                        'span',
+	                        null,
+	                        _react2.default.createElement(
+	                          'i',
+	                          { className: 'material-icons' },
+	                          'trending_up'
+	                        ),
+	                        ' feed'
+	                      )
+	                    ),
+	                    ' to discover interesting people.'
+	                  ),
+	                  _react2.default.createElement(
+	                    'p',
+	                    null,
+	                    'Then ',
+	                    _react2.default.createElement(
+	                      'i',
+	                      { className: 'material-icons' },
+	                      'favorite'
+	                    ),
+	                    ' like and comment their posts!'
+	                  )
+	                )
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'fp-next-page-button', id: 'more-posts', style: this.state.nextPageBtnStyle, disabled: this.state.nextPageBtnDisabled },
+	            _react2.default.createElement(
+	              'button',
+	              { className: 'mdl-button mdl-js-button mdl-button--raised mdl-button--fab', id: 'load-more-btn' },
+	              _react2.default.createElement(
+	                'i',
+	                { className: 'material-icons' },
+	                'expand_more'
+	              )
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Home;
+	}(_react2.default.Component);
+
+	exports.default = Home;
+
+/***/ },
+/* 281 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33765,7 +34311,7 @@
 	exports.default = About;
 
 /***/ },
-/* 281 */
+/* 282 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33780,7 +34326,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _single_post = __webpack_require__(277);
+	var _single_post = __webpack_require__(276);
 
 	var _single_post2 = _interopRequireDefault(_single_post);
 
