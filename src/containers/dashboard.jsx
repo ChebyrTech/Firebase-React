@@ -37,10 +37,9 @@ class Dashboard extends React.Component {
 
         return (<div>
 
-            <Header uid={this.props.user.uid} displayName={this.props.user.displayName} photoUrl={this.props.user.photoUrl} />
-            <div className="content-container">
+            <Header uid={this.props.user.uid} displayName={this.props.user.displayName} photoUrl={this.props.user.photoUrl}>
                 {this.props.children}
-            </div>
+            </Header>
             <Toast />
 
         </div>)

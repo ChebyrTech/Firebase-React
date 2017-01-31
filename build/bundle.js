@@ -76,27 +76,27 @@
 
 	var _dashboard2 = _interopRequireDefault(_dashboard);
 
-	var _new_post = __webpack_require__(278);
+	var _new_post = __webpack_require__(279);
 
 	var _new_post2 = _interopRequireDefault(_new_post);
 
-	var _feed = __webpack_require__(274);
+	var _feed = __webpack_require__(275);
 
 	var _feed2 = _interopRequireDefault(_feed);
 
-	var _user = __webpack_require__(279);
+	var _user = __webpack_require__(280);
 
 	var _user2 = _interopRequireDefault(_user);
 
-	var _home = __webpack_require__(281);
+	var _home = __webpack_require__(282);
 
 	var _home2 = _interopRequireDefault(_home);
 
-	var _about = __webpack_require__(282);
+	var _about = __webpack_require__(283);
 
 	var _about2 = _interopRequireDefault(_about);
 
-	var _post_wrapper = __webpack_require__(283);
+	var _post_wrapper = __webpack_require__(284);
 
 	var _post_wrapper2 = _interopRequireDefault(_post_wrapper);
 
@@ -29151,7 +29151,6 @@
 	                };
 
 	                return newState;
-	                break;
 	            }
 	        case "SIGN_OUT":
 	            {
@@ -29166,7 +29165,6 @@
 	                };
 
 	                return newState;
-	                break;
 	            }
 
 	    }
@@ -29424,7 +29422,7 @@
 
 	var _auth2 = _interopRequireDefault(_auth);
 
-	var _firebase = __webpack_require__(272);
+	var _firebase = __webpack_require__(273);
 
 	var _firebase2 = _interopRequireDefault(_firebase);
 
@@ -29452,7 +29450,11 @@
 	        });
 	        _this.state = {
 	            signOutOnlyStyle: {},
-	            loggedInCls: ''
+	            loggedInCls: '',
+	            mounted: false,
+	            loggedOutStyle: {
+	                display: 'flex'
+	            }
 	        };
 
 	        _this.skipAuthHandler = _this.skipAuthHandler.bind(_this);
@@ -29463,12 +29465,35 @@
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
 
+	            this.setState({
+	                mounted: true
+	            });
+
 	            var firebaseUi = new firebaseui.auth.AuthUI(firebase.auth());
 	            firebaseUi.start('#firebaseui-auth-container', uiConfig);
 
-	            if (this.props.location.pathname != '/') {
+	            if (this.props.router.location.pathname != '/') {
 	                this.setState({ loggedInCls: "login-fadeout" });
+
+	                var self = this;
+	                setTimeout(function () {
+
+	                    if (self.state.mounted) {
+	                        self.setState({
+	                            loggedOutStyle: {
+	                                display: 'none'
+	                            }
+	                        });
+	                    }
+	                }, 500);
 	            }
+	        }
+	    }, {
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {
+	            this.setState({
+	                mounted: false
+	            });
 	        }
 
 	        /**
@@ -29481,11 +29506,22 @@
 	            if (user) {
 
 	                this.props.signIn(user);
-	                console.log('logged in');
 
 	                this.setState({
 	                    loggedInCls: 'login-fadeout'
 	                });
+
+	                var self = this;
+	                setTimeout(function () {
+
+	                    if (self.state.mounted) {
+	                        self.setState({
+	                            loggedOutStyle: {
+	                                display: 'none'
+	                            }
+	                        });
+	                    }
+	                }, 500);
 
 	                _firebase2.default.saveUserData(user.photoURL, user.displayName);
 	            } else {
@@ -29493,8 +29529,7 @@
 	                this.setState({
 	                    signOutOnlyStyle: { display: 'block' }
 	                });
-
-	                console.log('logged out');
+	                this.props.signOut();
 	            }
 	        }
 
@@ -29506,6 +29541,19 @@
 	        key: 'skipAuthHandler',
 	        value: function skipAuthHandler() {
 	            this.setState({ loggedInCls: "login-fadeout" });
+
+	            var self = this;
+	            setTimeout(function () {
+
+	                if (self.state.mounted) {
+	                    self.setState({
+	                        loggedOutStyle: {
+	                            display: 'none'
+	                        }
+	                    });
+	                }
+	            }, 500);
+
 	            this.props.router.push('/feed');
 	        }
 	    }, {
@@ -29517,7 +29565,7 @@
 	                null,
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: "logged-out " + this.state.loggedInCls },
+	                    { className: "logged-out " + this.state.loggedInCls, style: this.state.loggedOutStyle },
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'fp-theatre' },
@@ -29577,7 +29625,8 @@
 
 	function matchDispatchToProps(dispatch) {
 	    return (0, _redux.bindActionCreators)({
-	        signIn: appActions.signIn
+	        signIn: appActions.signIn,
+	        signOut: appActions.signOut
 	    }, dispatch);
 	}
 
@@ -29723,11 +29772,11 @@
 
 	var _header2 = _interopRequireDefault(_header);
 
-	var _toast = __webpack_require__(273);
+	var _toast = __webpack_require__(274);
 
 	var _toast2 = _interopRequireDefault(_toast);
 
-	var _feed = __webpack_require__(274);
+	var _feed = __webpack_require__(275);
 
 	var _feed2 = _interopRequireDefault(_feed);
 
@@ -29772,10 +29821,9 @@
 	            return _react2.default.createElement(
 	                'div',
 	                null,
-	                _react2.default.createElement(_header2.default, { uid: this.props.user.uid, displayName: this.props.user.displayName, photoUrl: this.props.user.photoUrl }),
 	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'content-container' },
+	                    _header2.default,
+	                    { uid: this.props.user.uid, displayName: this.props.user.displayName, photoUrl: this.props.user.photoUrl },
 	                    this.props.children
 	                ),
 	                _react2.default.createElement(_toast2.default, null)
@@ -29823,9 +29871,13 @@
 
 	var _auth2 = _interopRequireDefault(_auth);
 
+	var _search = __webpack_require__(272);
+
+	var _search2 = _interopRequireDefault(_search);
+
 	var _reactRouter = __webpack_require__(172);
 
-	var _firebase = __webpack_require__(272);
+	var _firebase = __webpack_require__(273);
 
 	var _firebase2 = _interopRequireDefault(_firebase);
 
@@ -29862,16 +29914,19 @@
 	                backgroundImage: 'url()'
 	            },
 	            upload: {},
-	            tabClasses: {
+	            navClasses: {
 	                home: 'is-active',
-	                feed: ''
+	                feed: '',
+	                about: ''
 	            },
-	            activeTab: 1
+	            mounted: false
 	        };
 
 	        _this.auth = firebase.auth();
 	        _this.signOutHandler = _this.signOutHandler.bind(_this);
 	        _this.handleUpload = _this.handleUpload.bind(_this);
+	        _this.switchNavClass = _this.switchNavClass.bind(_this);
+	        _this.closeDrawer = _this.closeDrawer.bind(_this);
 
 	        return _this;
 	    }
@@ -29882,8 +29937,19 @@
 	    _createClass(Header, [{
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
+	            this.setState({
+	                mounted: true
+	            });
+	            if (this.props.router.location.pathname == '/feed') {
+	                this.setState({
+	                    navClasses: {
+	                        home: '',
+	                        feed: 'is-active',
+	                        about: ''
+	                    }
+	                });
+	            }
 
-	            var self = this;
 	            componentHandler.upgradeDom();
 	        }
 	    }, {
@@ -29896,6 +29962,9 @@
 	        key: 'componentWillUnmount',
 	        value: function componentWillUnmount() {
 
+	            this.setState({
+	                mounted: false
+	            });
 	            function clear() {
 	                return;
 	            }
@@ -29905,8 +29974,45 @@
 	        key: 'componentWillReceiveProps',
 	        value: function componentWillReceiveProps(nextProps) {
 
-	            // Set style depending on whether the user is logged in 
-	            if (nextProps.user.uid !== '' && nextProps.user.photoUrl != '') {
+	            if (nextProps.router.location.pathname != '/' && nextProps.router.location.pathname != '/feed' && this.state.mounted) {
+	                this.setState({
+	                    navClasses: {
+	                        home: '',
+	                        feed: '',
+	                        about: ''
+	                    }
+	                });
+	            } else if (nextProps.router.location.pathname == '/feed' && this.state.mounted) {
+	                this.setState({
+	                    navClasses: {
+	                        home: '',
+	                        feed: 'is-active',
+	                        about: ''
+	                    }
+	                });
+	            }
+
+	            if (nextProps.user.signOut || nextProps.user.uid == '' && this.state.mounted) {
+
+	                this.setState({
+	                    signedOutOnlyStyle: {
+	                        display: 'block'
+	                    }
+	                });
+	                this.setState({
+	                    signedInOnlyStyle: {
+	                        display: 'none'
+	                    }
+	                });
+	            }
+
+	            if (nextProps.params.uid != this.props.params.uid && nextProps.params.uid && this.props.params.uid && this.state.mounted) {
+
+	                console.log(nextProps.params.uid);
+	                window.location.reload();
+	            }
+
+	            if (nextProps.user.uid !== '' && this.state.mounted) {
 
 	                this.setState({
 	                    signedOutOnlyStyle: {
@@ -29921,25 +30027,6 @@
 	                this.setState({
 	                    avatarStyle: {
 	                        backgroundImage: 'url(' + nextProps.user.photoUrl + ')'
-	                    }
-	                });
-	            }
-
-	            if (nextProps.params.uid != this.props.params.uid && nextProps.params.uid && this.props.params.uid) {
-
-	                console.log(nextProps.params.uid);
-	                window.location.reload();
-	            }
-
-	            if (nextProps.user.uid == '' && this.props.user.uid != '') {
-	                this.setState({
-	                    signedOutOnlyStyle: {
-	                        display: 'block'
-	                    }
-	                });
-	                this.setState({
-	                    signedInOnlyStyle: {
-	                        display: 'none'
 	                    }
 	                });
 	            }
@@ -29960,12 +30047,16 @@
 	                    var reader = new FileReader();
 	                    reader.readAsDataURL(file);
 
+	                    // reset field value 
+	                    e.target.type = '';
+	                    e.target.type = 'file';
+
 	                    var self = this;
 	                    reader.onload = function (e) {
 
 	                        self.props.uploadImage(file, e.target.result);
-	                        e.target.value = null;
-	                        self.props.router.push('/add'); // go to upload page 
+	                        self.props.router.push('/add'); // go to upload page   
+
 	                    };
 	                }
 	            }
@@ -29977,8 +30068,11 @@
 
 	    }, {
 	        key: 'signOutHandler',
-	        value: function signOutHandler() {
+	        value: function signOutHandler(drawerOpen) {
 
+	            if (drawerOpen) {
+	                this.closeDrawer();
+	            }
 	            firebase.auth().signOut();
 
 	            this.props.signOut();
@@ -29993,12 +30087,62 @@
 	                }
 	            });
 	        }
+
+	        /**
+	         * Switch navbar tab classes 
+	         */
+
+	    }, {
+	        key: 'switchNavClass',
+	        value: function switchNavClass(active_route) {
+	            if (active_route == 'home') {
+	                this.setState({
+	                    navClasses: {
+	                        home: 'is-active',
+	                        feed: '',
+	                        about: ''
+	                    }
+	                });
+	            } else if (active_route == 'feed') {
+	                this.setState({
+	                    navClasses: {
+	                        home: '',
+	                        feed: 'is-active',
+	                        about: ''
+	                    }
+	                });
+	            } else if (active_route == 'about') {
+
+	                this.setState({
+	                    navClasses: {
+	                        home: '',
+	                        feed: '',
+	                        about: 'is-active'
+	                    }
+	                });
+	            }
+	        }
+	    }, {
+	        key: 'closeDrawer',
+	        value: function closeDrawer(route) {
+
+	            this.switchNavClass(route);
+
+	            var drawerObfuscator = document.querySelector('.mdl-layout__obfuscator');
+	            if (drawerObfuscator.classList.contains('is-visible')) {
+
+	                var click = new MouseEvent('click');
+	                drawerObfuscator.dispatchEvent(click);
+	            }
+	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
+	            var _this2 = this;
+
 	            return _react2.default.createElement(
 	                'div',
-	                null,
+	                { className: 'mdl-layout mdl-js-layout mdl-layout--fixed-header', id: 'content' },
 	                _react2.default.createElement(
 	                    'header',
 	                    { className: 'fp-header mdl-layout__header mdl-color-text--white mdl-color--light-blue-700' },
@@ -30024,30 +30168,7 @@
 	                            )
 	                        ),
 	                        _react2.default.createElement('div', { className: 'mdl-layout-spacer' }),
-	                        _react2.default.createElement(
-	                            'div',
-	                            { className: 'fp-searchcontainer mdl-textfield mdl-js-textfield mdl-textfield--expandable' },
-	                            _react2.default.createElement(
-	                                'label',
-	                                { className: 'mdl-button mdl-js-button mdl-button--icon', htmlFor: 'searchQuery' },
-	                                _react2.default.createElement(
-	                                    'i',
-	                                    { className: 'material-icons' },
-	                                    'search'
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                'div',
-	                                { className: 'mdl-textfield__expandable-holder' },
-	                                _react2.default.createElement('input', { className: 'mdl-textfield__input', type: 'text', id: 'searchQuery' }),
-	                                _react2.default.createElement(
-	                                    'label',
-	                                    { className: 'mdl-textfield__label', htmlFor: 'searchQuery' },
-	                                    'Enter your query...'
-	                                )
-	                            ),
-	                            _react2.default.createElement('div', { id: 'fp-searchResults', className: 'mdl-card mdl-shadow--2dp' })
-	                        ),
+	                        _react2.default.createElement(_search2.default, null),
 	                        _react2.default.createElement(
 	                            'div',
 	                            { className: 'mdl-cell--hide-phone' },
@@ -30127,11 +30248,12 @@
 	                        { className: 'fp-tab mdl-layout__header-row mdl-cell--hide-phone mdl-color--light-blue-600' },
 	                        _react2.default.createElement(
 	                            'div',
-	                            { className: 'mdl-tab mdl-layout__tab-bar mdl-js-ripple-effect' },
+	                            { className: 'mdl-tab' },
 	                            _react2.default.createElement(
 	                                'a',
-	                                { href: '#/', className: 'mdl-layout__tab is-active mdl-js-button mdl-button' },
-	                                ' ',
+	                                { href: '#/', onClick: function onClick() {
+	                                        return _this2.switchNavClass('home');
+	                                    }, id: 'fp-menu-home', className: "mdl-layout__tab fp-signed-in-only mdl-button mdl-js-button mdl-js-ripple-effect " + this.state.navClasses.home, style: this.state.signedInOnlyStyle },
 	                                _react2.default.createElement(
 	                                    'i',
 	                                    { className: 'material-icons' },
@@ -30141,13 +30263,25 @@
 	                            ),
 	                            _react2.default.createElement(
 	                                'a',
-	                                { href: '#feed', className: 'mdl-layout__tab mdl-js-button mdl-button' },
+	                                { href: '#/feed', onClick: function onClick() {
+	                                        return _this2.switchNavClass('feed');
+	                                    }, id: 'fp-menu-feed', className: "mdl-layout__tab mdl-button mdl-js-button mdl-js-ripple-effect " + this.state.navClasses.feed },
 	                                _react2.default.createElement(
 	                                    'i',
 	                                    { className: 'material-icons' },
 	                                    'trending_up'
 	                                ),
 	                                ' Feed'
+	                            ),
+	                            _react2.default.createElement(
+	                                'label',
+	                                { className: 'fp-signed-in-only mdl-button mdl-js-button mdl-button--fab mdl-cell--hide-tablet mdl-color--amber-400 mdl-shadow--4dp mdl-js-ripple-effect', id: 'add', style: this.state.signedInOnlyStyle },
+	                                _react2.default.createElement(
+	                                    'i',
+	                                    { className: 'material-icons' },
+	                                    'file_upload'
+	                                ),
+	                                _react2.default.createElement('input', { onChange: this.handleUpload, id: 'fp-mediacapture', type: 'file', accept: 'image/*;capture=camera' })
 	                            )
 	                        )
 	                    ),
@@ -30170,7 +30304,7 @@
 	                        { href: '/', className: 'fp-signed-out-only' },
 	                        _react2.default.createElement(
 	                            'button',
-	                            { className: 'fp-sign-in-button mdl-button mdl-js-button mdl-js-ripple-effect' },
+	                            { className: 'fp-sign-in-button mdl-button mdl-js-button mdl-js-ripple-effect', style: this.state.signedOutOnlyStyle },
 	                            _react2.default.createElement(
 	                                'i',
 	                                { className: 'material-icons' },
@@ -30181,12 +30315,20 @@
 	                    ),
 	                    _react2.default.createElement(
 	                        'div',
-	                        { className: 'fp-signed-in-user-container mdl-color--light-blue-700 fp-signed-in-only' },
+	                        { className: 'fp-signed-in-user-container mdl-color--light-blue-700 fp-signed-in-only', style: this.state.signedInOnlyStyle },
 	                        _react2.default.createElement(
-	                            'a',
-	                            { className: 'fp-usernamelink' },
-	                            _react2.default.createElement('div', { className: 'fp-avatar' }),
-	                            _react2.default.createElement('div', { className: 'fp-username mdl-color-text--white' })
+	                            _reactRouter.Link,
+	                            { to: "/user/" + this.props.user.uid, onClick: this.closeDrawer },
+	                            _react2.default.createElement(
+	                                'span',
+	                                { className: 'fp-usernamelink' },
+	                                _react2.default.createElement('div', { className: 'fp-avatar', style: this.state.avatarStyle }),
+	                                _react2.default.createElement(
+	                                    'div',
+	                                    { className: 'fp-username mdl-color-text--white' },
+	                                    this.props.user.displayName
+	                                )
+	                            )
 	                        )
 	                    ),
 	                    _react2.default.createElement(
@@ -30194,7 +30336,9 @@
 	                        { className: 'mdl-navigation' },
 	                        _react2.default.createElement(
 	                            'a',
-	                            { className: 'mdl-navigation__link is-active fp-signed-in-only', href: '/' },
+	                            { className: "mdl-navigation__link fp-signed-in-only " + this.state.navClasses.home, href: '#/', style: this.state.signedInOnlyStyle, onClick: function onClick() {
+	                                    _this2.closeDrawer('home');
+	                                } },
 	                            _react2.default.createElement(
 	                                'i',
 	                                { className: 'material-icons' },
@@ -30204,7 +30348,9 @@
 	                        ),
 	                        _react2.default.createElement(
 	                            'a',
-	                            { className: 'mdl-navigation__link', href: '/feed' },
+	                            { className: "mdl-navigation__link " + this.state.navClasses.feed, href: '#/feed', onClick: function onClick() {
+	                                    _this2.closeDrawer('feed');
+	                                } },
 	                            _react2.default.createElement(
 	                                'i',
 	                                { className: 'material-icons' },
@@ -30215,7 +30361,9 @@
 	                        _react2.default.createElement('hr', null),
 	                        _react2.default.createElement(
 	                            'a',
-	                            { className: 'mdl-navigation__link', href: '/about' },
+	                            { className: "mdl-navigation__link " + this.state.navClasses.about, href: '#/about', onClick: function onClick() {
+	                                    _this2.closeDrawer('about');
+	                                } },
 	                            _react2.default.createElement(
 	                                'i',
 	                                { className: 'material-icons' },
@@ -30223,10 +30371,12 @@
 	                            ),
 	                            ' About - Help - Contact'
 	                        ),
-	                        _react2.default.createElement('hr', { className: 'fp-signed-in-only' }),
+	                        _react2.default.createElement('hr', { className: 'fp-signed-in-only', style: this.state.signedInOnlyStyle }),
 	                        _react2.default.createElement(
 	                            'a',
-	                            { className: 'fp-sign-out mdl-navigation__link fp-signed-in-only' },
+	                            { className: 'fp-sign-out mdl-navigation__link fp-signed-in-only', style: this.state.signedInOnlyStyle, onClick: function onClick() {
+	                                    return _this2.signOutHandler(true);
+	                                } },
 	                            _react2.default.createElement(
 	                                'i',
 	                                { className: 'material-icons' },
@@ -30235,6 +30385,11 @@
 	                            ' Sign Out'
 	                        )
 	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'main',
+	                    { className: 'mdl-layout__content mdl-color--grey-100' },
+	                    this.props.children
 	                )
 	            );
 	        }
@@ -30261,6 +30416,270 @@
 
 /***/ },
 /* 272 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRouter = __webpack_require__(172);
+
+	var _firebase = __webpack_require__(273);
+
+	var _firebase2 = _interopRequireDefault(_firebase);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Search = function (_React$Component) {
+	  _inherits(Search, _React$Component);
+
+	  function Search(props) {
+	    _classCallCheck(this, Search);
+
+	    var _this = _possibleConstructorReturn(this, (Search.__proto__ || Object.getPrototypeOf(Search)).call(this, props));
+
+	    _this.state = {
+	      val: '',
+	      results: [],
+	      cls: '',
+	      resultStyle: {
+	        display: 'none'
+	      },
+	      mounted: false
+	    };
+
+	    // Firebase SDK.
+	    _this.database = firebase.database();
+
+	    _this.displaySearchResults = _this.displaySearchResults.bind(_this);
+	    _this.handleSearchResults = _this.handleSearchResults.bind(_this);
+	    _this.hideSearchResults = _this.hideSearchResults.bind(_this);
+	    _this.createSearchResultJsx = _this.createSearchResultJsx.bind(_this);
+	    _this.hrefHandler = _this.hrefHandler.bind(_this);
+
+	    _this.MIN_CHARACTERS = 3;
+	    _this.NB_RESULTS_LIMIT = 10;
+	    return _this;
+	  }
+
+	  _createClass(Search, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+
+	      this.setState({
+	        mounted: true
+	      });
+	      componentHandler.upgradeDom();
+	    }
+	  }, {
+	    key: 'componentDidUpdate',
+	    value: function componentDidUpdate() {
+
+	      componentHandler.upgradeDom();
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+
+	      this.setState({
+	        mounted: false
+	      });
+	    }
+	  }, {
+	    key: 'hideSearchResults',
+	    value: function hideSearchResults(listener) {
+	      this.setState({
+	        cls: ''
+	      });
+
+	      var self = this;
+	      setTimeout(function () {
+	        document.removeEventListener('click', listener);
+
+	        if (self.state.mounted) {
+	          self.setState({
+	            resultStyle: {
+	              display: 'none'
+	            }
+	          });
+	        }
+	      }, 500);
+	    }
+
+	    /**
+	     * Display search results.
+	     */
+
+	  }, {
+	    key: 'displaySearchResults',
+	    value: function displaySearchResults(e) {
+	      var _this2 = this;
+
+	      this.setState({
+	        val: e.target.value
+	      });
+
+	      var self = this;
+	      var searchString = this.state.val.toLowerCase().trim();
+
+	      console.log(searchString);
+	      if (searchString.length >= this.MIN_CHARACTERS) {
+	        _firebase2.default.searchUsers(searchString, self.NB_RESULTS_LIMIT).then(function (results) {
+	          _this2.handleSearchResults(results);
+	        });
+	      } else {
+	        self.setState({
+	          results: [],
+	          cls: '',
+	          resultStyle: {
+	            display: 'none'
+	          }
+	        });
+	      }
+	    }
+	  }, {
+	    key: 'handleSearchResults',
+	    value: function handleSearchResults(results) {
+
+	      var self = this;
+	      var peopleIds = Object.keys(results);
+	      if (peopleIds.length > 0) {
+	        var results_arr;
+
+	        (function () {
+	          var handleClick = function handleClick() {
+	            self.hideSearchResults(handleClick);
+	          };
+
+	          self.setState({
+	            resultStyle: {
+	              display: 'block'
+	            }
+
+	          });
+	          setTimeout(function () {
+
+	            if (self.state.mounted) {
+	              self.setState({
+	                cls: 'search-visible'
+
+	              });
+	            }
+	          }, 300);
+
+	          document.addEventListener('click', handleClick);
+
+	          results_arr = [];
+
+	          peopleIds.forEach(function (peopleId) {
+	            var profile = results[peopleId];
+	            var profileJsx = self.createSearchResultJsx(peopleId, profile);
+	            results_arr.push(profileJsx);
+	          });
+
+	          console.log(results_arr);
+	          self.setState({
+	            results: results_arr
+	          });
+	        })();
+	      } else {
+	        self.setState({
+	          cls: '',
+	          resultStyle: {
+	            display: 'none'
+	          }
+	        });
+	      }
+	    }
+	  }, {
+	    key: 'hrefHandler',
+	    value: function hrefHandler(uid) {
+	      this.props.router.push('/user/' + uid);
+	    }
+
+	    /**
+	     * Returns the Jsx for a single search result
+	     */
+
+	  }, {
+	    key: 'createSearchResultJsx',
+	    value: function createSearchResultJsx(peopleId, peopleProfile) {
+	      var _this3 = this;
+
+	      var avatar_style = {
+	        backgroundImage: 'url(' + (peopleProfile.profile_picture || '/images/silhouette.jpg') + ')'
+	      };
+
+	      return _react2.default.createElement(
+	        'a',
+	        { key: peopleId, className: "fp-searchResultItem fp-usernamelink mdl-button mdl-js-button search-fadeout" + this.state.cls, onClick: function onClick() {
+	            _this3.hrefHandler(peopleId);
+	          } },
+	        _react2.default.createElement('div', { className: 'fp-avatar', style: avatar_style }),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'fp-username mdl-color-text--black' },
+	          peopleProfile.full_name
+	        )
+	      );
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'fp-searchcontainer mdl-textfield mdl-js-textfield mdl-textfield--expandable' },
+	        _react2.default.createElement(
+	          'label',
+	          { className: 'mdl-button mdl-js-button mdl-button--icon', htmlFor: 'searchQuery' },
+	          _react2.default.createElement(
+	            'i',
+	            { className: 'material-icons' },
+	            'search'
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'mdl-textfield__expandable-holder' },
+	          _react2.default.createElement('input', { className: 'mdl-textfield__input', type: 'text', id: 'searchQuery', onChange: this.displaySearchResults, value: this.state.val }),
+	          _react2.default.createElement(
+	            'label',
+	            { className: 'mdl-textfield__label', htmlFor: 'searchQuery' },
+	            'Enter your query...'
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { id: 'fp-searchResults', style: this.state.resultStyle, className: "mdl-card mdl-shadow--2dp search-fadeout " + this.state.cls },
+	          this.state.results.map(function (profile) {
+	            return profile;
+	          })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Search;
+	}(_react2.default.Component);
+
+	exports.default = (0, _reactRouter.withRouter)(Search);
+
+/***/ },
+/* 273 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -31048,7 +31467,7 @@
 	exports.default = new FirebaseHandler();
 
 /***/ },
-/* 273 */
+/* 274 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31172,7 +31591,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, matchDispatchToProps)(Toast);
 
 /***/ },
-/* 274 */
+/* 275 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31189,19 +31608,19 @@
 
 	var _reactRouter = __webpack_require__(172);
 
-	var _theatre = __webpack_require__(275);
+	var _theatre = __webpack_require__(276);
 
 	var _theatre2 = _interopRequireDefault(_theatre);
 
-	var _single_post = __webpack_require__(276);
+	var _single_post = __webpack_require__(277);
 
 	var _single_post2 = _interopRequireDefault(_single_post);
 
-	var _firebase = __webpack_require__(272);
+	var _firebase = __webpack_require__(273);
 
 	var _firebase2 = _interopRequireDefault(_firebase);
 
-	var _utils = __webpack_require__(277);
+	var _utils = __webpack_require__(278);
 
 	var _utils2 = _interopRequireDefault(_utils);
 
@@ -31250,7 +31669,8 @@
 	      newPosts: {},
 	      newPostsArr: [],
 	      newBtnText: 'Show new posts...',
-	      clickHandlerAdded: false
+	      clickHandlerAdded: false,
+	      loaded: false
 	    };
 
 	    _this.addPosts = _this.addPosts.bind(_this);
@@ -31273,10 +31693,7 @@
 
 	      var self = this;
 
-	      this.auth.onAuthStateChanged(function (user) {
-
-	        self.showGeneralFeed();
-	      });
+	      self.showGeneralFeed();
 
 	      componentHandler.upgradeDom();
 	    }
@@ -31315,6 +31732,7 @@
 
 	      // Adds fetched posts and next page button if necessary.
 	      this.addPosts(data.entries);
+
 	      this.toggleNextPageButton(data.nextPage);
 	    }
 
@@ -31346,18 +31764,6 @@
 	        var post = _react2.default.createElement(_single_post2.default, { postId: postIds[i], key: postIds[i], hideDeleteBtn: true });
 
 	        posts_arr.push(post);
-
-	        // const postElement = post.fillPostData(postIds[i], postData.thumb_url || postData.url,
-	        //     postData.text, postData.author, postData.timestamp, null, null, postData.full_url); 
-
-	        // If a post with similar ID is already in the feed we replace it instead of appending.
-	        // const existingPostElement = $(`.fp-post-${postIds[i]}`, this.feedImageContainer);
-	        // if (existingPostElement.length) {
-	        //   existingPostElement.replaceWith(postElement);
-	        // } else {
-	        //   this.feedImageContainer.append(postElement.addClass(`fp-post-${postIds[i]}`));
-	        // }
-
 	      }
 
 	      this.setState({
@@ -31547,7 +31953,7 @@
 
 	      return _react2.default.createElement(
 	        'div',
-	        null,
+	        { id: 'feed-container' },
 	        _react2.default.createElement(_theatre2.default, null),
 	        _react2.default.createElement(
 	          'section',
@@ -31658,7 +32064,7 @@
 	exports.default = (0, _reactRouter.withRouter)(Feed);
 
 /***/ },
-/* 275 */
+/* 276 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31696,6 +32102,7 @@
 	        _this.state = {
 	            viewModeChanged: 0
 	        };
+
 	        return _this;
 	    }
 
@@ -31713,6 +32120,8 @@
 	        key: 'leaveTheatreMode',
 	        value: function leaveTheatreMode(self) {
 
+	            var header = document.querySelector('header');
+	            header.style.zIndex = 3;
 	            document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-show');
 	            document.querySelector('.fp-theatre-fullpic').classList.add('theatre-hide');
 	            document.removeEventListener('keydown', self.escHandler);
@@ -31733,6 +32142,8 @@
 	        key: 'enterTheatreMode',
 	        value: function enterTheatreMode(self) {
 
+	            var header = document.querySelector('header');
+	            header.style.zIndex = 0;
 	            var timestamp = function timestamp() {
 	                return new Date.getTime();
 	            };
@@ -31775,7 +32186,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(Theatre);
 
 /***/ },
-/* 276 */
+/* 277 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31800,11 +32211,11 @@
 
 	var appActions = _interopRequireWildcard(_appActions);
 
-	var _theatre = __webpack_require__(275);
+	var _theatre = __webpack_require__(276);
 
 	var _theatre2 = _interopRequireDefault(_theatre);
 
-	var _firebase = __webpack_require__(272);
+	var _firebase = __webpack_require__(273);
 
 	var _firebase2 = _interopRequireDefault(_firebase);
 
@@ -31848,6 +32259,12 @@
 	        _this._setupLikeCountAndStatus = _this._setupLikeCountAndStatus.bind(_this);
 	        _this._changeLikeStatus = _this._changeLikeStatus.bind(_this);
 
+	        _this.handleData = _this.handleData.bind(_this);
+	        _this.onPostDeleteSuccess = _this.onPostDeleteSuccess.bind(_this);
+	        _this.onPostDeleteError = _this.onPostDeleteError.bind(_this);
+	        _this.handleLikes = _this.handleLikes.bind(_this);
+	        _this.handleAuth = _this.handleAuth.bind(_this);
+
 	        _this.state = {
 	            post: {
 	                author: {
@@ -31875,10 +32292,10 @@
 	            },
 
 	            deleteBtnStyle: {
-	                display: 'block'
+	                display: 'none'
 	            },
 	            deleteBtnDisabled: false,
-
+	            deleteBtnShown: false,
 	            likedStyle: {
 	                display: 'none'
 	            },
@@ -31916,9 +32333,17 @@
 	    _createClass(SinglePost, [{
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
+	            var _this2 = this;
 
 	            this.setState({
 	                mounted: true
+	            });
+
+	            var self = this;
+
+	            this.auth.onAuthStateChanged(function (user) {
+
+	                _this2.handleAuth(user, self);
 	            });
 	            var postId = this.props.params.postid || this.props.postId;
 	            this.loadPost(postId);
@@ -31926,11 +32351,70 @@
 	    }, {
 	        key: 'componentWillUnmount',
 	        value: function componentWillUnmount() {
+
+	            function clear() {
+	                return;
+	            }
+
+	            this.handleAuth = clear;
+	            this.handleData = clear;
+	            this._setupComments = clear;
+	            this._setupDate = clear;
+	            this._setupDeleteButton = clear;
+	            this._setupLikeCountAndStatus = clear;
+	            this._setupThumb = clear;
+
+	            this.displayComments = clear;
+	            this.displayNextPageButton = clear;
+	            this.createCommentJsx = clear;
+	            this.onPostDeleteError = clear;
+	            this.onPostDeleteSuccess = clear;
+	            this.clear();
+
 	            this.setState({
 	                mounted: false
 	            });
+	        }
 
-	            // FirebaseHandler.cancelAllSubscriptions();
+	        /**
+	         * 
+	         */
+
+	    }, {
+	        key: 'handleAuth',
+	        value: function handleAuth(user, self) {
+	            if (user) {
+	                self.setState({
+	                    commentsFormStyle: {
+	                        display: 'block'
+	                    }
+	                });
+
+	                if (self.state.deleteBtnShown) {
+	                    self.setState({
+	                        deleteBtnStyle: {
+	                            display: 'block'
+	                        }
+	                    });
+	                }
+	            } else {
+	                self.setState({
+	                    commentsFormStyle: {
+	                        display: 'none'
+	                    },
+	                    deleteBtnStyle: {
+	                        display: 'none'
+	                    }
+	                });
+
+	                if (self.state.likesCount > 0) {
+	                    self.setState({
+	                        likePanelStyle: {
+	                            display: 'block'
+	                        }
+	                    });
+	                }
+	            }
 	        }
 
 	        /**
@@ -31940,32 +32424,36 @@
 	    }, {
 	        key: 'loadPost',
 	        value: function loadPost(postId) {
-	            var _this2 = this;
 
 	            var self = this;
 	            // Load the posts information.
 	            _firebase2.default.getPostData(postId).then(function (snapshot) {
-	                var post = snapshot.val();
-
-	                if (!post) {
-	                    var data = {
-	                        message: 'This post does not exist.',
-	                        timeout: 5000
-	                    };
-
-	                    self.props.deleteError(data);
-	                    // this.toast[0].MaterialSnackbar.showSnackbar(data);
-	                    if (_this2.auth.currentUser) {
-	                        self.props.router.push('/user/' + _this2.auth.currentUser.uid);
-	                    } else {
-	                        self.props.router.push('/feed');
-	                    }
-	                } else {
-
-	                    _this2.setState({ post: post });
-	                    _this2.fillPostData(snapshot.key, post.thumb_url || post.url, post.text, post.author, post.timestamp, post.thumb_storage_uri, post.full_storage_uri, post.full_url);
-	                }
+	                self.handleData(snapshot);
 	            });
+	        }
+	    }, {
+	        key: 'handleData',
+	        value: function handleData(snapshot) {
+	            var post = snapshot.val();
+
+	            if (!post) {
+	                var data = {
+	                    message: 'This post does not exist.',
+	                    timeout: 5000
+	                };
+
+	                this.props.deleteError(data);
+	                // this.toast[0].MaterialSnackbar.showSnackbar(data);
+	                if (this.auth.currentUser) {
+	                    this.props.router.push('/user/' + this.auth.currentUser.uid);
+	                } else {
+	                    this.props.router.push('/feed');
+	                }
+	            } else {
+
+	                this.setState({ post: post });
+	                this.fillPostData(snapshot.key, post.thumb_url || post.url, post.text, post.author, post.timestamp, post.thumb_storage_uri, post.full_storage_uri, post.full_url);
+	            }
 	        }
 
 	        /**
@@ -32192,17 +32680,15 @@
 	                var commentIds = Object.keys(data.entries);
 	                _firebase2.default.subscribeToComments(postId, function (commentId, commentData) {
 
-	                    if (self.state.mounted) {
-	                        var comment_array = _this5.state.comments;
+	                    var comment_array = _this5.state.comments;
 
-	                        var new_comment = self.createCommentJsx(commentData.author, commentData.text);
+	                    var new_comment = self.createCommentJsx(commentData.author, commentData.text);
 
-	                        comment_array.push(new_comment);
-	                    }
+	                    comment_array.push(new_comment);
 	                }, commentIds ? commentIds[commentIds.length - 1] : 0);
 	            });
 
-	            if (this.auth.currentUser && self.state.mounted) {
+	            if (this.auth.currentUser) {
 
 	                var ran = Math.floor(Math.random() * 10000000);
 
@@ -32258,11 +32744,10 @@
 	            }
 
 	            _firebase2.default.addComment(self.state.postId, self.state.newCommentText);
-	            if (self.state.mounted) {
-	                self.setState({
-	                    newCommentText: ''
-	                });
-	            }
+
+	            self.setState({
+	                newCommentText: ''
+	            });
 	        }
 
 	        /**
@@ -32274,20 +32759,20 @@
 	        key: '_setupDeleteButton',
 	        value: function _setupDeleteButton(postId, author, picStorageUri, thumbStorageUri) {
 
-	            if (!this.state.mounted) return;
-
 	            if (this.auth.currentUser && this.auth.currentUser.uid === author.uid && picStorageUri && this.props.params.postid) {
 
 	                this.setState({
 	                    deleteBtnStyle: {
 	                        display: 'block'
-	                    }
+	                    },
+	                    deleteBtnShown: true
 	                });
 	            } else {
 	                this.setState({
 	                    deleteBtnStyle: {
 	                        display: 'none'
-	                    }
+	                    },
+	                    deleteBtnShown: false
 	                });
 	            }
 	        }
@@ -32318,33 +32803,41 @@
 	                });
 
 	                var pid = self.props.params.postid || _this6.props.postId;
-	                _firebase2.default.deletePost(pid, _this6.state.post.full_storage_uri, _this6.state.post.thumb_storage_uri).then(function () {
-	                    swal({
-	                        title: 'Deleted!',
-	                        text: 'Your post has been deleted.',
-	                        type: 'success',
-	                        timer: 2000
-	                    });
-
-	                    self.setState({
-	                        deleteBtnDisabled: false
-	                    });
-
-	                    self.props.router.push('/user/' + _this6.state.post.author.uid);
-	                }).catch(function (error) {
-	                    swal.close();
-	                    self.setState({
-	                        deleteBtnDisabled: false
-	                    });
-
-	                    var data = {
-	                        message: 'There was an error deleting your post: ' + error,
-	                        timeout: 5000
-	                    };
-
-	                    self.props.deleteError(data);
+	                _firebase2.default.deletePost(pid, _this6.state.post.full_storage_uri, _this6.state.post.thumb_storage_uri).then(self.onPostDeleteSuccess).catch(function (error) {
+	                    self.onPostDeleteError(error);
 	                });
 	            });
+	        }
+	    }, {
+	        key: 'onPostDeleteSuccess',
+	        value: function onPostDeleteSuccess() {
+	            swal({
+	                title: 'Deleted!',
+	                text: 'Your post has been deleted.',
+	                type: 'success',
+	                timer: 2000
+	            });
+
+	            this.setState({
+	                deleteBtnDisabled: false
+	            });
+
+	            this.props.router.push('/user/' + this.state.post.author.uid);
+	        }
+	    }, {
+	        key: 'onPostDeleteError',
+	        value: function onPostDeleteError(error) {
+	            swal.close();
+	            this.setState({
+	                deleteBtnDisabled: false
+	            });
+
+	            var data = {
+	                message: 'There was an error deleting your post: ' + error,
+	                timeout: 5000
+	            };
+
+	            this.props.deleteError(data);
 	        }
 
 	        /**
@@ -32361,7 +32854,7 @@
 	            if (this.auth.currentUser) {
 	                // Listen to like status.
 	                _firebase2.default.registerToUserLike(postId, function (isliked) {
-	                    if (!self.state.mounted) return;
+
 	                    if (isliked) {
 
 	                        self.setState({
@@ -32390,23 +32883,27 @@
 	                });
 
 	                _firebase2.default.registerForLikesCount(postId, function (nbLikes) {
-	                    if (!self.state.mounted) return;
-	                    if (nbLikes > 0) {
-	                        self.setState({
-	                            likesCount: nbLikes
-	                        });
+	                    self.handleLikes(nbLikes);
+	                });
+	            }
+	        }
+	    }, {
+	        key: 'handleLikes',
+	        value: function handleLikes(nbLikes) {
+	            if (nbLikes > 0) {
+	                this.setState({
+	                    likesCount: nbLikes
+	                });
 
-	                        self.setState({
-	                            likePanelStyle: {
-	                                display: 'block'
-	                            }
-	                        });
-	                    } else {
-	                        self.setState({
-	                            likePanelStyle: {
-	                                display: 'none'
-	                            }
-	                        });
+	                this.setState({
+	                    likePanelStyle: {
+	                        display: 'block'
+	                    }
+	                });
+	            } else {
+	                this.setState({
+	                    likePanelStyle: {
+	                        display: 'none'
 	                    }
 	                });
 	            }
@@ -32424,7 +32921,6 @@
 	            var postId = this.props.params.postid || this.props.postId;
 	            _firebase2.default.updateLike(postId, willBeLiked);
 
-	            if (!this.state.mounted) return;
 	            if (willBeLiked) {
 
 	                this.setState({
@@ -32644,7 +33140,7 @@
 	exports.default = (0, _reactRouter.withRouter)((0, _reactRedux.connect)(null, matchDispatchToProps)(SinglePost));
 
 /***/ },
-/* 277 */
+/* 278 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -32677,12 +33173,14 @@
 
 
 	            var promise = new Promise(function (resolve, reject) {
-	                var mdlLayoutElement = document.querySelector('#page-feed');
-	                document.onscroll = function () {
+	                var mdlLayoutElement = document.querySelector('#content');
 
-	                    if (window.pageYOffset + window.innerHeight + offset >= mdlLayoutElement.scrollHeight) {
+	                mdlLayoutElement.onscroll = function () {
+
+	                    if (mdlLayoutElement.scrollTop + window.innerHeight + offset >= mdlLayoutElement.scrollHeight) {
+
 	                        console.log('Scroll End Reached!');
-	                        // mdlLayoutElement.unbind('scroll');
+
 	                        resolve();
 	                    }
 	                };
@@ -32701,7 +33199,7 @@
 	exports.default = new Utils();
 
 /***/ },
-/* 278 */
+/* 279 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32726,7 +33224,7 @@
 
 	var appActions = _interopRequireWildcard(_appActions);
 
-	var _firebase = __webpack_require__(272);
+	var _firebase = __webpack_require__(273);
 
 	var _firebase2 = _interopRequireDefault(_firebase);
 
@@ -32894,7 +33392,7 @@
 	    }, {
 	        key: 'uploadPic',
 	        value: function uploadPic(img, self) {
-	            console.log(arguments);
+
 	            self.disableUploadUi(true);
 	            var imageCaption = document.getElementById('imageCaptionInput').value;
 
@@ -33052,7 +33550,7 @@
 	exports.default = (0, _reactRouter.withRouter)((0, _reactRedux.connect)(mapStateToProps, matchDispatchToProps)(NewPost));
 
 /***/ },
-/* 279 */
+/* 280 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33069,11 +33567,11 @@
 
 	var _reactRouter = __webpack_require__(172);
 
-	var _firebase = __webpack_require__(272);
+	var _firebase = __webpack_require__(273);
 
 	var _firebase2 = _interopRequireDefault(_firebase);
 
-	var _utils = __webpack_require__(277);
+	var _utils = __webpack_require__(278);
 
 	var _utils2 = _interopRequireDefault(_utils);
 
@@ -33081,7 +33579,7 @@
 
 	var _redux = __webpack_require__(227);
 
-	var _messaging = __webpack_require__(280);
+	var _messaging = __webpack_require__(281);
 
 	var _messaging2 = _interopRequireDefault(_messaging);
 
@@ -33150,7 +33648,9 @@
 	            comments: [],
 	            profiles: [],
 
-	            nextPage: {}
+	            nextPage: {},
+	            loaded: false,
+	            mounted: false
 
 	        };
 
@@ -33176,26 +33676,37 @@
 	        _this.handleUserFeed = _this.handleUserFeed.bind(_this);
 	        _this.updateUserPosts = _this.updateUserPosts.bind(_this);
 	        _this.onPostDeleted = _this.onPostDeleted.bind(_this);
-	        // this.auth.onAuthStateChanged(() => this.trackFollowStatus); 
+	        _this.loadFollowers = _this.loadFollowers.bind(_this);
+
 	        return _this;
 	    }
 
 	    _createClass(UserProfile, [{
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            var _this2 = this;
 
-	            console.log('mounted');
+	            this.setState({
+	                mounted: true
+	            });
+
 	            var self = this;
 
 	            this.auth.onAuthStateChanged(function (user) {
 
-	                _this2.trackFollowStatus();
-	                _this2.loadUser(self.props.params.uid);
+	                if (!self.state.loaded) {
+	                    self.trackFollowStatus();
+	                    self.loadUser(self.props.params.uid);
+	                    self.setState({
+	                        loaded: true
+	                    });
+	                }
 
-	                if (!user) {
+	                if (!user && self.state.mounted) {
 	                    self.setState({
 	                        followContainerStyle: {
+	                            display: 'none'
+	                        },
+	                        notificationContainerStyle: {
 	                            display: 'none'
 	                        }
 	                    });
@@ -33206,6 +33717,10 @@
 	        key: 'componentWillUnmount',
 	        value: function componentWillUnmount() {
 
+	            this.setState({
+	                mounted: false
+	            });
+
 	            function clear() {
 	                return;
 	            }
@@ -33214,10 +33729,24 @@
 	            this.followStatusUpdated = clear;
 	            this.loadUserData = clear;
 	            this.loadNbPosts = clear;
+	            this.loadFollowing = clear;
 	            this.handleUserFeed = clear;
 	            this.updateUserPosts = clear;
 	            this.onPostDeleted = clear;
-	            // FirebaseHandler.cancelAllSubscriptions(); 
+	            this.loadFollowers = clear;
+	        }
+	    }, {
+	        key: 'componentWillReceiveProps',
+	        value: function componentWillReceiveProps(nextProps) {
+	            if (nextProps.uid == '') {
+	                this.setState({
+	                    followContainerStyle: {
+	                        display: 'none'
+	                    },
+	                    posts: [],
+	                    profiles: []
+	                });
+	            }
 	        }
 
 	        // callbacks for Firebase Handlers 
@@ -33293,9 +33822,17 @@
 	            });
 	        }
 	    }, {
+	        key: 'loadFollowers',
+	        value: function loadFollowers(nbFollowers) {
+
+	            this.setState({
+	                nbFollowers: nbFollowers
+	            });
+	        }
+	    }, {
 	        key: 'handleUserFeed',
 	        value: function handleUserFeed(data, userId) {
-	            var _this3 = this;
+	            var _this2 = this;
 
 	            var postIds = Object.keys(data.entries);
 	            if (postIds.length === 0) {
@@ -33307,7 +33844,7 @@
 	            }
 
 	            _firebase2.default.subscribeToUserFeed(userId, function (postId, postValue) {
-	                _this3.updateUserPosts(postId, postValue);
+	                _this2.updateUserPosts(postId, postValue);
 	            }, postIds[postIds.length - 1]);
 
 	            // Adds fetched posts and next page button if necessary.
@@ -33320,12 +33857,20 @@
 	            var posts_array = this.state.posts.slice();
 	            posts_array.unshift(this.createImageCard(postId, postValue.thumb_url || postValue.url, postValue.text));
 
-	            this.setState({
-	                noPostsStyle: {
-	                    display: 'none'
-	                },
-	                posts: posts_array
-	            });
+	            if (posts_array.length > 0) {
+	                this.setState({
+	                    noPostsStyle: {
+	                        display: 'none'
+	                    },
+	                    posts: posts_array
+	                });
+	            } else {
+	                this.setState({
+	                    noPostsStyle: {
+	                        display: 'block'
+	                    }
+	                });
+	            }
 	        }
 	    }, {
 	        key: 'onPostDeleted',
@@ -33365,12 +33910,12 @@
 	    }, {
 	        key: 'trackFollowStatus',
 	        value: function trackFollowStatus() {
-	            var _this4 = this;
+	            var _this3 = this;
 
 	            if (this.auth.currentUser) {
 
 	                _firebase2.default.registerToFollowStatusUpdate(this.props.params.uid, function (data) {
-	                    _this4.followStatusUpdated(data);
+	                    _this3.followStatusUpdated(data);
 	                });
 	            }
 	        }
@@ -33395,12 +33940,21 @@
 	            var more_posts = self.state.posts.slice();
 	            more_posts = more_posts.concat(posts_array);
 
-	            self.setState({
-	                noPostsStyle: {
-	                    display: 'none'
-	                },
-	                posts: more_posts
-	            });
+	            if (more_posts.length > 0) {
+	                self.setState({
+	                    noPostsStyle: {
+	                        display: 'none'
+	                    },
+	                    posts: more_posts
+	                });
+	            } else {
+	                self.setState({
+	                    noPostsStyle: {
+	                        display: 'block'
+	                    },
+	                    posts: more_posts
+	                });
+	            }
 	        }
 
 	        /**
@@ -33494,10 +34048,7 @@
 
 	            // Load user's number of followers.
 	            _firebase2.default.registerForFollowersCount(this.props.params.uid, function (nbFollowers) {
-
-	                self.setState({
-	                    nbFollowers: nbFollowers
-	                });
+	                return self.loadFollowers(nbFollowers);
 	            });
 
 	            // Load user's number of followed users.
@@ -33593,7 +34144,7 @@
 	    }, {
 	        key: 'createImageCard',
 	        value: function createImageCard(postId, thumbUrl, text) {
-	            var _this5 = this;
+	            var _this4 = this;
 
 	            var self = this;
 	            var thumbStyle = {
@@ -33603,7 +34154,7 @@
 	            var element = _react2.default.createElement(
 	                'a',
 	                { onClick: function onClick(e) {
-	                        _this5.hrefHandler(self, postId, 'post');
+	                        _this4.hrefHandler(self, postId, 'post');
 	                    }, key: postId, className: "fp-post-" + postId + " fp-image mdl-cell mdl-cell--12-col mdl-cell--4-col-tablet mdl-cell--4-col-desktop mdl-grid mdl-grid--no-spacing" },
 	                _react2.default.createElement(
 	                    'div',
@@ -33639,7 +34190,7 @@
 	    }, {
 	        key: 'createProfileCardJsx',
 	        value: function createProfileCardJsx(uid) {
-	            var _this6 = this;
+	            var _this5 = this;
 
 	            var profilePic = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '/images/silhouette.jpg';
 	            var fullName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'Anonymous';
@@ -33652,7 +34203,7 @@
 	            return _react2.default.createElement(
 	                'a',
 	                { onClick: function onClick() {
-	                        _this6.hrefHandler(_this6, uid, 'user');
+	                        _this5.hrefHandler(_this5, uid, 'user');
 	                    }, key: uid, className: 'fp-usernamelink mdl-button mdl-js-button' },
 	                _react2.default.createElement('div', { className: 'fp-avatar', style: avatarStyle }),
 	                _react2.default.createElement(
@@ -33665,7 +34216,7 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this7 = this;
+	            var _this6 = this;
 
 	            return _react2.default.createElement(
 	                'section',
@@ -33688,7 +34239,7 @@
 	                            _react2.default.createElement(
 	                                'label',
 	                                { className: "fp-follow mdl-switch mdl-js-switch mdl-js-ripple-effect " + this.state.followChecked, style: this.state.followContainerStyle, htmlFor: 'follow', onChange: function onChange(e) {
-	                                        _this7.onFollowChange(e, _this7);
+	                                        _this6.onFollowChange(e, _this6);
 	                                    } },
 	                                _react2.default.createElement('input', { type: 'checkbox', id: 'follow', className: 'mdl-switch__input' }),
 	                                _react2.default.createElement(
@@ -33725,7 +34276,7 @@
 	                            _react2.default.createElement(
 	                                'div',
 	                                { className: "fp-user-detail fp-user-nbfollowing-container " + this.state.followingContainerClass, onClick: function onClick() {
-	                                        _this7.displayFollowing(_this7);
+	                                        _this6.displayFollowing(_this6);
 	                                    } },
 	                                _react2.default.createElement(
 	                                    'span',
@@ -33746,7 +34297,7 @@
 	                    _react2.default.createElement(
 	                        'button',
 	                        { className: 'fp-close-following  mdl-button mdl-js-button mdl-button--raised mdl-button--fab', style: this.state.closeFollowingBtnStyle, onClick: function onClick() {
-	                                _this7.closeFollowing(_this7);
+	                                _this6.closeFollowing(_this6);
 	                            } },
 	                        _react2.default.createElement(
 	                            'i',
@@ -33804,7 +34355,7 @@
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'fp-next-page-button', style: this.state.nextPageButtonStyle, onClick: function onClick(e) {
-	                            _this7.showNextPage(e, _this7);
+	                            _this6.showNextPage(e, _this6);
 	                        } },
 	                    _react2.default.createElement(
 	                        'button',
@@ -33823,16 +34374,22 @@
 	    return UserProfile;
 	}(_react2.default.Component);
 
+	function mapStateToProps(state) {
+	    return {
+	        uid: state.user.uid
+	    };
+	}
+
 	function matchDispatchToProps(dispatch) {
 	    return (0, _redux.bindActionCreators)({
 	        userLoadError: appActions.userLoadError
 	    }, dispatch);
 	}
 
-	exports.default = (0, _reactRouter.withRouter)((0, _reactRedux.connect)(null, matchDispatchToProps)(UserProfile));
+	exports.default = (0, _reactRouter.withRouter)((0, _reactRedux.connect)(mapStateToProps, matchDispatchToProps)(UserProfile));
 
 /***/ },
-/* 280 */
+/* 281 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33847,7 +34404,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _firebase = __webpack_require__(272);
+	var _firebase = __webpack_require__(273);
 
 	var _firebase2 = _interopRequireDefault(_firebase);
 
@@ -34010,13 +34567,10 @@
 	    key: 'onEnableNotificationsChange',
 	    value: function onEnableNotificationsChange(e) {
 
-	      this.setState({
-	        checked: e.target.checked
-	      });
-	      var checked = this.state.checked;
+	      var checked = e.target.checked;
 
 	      this.setState({
-	        disabled: false
+	        disabled: true
 	      });
 
 	      return _firebase2.default.toggleNotificationEnabled(checked);
@@ -34037,22 +34591,35 @@
 	        });
 	      }
 	    }
+
+	    /**
+	     *  Refresh notifications switch state 
+	     */
+
 	  }, {
 	    key: 'setSwitchState',
 	    value: function setSwitchState(data) {
+
+	      var checkbox = document.getElementById('notifications');
+
 	      if (data.val() !== null) {
+	        checkbox.checked = true;
+
 	        this.setState({
 	          disabled: false,
-	          text: 'Enable Notifications',
+	          text: 'Notifications Enabled',
 	          cls: 'is-checked'
 	        });
 
 	        this.saveToken();
 	      } else {
+
+	        checkbox.checked = false;
+
 	        this.setState({
 
 	          disabled: false,
-	          text: 'Notifications Enabled',
+	          text: 'Enable Notifications',
 	          cls: ''
 	        });
 	      }
@@ -34062,8 +34629,8 @@
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'label',
-	        { className: 'fp-notifications mdl-switch mdl-js-switch mdl-js-ripple-effect', htmlFor: 'notifications', style: this.props.style },
-	        _react2.default.createElement('input', { type: 'checkbox', id: 'notifications', className: 'mdl-switch__input', onChange: this.onEnableNotificationsChange, value: this.state.val, disabled: this.state.disabled, checked: this.state.checked }),
+	        { className: "fp-notifications mdl-switch mdl-js-switch mdl-js-ripple-effect " + this.state.cls, htmlFor: 'notifications', style: this.props.style },
+	        _react2.default.createElement('input', { type: 'checkbox', id: 'notifications', className: 'mdl-switch__input', onChange: this.onEnableNotificationsChange, disabled: this.state.disabled }),
 	        _react2.default.createElement(
 	          'span',
 	          { className: 'mdl-switch__label' },
@@ -34085,7 +34652,7 @@
 	exports.default = (0, _reactRedux.connect)(null, matchDispatchToProps)(Messaging);
 
 /***/ },
-/* 281 */
+/* 282 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34102,19 +34669,19 @@
 
 	var _reactRouter = __webpack_require__(172);
 
-	var _theatre = __webpack_require__(275);
+	var _theatre = __webpack_require__(276);
 
 	var _theatre2 = _interopRequireDefault(_theatre);
 
-	var _single_post = __webpack_require__(276);
+	var _single_post = __webpack_require__(277);
 
 	var _single_post2 = _interopRequireDefault(_single_post);
 
-	var _firebase = __webpack_require__(272);
+	var _firebase = __webpack_require__(273);
 
 	var _firebase2 = _interopRequireDefault(_firebase);
 
-	var _utils = __webpack_require__(277);
+	var _utils = __webpack_require__(278);
 
 	var _utils2 = _interopRequireDefault(_utils);
 
@@ -34163,7 +34730,8 @@
 	      newPosts: {},
 	      newPostsArr: [],
 	      newBtnText: 'Show new posts...',
-	      clickHandlerAdded: false
+	      clickHandlerAdded: false,
+	      feedShown: false
 	    };
 
 	    _this.addPosts = _this.addPosts.bind(_this);
@@ -34174,8 +34742,10 @@
 
 	    _this.onPostDeleted = _this.onPostDeleted.bind(_this);
 	    _this.addNewPost = _this.addNewPost.bind(_this);
+	    _this.loadMorePosts = _this.loadMorePosts.bind(_this);
 
 	    _this.handleHomeFeed = _this.handleHomeFeed.bind(_this);
+	    _this.handleAuth = _this.handleAuth.bind(_this);
 	    return _this;
 	  }
 
@@ -34183,11 +34753,14 @@
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
 
+	      this.setState({
+	        mounted: true
+	      });
+
 	      var self = this;
 
 	      this.auth.onAuthStateChanged(function (user) {
-
-	        self.showHomeFeed();
+	        self.handleAuth(user, self);
 	      });
 
 	      componentHandler.upgradeDom();
@@ -34200,8 +34773,12 @@
 	  }, {
 	    key: 'componentWillUnmount',
 	    value: function componentWillUnmount() {
-	      // clear firebase callbacks to avoid memory leaks 
 
+	      this.setState({
+	        mounted: false
+	      });
+
+	      // clear firebase callbacks to avoid memory leaks 
 	      function clear() {
 	        return;
 	      }
@@ -34210,6 +34787,23 @@
 	      this.addNewPost = clear;
 	      this.onPostDeleted = clear;
 	      this.handleHomeFeed = clear;
+	      this.showNewPosts = clear;
+	      this.showHomeFeed = clear;
+	      this.handleAuth = clear;
+	    }
+	  }, {
+	    key: 'handleAuth',
+	    value: function handleAuth(user, self) {
+	      if (user && self.state.mounted && !self.state.feedShown) {
+
+	        self.setState({
+	          feedShown: true
+	        });
+	        self.showHomeFeed();
+	      } else if (!user && self.state.mounted) {
+
+	        self.props.router.push('/feed');
+	      }
 	    }
 
 	    // Callback for HomeFeed firebase handler
@@ -34248,7 +34842,8 @@
 
 	      // Displays the list of posts
 
-	      var posts_arr = [];
+
+	      var posts_arr = this.state.posts.slice();
 
 	      var postIds = Object.keys(posts);
 	      for (var i = postIds.length - 1; i >= 0; i--) {
@@ -34306,6 +34901,11 @@
 	            }
 	          };
 
+	          // Enable infinite Scroll
+	          _utils2.default.onEndScroll(100).then(function () {
+	            self.loadMorePosts(nextPage);
+	          });
+
 	          self.setState({
 	            nextPageBtnStyle: {
 	              display: 'block'
@@ -34362,11 +34962,30 @@
 	    }
 
 	    /**
-	     * Shows the feed showing all followed users.
+	     * Load next page of posts when user scrolls to the bottom of the page 
 	     */
 
 	  }, {
+	    key: 'loadMorePosts',
+	    value: function loadMorePosts(nextPage) {
+
+	      var self = this;
+	      this.setState({
+	        nextPageBtnDisabled: true
+	      });
+	      console.log('Loading next page of posts.');
+	      nextPage().then(function (data) {
+	        self.addPosts(data.entries);
+	        self.toggleNextPageButton(data.nextPage);
+	      });
+	    }
+	  }, {
 	    key: 'showHomeFeed',
+
+
+	    /**
+	     * Shows the feed showing all followed users.
+	     */
 	    value: function showHomeFeed() {
 	      var _this3 = this;
 
@@ -34569,7 +35188,7 @@
 	exports.default = Home;
 
 /***/ },
-/* 282 */
+/* 283 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34771,7 +35390,7 @@
 	exports.default = About;
 
 /***/ },
-/* 283 */
+/* 284 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34786,7 +35405,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _single_post = __webpack_require__(276);
+	var _single_post = __webpack_require__(277);
 
 	var _single_post2 = _interopRequireDefault(_single_post);
 

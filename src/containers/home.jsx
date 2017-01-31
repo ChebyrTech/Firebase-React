@@ -42,7 +42,8 @@ class Home extends React.Component {
             newPosts: {}, 
             newPostsArr: [], 
             newBtnText: 'Show new posts...', 
-            clickHandlerAdded: false
+            clickHandlerAdded: false, 
+            feedShown: false 
         } 
 
         this.addPosts = this.addPosts.bind(this); 
@@ -53,22 +54,25 @@ class Home extends React.Component {
 
         this.onPostDeleted = this.onPostDeleted.bind(this); 
         this.addNewPost = this.addNewPost.bind(this); 
+        this.loadMorePosts = this.loadMorePosts.bind(this);
 
         this.handleHomeFeed = this.handleHomeFeed.bind(this); 
+        this.handleAuth = this.handleAuth.bind(this); 
     } 
 
 
     componentDidMount() {
 
+      this.setState({
+        mounted: true 
+      })
+
       var self = this;
 
-
-
       this.auth.onAuthStateChanged((user) => {
-
-          self.showHomeFeed();
-
-      }) 
+          self.handleAuth(user, self)
+      })
+      
 
         componentHandler.upgradeDom();
 
@@ -77,9 +81,13 @@ class Home extends React.Component {
         componentHandler.upgradeDom();
     }
 
-    componentWillUnmount() {
-      // clear firebase callbacks to avoid memory leaks 
+    componentWillUnmount() { 
 
+      this.setState({
+        mounted: false 
+      })
+
+      // clear firebase callbacks to avoid memory leaks 
       function clear() {
         return; 
       }
@@ -88,6 +96,22 @@ class Home extends React.Component {
       this.addNewPost = clear; 
       this.onPostDeleted = clear; 
       this.handleHomeFeed = clear; 
+      this.showNewPosts = clear; 
+      this.showHomeFeed = clear; 
+      this.handleAuth = clear; 
+    }
+
+    handleAuth(user, self) {
+        if (user && self.state.mounted && !self.state.feedShown) {
+
+          self.setState({
+            feedShown: true
+          })
+          self.showHomeFeed();
+        } else if (!user && self.state.mounted) { 
+
+            self.props.router.push('/feed'); 
+        }
     }
 
     // Callback for HomeFeed firebase handler
@@ -119,7 +143,8 @@ class Home extends React.Component {
 
     // Displays the list of posts
   
-    var posts_arr = [];
+    
+    var posts_arr = this.state.posts.slice(); 
     
     const postIds = Object.keys(posts);
     for (let i = postIds.length - 1; i >= 0; i--) {
@@ -179,9 +204,13 @@ class Home extends React.Component {
           self.setState({
             clickHandlerAdded: true 
           })
-        }
+        } 
       };
 
+      // Enable infinite Scroll
+        Utils.onEndScroll(100).then(() => {
+          self.loadMorePosts(nextPage)
+        }); 
       
       self.setState({
         nextPageBtnStyle: {
@@ -240,7 +269,25 @@ class Home extends React.Component {
       })  
 
 
-  }
+  } 
+
+   /**
+    * Load next page of posts when user scrolls to the bottom of the page 
+    */
+    loadMorePosts (nextPage)  {
+
+      var self = this; 
+      this.setState({
+          nextPageBtnDisabled: true
+        })
+        console.log('Loading next page of posts.');
+        nextPage().then(data => {
+          self.addPosts(data.entries);
+          self.toggleNextPageButton(data.nextPage);
+        }); 
+
+
+      };
 
 
   /**

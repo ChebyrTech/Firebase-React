@@ -21,7 +21,7 @@ const authReducer = (state = {
             } 
 
             return newState; 
-            break; 
+
         }
         case "SIGN_OUT": { 
 
@@ -35,7 +35,7 @@ const authReducer = (state = {
             }
         
             return newState; 
-            break;
+
 
         } 
         

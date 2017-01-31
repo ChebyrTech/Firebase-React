@@ -1,7 +1,7 @@
-import React from 'react'  
+import React from 'react'
 
-import {connect} from 'react-redux'
-import { bindActionCreators} from 'redux' 
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 
 
 class Theatre extends React.Component {
@@ -10,7 +10,7 @@ class Theatre extends React.Component {
         this.state = {
             viewModeChanged: 0
         }
-    } 
+    }
 
     componentWillReceiveProps(newProps) {
         if (newProps.picUrl != '' && newProps.index != this.props.index) {
@@ -19,51 +19,53 @@ class Theatre extends React.Component {
     }
 
     // Leave theatre mode 
-    leaveTheatreMode(self) { 
-        
-        document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-show'); 
-        document.querySelector('.fp-theatre-fullpic').classList.add('theatre-hide'); 
-        document.removeEventListener('keydown', self.escHandler); 
-    
+    leaveTheatreMode(self) {
+
+        var header = document.querySelector('header');
+        header.style.zIndex = 3;
+        document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-show');
+        document.querySelector('.fp-theatre-fullpic').classList.add('theatre-hide');
+        document.removeEventListener('keydown', self.escHandler);
 
     }
 
     escHandler(e) {
 
         if (e.which === 27) {
-            document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-show'); 
-            document.querySelector('.fp-theatre-fullpic').classList.add('theatre-hide'); 
+            document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-show');
+            document.querySelector('.fp-theatre-fullpic').classList.add('theatre-hide');
         }
-        
     }
 
     // Enter theatre mode 
-    enterTheatreMode(self)  { 
+    enterTheatreMode(self) {
 
-        var timestamp = () => new Date.getTime(); 
-    
-        if (timestamp - self.state.viewModeChanged < 300 ) return
+        var header = document.querySelector('header');
+        header.style.zIndex = 0;
+        var timestamp = () => new Date.getTime();
 
-        document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-hide'); 
-        document.querySelector('.fp-theatre-fullpic').classList.add('theatre-show'); 
+        if (timestamp - self.state.viewModeChanged < 300) return
+
+        document.querySelector('.fp-theatre-fullpic').classList.remove('theatre-hide');
+        document.querySelector('.fp-theatre-fullpic').classList.add('theatre-show');
         self.setState({
             viewModeChanged: timestamp
-        }) 
+        })
 
-        document.addEventListener('keydown', self.escHandler); 
+        document.addEventListener('keydown', self.escHandler);
 
-    } 
+    }
 
     render() {
-        return(
-            <div className="fp-theatre fp-theatre-fullpic theatre-hide" onClick={()=>{this.leaveTheatreMode(this)}}><img className="fp-fullpic" src={this.props.picUrl}/></div>
+        return (
+            <div className="fp-theatre fp-theatre-fullpic theatre-hide" onClick={() => { this.leaveTheatreMode(this) } }><img className="fp-fullpic" src={this.props.picUrl} /></div>
         )
     }
-} 
+}
 
-function mapStateToProps (state) {
+function mapStateToProps(state) {
     return {
-        picUrl: state.feed.picUrl, 
+        picUrl: state.feed.picUrl,
         index: state.feed.index
     }
 }

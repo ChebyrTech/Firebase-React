@@ -60,7 +60,9 @@ class UserProfile extends React.Component {
             comments: [],
             profiles: [],
 
-            nextPage: {}
+            nextPage: {},
+            loaded: false,
+            mounted: false
 
         }
 
@@ -87,23 +89,36 @@ class UserProfile extends React.Component {
         this.handleUserFeed = this.handleUserFeed.bind(this);
         this.updateUserPosts = this.updateUserPosts.bind(this);
         this.onPostDeleted = this.onPostDeleted.bind(this);
-        // this.auth.onAuthStateChanged(() => this.trackFollowStatus); 
+        this.loadFollowers = this.loadFollowers.bind(this);
+
     }
 
 
     componentDidMount() {
-        console.log('mounted')
+
+        this.setState({
+            mounted: true
+        });
+
         var self = this;
 
 
         this.auth.onAuthStateChanged((user) => {
 
-            this.trackFollowStatus();
-            this.loadUser(self.props.params.uid)
+            if (!self.state.loaded) {
+                self.trackFollowStatus();
+                self.loadUser(self.props.params.uid)
+                self.setState({
+                    loaded: true
+                })
+            }
 
-            if (!user) {
+            if (!user && self.state.mounted) {
                 self.setState({
                     followContainerStyle: {
+                        display: 'none'
+                    },
+                    notificationContainerStyle: {
                         display: 'none'
                     }
                 })
@@ -115,6 +130,11 @@ class UserProfile extends React.Component {
 
     componentWillUnmount() {
 
+
+        this.setState({
+            mounted: false
+        });
+
         function clear() {
             return;
         }
@@ -123,10 +143,24 @@ class UserProfile extends React.Component {
         this.followStatusUpdated = clear;
         this.loadUserData = clear;
         this.loadNbPosts = clear;
+        this.loadFollowing = clear;
         this.handleUserFeed = clear;
         this.updateUserPosts = clear;
         this.onPostDeleted = clear;
-        // FirebaseHandler.cancelAllSubscriptions(); 
+        this.loadFollowers = clear;
+
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.uid == '') {
+            this.setState({
+                followContainerStyle: {
+                    display: 'none'
+                },
+                posts: [],
+                profiles: []
+            })
+        }
     }
 
 
@@ -204,6 +238,15 @@ class UserProfile extends React.Component {
 
     }
 
+    loadFollowers(nbFollowers) {
+
+        this.setState({
+            nbFollowers: nbFollowers
+        })
+
+
+    }
+
     handleUserFeed(data, userId) {
 
 
@@ -232,13 +275,20 @@ class UserProfile extends React.Component {
             postValue.thumb_url || postValue.url, postValue.text))
 
 
-
-        this.setState({
-            noPostsStyle: {
-                display: 'none'
-            },
-            posts: posts_array
-        })
+        if (posts_array.length > 0) {
+            this.setState({
+                noPostsStyle: {
+                    display: 'none'
+                },
+                posts: posts_array
+            })
+        } else {
+            this.setState({
+                noPostsStyle: {
+                    display: 'block'
+                }
+            })
+        }
 
     }
 
@@ -308,12 +358,21 @@ class UserProfile extends React.Component {
         var more_posts = self.state.posts.slice();
         more_posts = more_posts.concat(posts_array);
 
-        self.setState({
-            noPostsStyle: {
-                display: 'none'
-            },
-            posts: more_posts
-        })
+        if (more_posts.length > 0) {
+            self.setState({
+                noPostsStyle: {
+                    display: 'none'
+                },
+                posts: more_posts
+            })
+        } else {
+            self.setState({
+                noPostsStyle: {
+                    display: 'block'
+                },
+                posts: more_posts
+            })
+        }
     }
 
     /**
@@ -404,13 +463,7 @@ class UserProfile extends React.Component {
 
         // Load user's number of followers.
         FirebaseHandler.registerForFollowersCount(this.props.params.uid,
-            nbFollowers => {
-
-                self.setState({
-                    nbFollowers: nbFollowers
-                })
-
-            })
+            (nbFollowers) => self.loadFollowers(nbFollowers))
 
         // Load user's number of followed users.
         FirebaseHandler.registerForFollowingCount(this.props.params.uid, (nbFollowed) => {
@@ -634,6 +687,11 @@ class UserProfile extends React.Component {
     }
 }
 
+function mapStateToProps(state) {
+    return {
+        uid: state.user.uid
+    }
+}
 
 function matchDispatchToProps(dispatch) {
     return bindActionCreators(
@@ -644,4 +702,4 @@ function matchDispatchToProps(dispatch) {
     )
 }
 
-export default withRouter(connect(null, matchDispatchToProps)(UserProfile))
+export default withRouter(connect(mapStateToProps, matchDispatchToProps)(UserProfile))

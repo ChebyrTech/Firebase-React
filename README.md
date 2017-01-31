@@ -13,10 +13,10 @@ old ==> new
 auth.js ==> src/containers/auth.jsx
 feed.js ==> src/containers/feed.jsx
 firebase.js ==> src/firebase.js
-messaging.js ==> src/messaging.js
+messaging.js ==> src/containers/messaging.js
 post.js ==> src/containers/single_post.jsx
 routing.js ==> src/main.jsx
-search.js ==> src/search.js
+search.js ==> src/containers/search.js
 uploader.js ==> src/containers/new_post.jsx
 userpage.js ==> src/containers/user.jsx
 utils.js ==> src/utils.js

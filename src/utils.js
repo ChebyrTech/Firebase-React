@@ -12,21 +12,25 @@ class Utils {
     onEndScroll(offset = 0) {
 
         const promise = new Promise((resolve, reject) => {
-            const mdlLayoutElement = document.querySelector('#page-feed');
-            document.onscroll = () => {
-               
-                if (window.pageYOffset + window.innerHeight + offset >=
+          const mdlLayoutElement = document.querySelector('#content'); 
+  
+          mdlLayoutElement.onscroll = () => {
+
+                if (mdlLayoutElement.scrollTop + window.innerHeight + offset >=
                     mdlLayoutElement.scrollHeight) {
+
+                    
                     console.log('Scroll End Reached!');
-                    // mdlLayoutElement.unbind('scroll');
+                  
                     resolve();
                 }
-            }
+       
+          }
+       
         }).then(() => {
 
             console.log('Now watching for Scroll End.');
-        })
-
+        }) 
 
     return promise; 
     }

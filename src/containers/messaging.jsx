@@ -112,14 +112,11 @@ class Messaging extends React.Component {
    */
   onEnableNotificationsChange(e) {
 
-    this.setState({
-      checked: e.target.checked
-    })
-    const checked = this.state.checked; 
+    var checked = e.target.checked; 
 
   
     this.setState({
-      disabled: false
+      disabled: true
     })
 
 
@@ -135,20 +132,31 @@ class Messaging extends React.Component {
     }
   } 
 
+/**
+ *  Refresh notifications switch state 
+ */
   setSwitchState(data) {
+
+    var checkbox = document.getElementById('notifications'); 
+
     if (data.val() !== null) {
+      checkbox.checked = true; 
+
       this.setState({
          disabled: false, 
-         text: 'Enable Notifications', 
+         text: 'Notifications Enabled', 
          cls: 'is-checked'
       }) 
 
       this.saveToken();
-    } else {
+    } else { 
+
+      checkbox.checked = false; 
+   
       this.setState({
 
         disabled: false, 
-        text: 'Notifications Enabled', 
+        text: 'Enable Notifications', 
         cls: ''
       }) 
     } 
@@ -156,8 +164,8 @@ class Messaging extends React.Component {
 
   render() {
     return (
-  <label className="fp-notifications mdl-switch mdl-js-switch mdl-js-ripple-effect" htmlFor="notifications" style={this.props.style}>
-        <input type="checkbox" id="notifications" className="mdl-switch__input" onChange={this.onEnableNotificationsChange} value={this.state.val} disabled={this.state.disabled} checked={this.state.checked}/>
+  <label className={"fp-notifications mdl-switch mdl-js-switch mdl-js-ripple-effect " + this.state.cls} htmlFor="notifications" style={this.props.style}>
+        <input type="checkbox" id="notifications" className="mdl-switch__input" onChange={this.onEnableNotificationsChange} disabled={this.state.disabled}/>
         <span className="mdl-switch__label">{this.state.text}</span>
         </label>
     )

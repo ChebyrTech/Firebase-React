@@ -159,7 +159,7 @@ class NewPost extends React.Component {
      * Uploads a picture to firebase database 
      */
     uploadPic(img, self) {
-        console.log(arguments)
+
         self.disableUploadUi(true);
         var imageCaption = document.getElementById('imageCaptionInput').value;
 

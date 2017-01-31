@@ -24,7 +24,11 @@ class Auth extends React.Component {
         this.auth.onAuthStateChanged(user => this.onAuthStateChanged(user));
         this.state = {
             signOutOnlyStyle: {},
-            loggedInCls: ''
+            loggedInCls: '', 
+            mounted: false, 
+            loggedOutStyle: {
+                display: 'flex'
+            } 
         }
 
 
@@ -34,17 +38,36 @@ class Auth extends React.Component {
 
     componentDidMount() {
 
+        this.setState({
+            mounted: true 
+        })
 
         var firebaseUi = new firebaseui.auth.AuthUI(firebase.auth());
         firebaseUi.start('#firebaseui-auth-container', uiConfig);
 
 
-        if (this.props.location.pathname != '/') {
+        if (this.props.router.location.pathname != '/') {
             this.setState({ loggedInCls: "login-fadeout" });
+
+            var self = this; 
+            setTimeout(() => {
+
+                if (self.state.mounted) {
+                    self.setState({
+                        loggedOutStyle: {
+                            display: 'none'
+                        }
+                    })
+                }
+            }, 500)
         } 
+    } 
 
+    componentWillUnmount() {
+        this.setState({
+            mounted: false 
+        })
     }
-
 
 
     /**
@@ -54,11 +77,23 @@ class Auth extends React.Component {
         if (user) {
 
             this.props.signIn(user);
-            console.log('logged in');
+        
 
             this.setState({
                 loggedInCls: 'login-fadeout'
             })
+
+            var self = this; 
+            setTimeout(() => {
+
+                if (self.state.mounted) {
+                    self.setState({
+                        loggedOutStyle: {
+                            display: 'none'
+                        }
+                    })
+                }
+            }, 500)
 
             FirebaseHandler.saveUserData(user.photoURL, user.displayName);
         } else {
@@ -66,8 +101,9 @@ class Auth extends React.Component {
             this.setState({ 
                 signOutOnlyStyle: { display: 'block' } 
          });
+         this.props.signOut(); 
             
-            console.log('logged out');
+    
         }
     }
 
@@ -76,6 +112,19 @@ class Auth extends React.Component {
    */
     skipAuthHandler() {
         this.setState({ loggedInCls: "login-fadeout" });
+
+        var self = this; 
+        setTimeout(() => {
+
+            if (self.state.mounted) {
+                self.setState({
+                    loggedOutStyle: {
+                        display: 'none'
+                    }
+                })
+            }
+        }, 500)
+
         this.props.router.push('/feed');
     }
 
@@ -84,7 +133,7 @@ class Auth extends React.Component {
 
         return (
             <div>
-                <div className={"logged-out " + this.state.loggedInCls}>
+                <div className={"logged-out " + this.state.loggedInCls} style={this.state.loggedOutStyle}>
                     <div className="fp-theatre"><img className="fp-fullpic" /></div>
                     <section id="page-splash">
                         <h3 className="fp-logo"><i className="material-icons">photo</i> Friendly Pix</h3>
@@ -114,7 +163,8 @@ function mapStateToProps(state) {
 
 function matchDispatchToProps(dispatch) {
     return bindActionCreators({
-        signIn: appActions.signIn
+        signIn: appActions.signIn, 
+        signOut: appActions.signOut
     }, dispatch)
 }
 

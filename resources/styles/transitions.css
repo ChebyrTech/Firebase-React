@@ -4,6 +4,8 @@ body {
 
 .logged-out {
 	display: block; 
+	position: relative;
+    z-index: 1000000;
 	opacity: 1; 
 	transition: opacity .5s ease-in; 
 }
@@ -23,10 +25,6 @@ body {
 	display: block; 
 }
 
-.mdl-layout__header {
-	display: flex;
-}
-
 #fp-mediacapture-sm {
 	display: none; 
 } 
@@ -34,7 +32,7 @@ body {
 .theatre-hide {
 	display: none; 
 	opacity: 0; 
-	transition: opaticy .5s ease-in-out; 
+	transition: opacity .5s ease-in-out; 
 } 
 
 .theatre-show {
@@ -51,6 +49,27 @@ body {
     opacity: 0;
 } 
 
+#notifications {
+	opacity: 0;
+}
+
+#feed-container {
+	height: 100px; 
+}
+
+.fp-sign-out {
+	cursor: pointer; 
+}
+
 .mdl-layout__tab-bar {
 	background-color: transparent; 
+}
+
+.search-fadeout {
+	transition: opacity .5s ease-in; 
+	opacity: 0!important; 
+} 
+
+.search-visible {
+	opacity: 0.8!important; 
 }
