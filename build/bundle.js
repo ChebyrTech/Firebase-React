@@ -30008,7 +30008,6 @@
 
 	            if (nextProps.params.uid != this.props.params.uid && nextProps.params.uid && this.props.params.uid && this.state.mounted) {
 
-	                console.log(nextProps.params.uid);
 	                window.location.reload();
 	            }
 
@@ -30536,7 +30535,6 @@
 	      var self = this;
 	      var searchString = this.state.val.toLowerCase().trim();
 
-	      console.log(searchString);
 	      if (searchString.length >= this.MIN_CHARACTERS) {
 	        _firebase2.default.searchUsers(searchString, self.NB_RESULTS_LIMIT).then(function (results) {
 	          _this2.handleSearchResults(results);
@@ -32102,7 +32100,6 @@
 	        _this.state = {
 	            viewModeChanged: 0
 	        };
-
 	        return _this;
 	    }
 
@@ -32377,7 +32374,7 @@
 	        }
 
 	        /**
-	         * 
+	         * Handle Auth
 	         */
 
 	    }, {
@@ -33425,7 +33422,7 @@
 	                    // Generate upload success event
 	                    self.props.uploadSuccess(data);
 	                }, function (error) {
-	                    console.error(error);
+
 	                    var data = {
 	                        message: 'There was an error while posting your pic. Sorry!',
 	                        timeout: 5000

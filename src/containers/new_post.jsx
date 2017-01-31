@@ -196,7 +196,7 @@ class NewPost extends React.Component {
 
 
             }, error => {
-                console.error(error);
+          
                 var data = {
                     message: `There was an error while posting your pic. Sorry!`,
                     timeout: 5000

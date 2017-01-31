@@ -87,7 +87,6 @@ class Search extends React.Component {
     var self = this; 
     const searchString = this.state.val.toLowerCase().trim();
 
-    console.log(searchString)
     if (searchString.length >= this.MIN_CHARACTERS) {
       FirebaseHandler.searchUsers(searchString, self.NB_RESULTS_LIMIT).then(
           results => {

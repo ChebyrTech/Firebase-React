@@ -125,7 +125,6 @@ class Header extends React.Component {
 
         if (nextProps.params.uid != this.props.params.uid && nextProps.params.uid && this.props.params.uid && this.state.mounted) {
 
-            console.log(nextProps.params.uid)
             window.location.reload();
         }
 
