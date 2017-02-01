@@ -12,7 +12,7 @@ import Dashboard from './dashboard.jsx'
 
 import authReducer from '../reducers/auth.js'
 
-import FirebaseHandler from '../firebase'
+import FirebaseHandler from '../firebase/firebase'
 
 
 

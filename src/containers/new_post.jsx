@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux'
 
 import * as appActions from '../actions/appActions'
 
-import FirebaseHandler from '../firebase'
+import FirebaseHandler from '../firebase/firebase'
 
 
 class NewPost extends React.Component {

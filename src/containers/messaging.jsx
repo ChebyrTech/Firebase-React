@@ -1,5 +1,5 @@
 import React from 'react'
-import FirebaseHandler from '../firebase'  
+import FirebaseHandler from '../firebase/firebase'  
 
 import {withRouter} from 'react-router' 
 

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, withRouter } from 'react-router'
 
-import FirebaseHandler from '../firebase'
+import FirebaseHandler from '../firebase/firebase'
 import Utils from '../utils'
 
 import { connect } from 'react-redux'
@@ -88,8 +88,9 @@ class UserProfile extends React.Component {
         this.loadNbPosts = this.loadNbPosts.bind(this);
         this.handleUserFeed = this.handleUserFeed.bind(this);
         this.updateUserPosts = this.updateUserPosts.bind(this);
-        this.onPostDeleted = this.onPostDeleted.bind(this);
-        this.loadFollowers = this.loadFollowers.bind(this);
+        this.onPostDeleted = this.onPostDeleted.bind(this); 
+        this.loadFollowers = this.loadFollowers.bind(this); 
+        this.handleAuth = this.handleAuth.bind(this); 
 
     }
 
@@ -105,24 +106,7 @@ class UserProfile extends React.Component {
 
         this.auth.onAuthStateChanged((user) => {
 
-            if (!self.state.loaded) {
-                self.trackFollowStatus();
-                self.loadUser(self.props.params.uid)
-                self.setState({
-                    loaded: true
-                })
-            }
-
-            if (!user && self.state.mounted) {
-                self.setState({
-                    followContainerStyle: {
-                        display: 'none'
-                    },
-                    notificationContainerStyle: {
-                        display: 'none'
-                    }
-                })
-            }
+            self.handleAuth(user, self)
 
         })
 
@@ -147,7 +131,8 @@ class UserProfile extends React.Component {
         this.handleUserFeed = clear;
         this.updateUserPosts = clear;
         this.onPostDeleted = clear;
-        this.loadFollowers = clear;
+        this.loadFollowers = clear; 
+        this.handleAuth = clear; 
 
     }
 
@@ -161,7 +146,29 @@ class UserProfile extends React.Component {
                 profiles: []
             })
         }
-    }
+    } 
+
+    // handle auth 
+    handleAuth(user, self) {
+        if (!self.state.loaded) {
+            self.trackFollowStatus();
+            self.loadUser(self.props.params.uid)
+            self.setState({
+                loaded: true
+            })
+        }
+
+        if (!user && self.state.mounted) {
+            self.setState({
+                followContainerStyle: {
+                    display: 'none'
+                },
+                notificationContainerStyle: {
+                    display: 'none'
+                }
+            })
+        }
+    } 
 
 
     // callbacks for Firebase Handlers 
@@ -561,8 +568,6 @@ class UserProfile extends React.Component {
 
         const element = (
             <a onClick={(e) => { this.hrefHandler(self, postId, 'post') } } key={postId} className={"fp-post-" + postId + " fp-image mdl-cell mdl-cell--12-col mdl-cell--4-col-tablet mdl-cell--4-col-desktop mdl-grid mdl-grid--no-spacing"}>
-
-
 
                 <div className="fp-overlay">
                     <i className="material-icons">favorite</i><span className={"likes " + "likes" + postId}></span>

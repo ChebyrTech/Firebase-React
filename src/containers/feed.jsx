@@ -4,7 +4,7 @@ import { Link, withRouter } from 'react-router'
 import Theatre from './theatre.jsx'
 import Post from './single_post.jsx'
 
-import FirebaseHandler from '../firebase'
+import FirebaseHandler from '../firebase/firebase'
 import Utils from '../utils'
 
 import { connect } from 'react-redux'

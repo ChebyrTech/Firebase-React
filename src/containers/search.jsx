@@ -1,7 +1,7 @@
 import React from 'react' 
 import {withRouter} from 'react-router' 
 
-import FirebaseHandler from '../firebase' 
+import FirebaseHandler from '../firebase//firebase' 
 
 class Search extends React.Component { 
 

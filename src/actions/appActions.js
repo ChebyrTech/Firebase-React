@@ -57,6 +57,14 @@ export const postDeleteError = (data) => {
     }
 } 
 
+// delete post success 
+export const postDeleteSuccess = () => {
+
+    return {
+        type: 'DELETE_POST_SUCCESS' 
+    }
+} 
+
 export const errorHandled = () => { 
     
     return {

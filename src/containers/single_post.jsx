@@ -1,6 +1,9 @@
 import React from 'react'
 import { Link, withRouter } from 'react-router'
 
+import 'sweetalert'
+import '../../node_modules/sweetalert/dist/sweetalert.css'
+
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
@@ -8,7 +11,7 @@ import * as appActions from '../actions/appActions'
 
 import Theatre from './theatre.jsx'
 
-import FirebaseHandler from '../firebase'
+import FirebaseHandler from '../firebase/firebase'
 
 class SinglePost extends React.Component {
 
@@ -41,7 +44,9 @@ class SinglePost extends React.Component {
         this.onPostDeleteSuccess = this.onPostDeleteSuccess.bind(this);
         this.onPostDeleteError = this.onPostDeleteError.bind(this);
         this.handleLikes = this.handleLikes.bind(this);
-        this.handleAuth = this.handleAuth.bind(this);
+        this.handleAuth = this.handleAuth.bind(this); 
+        this.showNewComments = this.showNewComments.bind(this);  
+        this.onPostDeleted = this.onPostDeleted.bind(this); 
 
         this.state = {
             post: {
@@ -101,11 +106,10 @@ class SinglePost extends React.Component {
             nextPage: '',
 
             textTime: 'now',
-            mounted: false
+            mounted: false, 
+            manual_delete: false 
 
         }
-
-
 
     }
 
@@ -147,15 +151,16 @@ class SinglePost extends React.Component {
         this.displayNextPageButton = clear;
         this.createCommentJsx = clear;
         this.onPostDeleteError = clear;
-        this.onPostDeleteSuccess = clear;
+        this.onPostDeleteSuccess = clear; 
+        this.showNewComments = clear; 
+        this.onPostDeleted = clear; 
         this.clear();
 
         this.setState({
             mounted: false
         })
+    } 
 
-
-    }
 
     /**
      * Handle Auth
@@ -241,9 +246,9 @@ class SinglePost extends React.Component {
         this.timers.forEach(timer => clearInterval(timer));
         this.timers = [];
 
-        // Remove Firebase listeners.
-        FirebaseHandler.cancelAllSubscriptions();
     }
+
+
 
     /**
      * Displays the given list of `comments` in the post.
@@ -419,15 +424,7 @@ class SinglePost extends React.Component {
             // Display any new comments.
             const commentIds = Object.keys(data.entries);
             FirebaseHandler.subscribeToComments(postId, (commentId, commentData) => {
-
-
-                var comment_array = this.state.comments;
-
-                var new_comment = self.createCommentJsx(commentData.author, commentData.text)
-
-                comment_array.push(new_comment)
-
-
+                self.showNewComments(commentId, commentData)
             }, commentIds ? commentIds[commentIds.length - 1] : 0);
         });
 
@@ -448,6 +445,22 @@ class SinglePost extends React.Component {
             })
 
         }
+    }
+
+    /**
+     * Add comment
+     */
+    showNewComments(commentId, commentData) {
+        var more_comments = this.state.comments.slice();
+
+        var new_comment = this.createCommentJsx(commentData.author, commentData.text)
+
+        more_comments.push(new_comment); 
+
+        this.setState({
+            comments: more_comments
+        })
+
     }
 
     /**
@@ -493,7 +506,13 @@ class SinglePost extends React.Component {
      */
     _setupDeleteButton(postId, author, picStorageUri, thumbStorageUri) {
 
-
+        var self = this; 
+        /**
+         * Register for post deletion 
+         */
+        FirebaseHandler.registerForPostsDeletion(() => {
+            self.onPostDeleted()
+        })
 
         if (this.auth.currentUser && this.auth.currentUser.uid === author.uid && picStorageUri && this.props.params.postid) {
 
@@ -518,7 +537,9 @@ class SinglePost extends React.Component {
      *  Click handler for the Delete button 
      */
     deletePostHandler(self) {
-
+        self.setState({
+            manual_delete: true
+        })
         swal({
             title: 'Are you sure?',
             text: 'You will not be able to recover this post!',
@@ -557,6 +578,13 @@ class SinglePost extends React.Component {
         });
 
         this.props.router.push(`/user/${this.state.post.author.uid}`);
+
+    } 
+
+    onPostDeleted() {
+        if (!this.state.manual_delete) {
+            window.location.reload(); 
+        }
     }
 
     onPostDeleteError(error) {
@@ -769,10 +797,9 @@ class SinglePost extends React.Component {
     }
 }
 
-
 function matchDispatchToProps(dispatch) {
     return bindActionCreators({
-        deleteError: appActions.postDeleteError,
+        deleteError: appActions.postDeleteError, 
         enterTheatreMode: appActions.enterTheatreMode
     }, dispatch)
 }

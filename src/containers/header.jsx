@@ -11,7 +11,7 @@ import Search from './search.jsx'
 
 import { Link, withRouter } from 'react-router'
 
-import FirebaseHandler from '../firebase'
+import FirebaseHandler from '../firebase/firebase'
 
 class Header extends React.Component {
 
@@ -104,6 +104,14 @@ class Header extends React.Component {
                     home: '',
                     feed: 'is-active',
                     about: ''
+                }
+            })
+        } else if (nextProps.router.location.pathname == '/about' && this.state.mounted) {
+            this.setState({
+                navClasses: {
+                    home: '',
+                    feed: '',
+                    about: 'is-active'
                 }
             })
         }

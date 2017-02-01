@@ -1,13 +1,29 @@
+//import mdl from 'mdl'
+
+// styles 
+import '../node_modules/material-design-lite/material.min.css' 
+import '../node_modules/firebaseui/dist/firebaseui.css' 
+import '../resources/styles/main.css'
+import '../resources/styles/transitions.css'
+
+import 'material-design-lite'
+
+import latinize from 'latinize' 
+window.latinize = latinize; 
+
+// Configure and initialize firebase 
+import './firebase/config'
+
 import React from 'react'  
 import ReactDOM from 'react-dom'
 import { Router, Link, IndexRoute, Route, hashHistory } from 'react-router'
 
-// redux setup 
+// // redux setup 
 import redux from 'redux'  
 import { Provider } from 'react-redux' 
-import store from './store.js'
+import store from './store.js' 
 
-// containers 
+// // containers 
 import Auth from './containers/auth.jsx' 
 import Dashboard from './containers/dashboard.jsx' 
 import NewPost from './containers/new_post.jsx' 
@@ -15,7 +31,7 @@ import Feed from './containers/feed.jsx'
 import User from './containers/user.jsx'
 import Home from './containers/home.jsx'
 
-// components
+// // components
 import About from './components/about.jsx'
 import PostWrap from './components/post_wrapper.jsx' 
 
@@ -41,7 +57,7 @@ class App extends React.Component {
 
 var container = document.getElementById('app'); 
 
-// app routes 
+// // app routes 
 ReactDOM.render(<Provider store={store}>
     <Router history={hashHistory}>
         <Route path="/" component={App}>

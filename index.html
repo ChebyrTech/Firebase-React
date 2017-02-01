@@ -12,7 +12,7 @@
   <meta name="msapplication-tap-highlight" content="no">
 
   <!-- Web Application Manifest -->
-  <link rel="manifest" href="/resources/manifest.json">
+  <link rel="manifest" href="/manifest.json">
 
   <!-- Add to home screen for Chrome on Android -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -34,73 +34,16 @@
   <meta name="msapplication-TileColor" content="#3372DF">
   <meta name="msapplication-navbutton-color" content="#303F9F">
 
-
-  <!-- Material Design Lite  -->
-  <link rel="stylesheet" href="/resources/libs/material-design-lite/material.min.css">
-   <script defer src="/resources/libs/material-design-lite/material.js"></script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-
-
-  <!-- Latinize -->
-  <script src="/resources/libs/latinize/latinize.js"></script> 
-
-  <!--Sweet Alert-->
-  <script src="/resources/libs/sweetalert/dist/sweetalert.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="/resources/libs/sweetalert/dist/sweetalert.css">
-
-  <!-- Firebase UI Auth -->
-  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/live/0.5/firebase-ui-auth.css" />
-
-
-  <!-- Styling -->
+  <!-- Fonts -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,300">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amaranth:700">
-  <link rel="stylesheet" href="/resources/styles/main.css">
-    <link rel="stylesheet" href="/resources/styles/transitions.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
 </head> 
 <body>
 
     <div id="app"></div>  
     
- 
-
-<!--Firebase-->
-<script src="https://www.gstatic.com/firebasejs/3.6.6/firebase.js"></script>
-<script>
-  // Initialize Firebase
-  var config = {
-    apiKey: "AIzaSyABYJsdr5VmLjnG0tT1tIzxvHWyyl4f5AQ",
-    authDomain: "test-9deeb.firebaseapp.com",
-    databaseURL: "https://test-9deeb.firebaseio.com",
-    storageBucket: "test-9deeb.appspot.com",
-    messagingSenderId: "710979781664"
-
-  };
-  firebase.initializeApp(config);
-</script> 
-
-<!-- Firebase UI for Auth -->
-<script src="https://www.gstatic.com/firebasejs/ui/live/1.0/firebase-ui-auth.js"></script>
-<script type="text/javascript">
-  // FirebaseUI config.
-  var uiConfig = {
-    'signInFlow': 'popup',
-    'signInOptions': [
-      firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-      firebase.auth.FacebookAuthProvider.PROVIDER_ID
-    ],
-    'callbacks': {
-    signInSuccess: function() {
-
-      // prevent automatic redirects after signin
-      return false; 
-    }}
-  };
-  
-</script>
-
-
-
 <script src="/build/bundle.js"></script>
 </body>
 </html>

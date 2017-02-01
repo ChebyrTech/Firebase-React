@@ -3,7 +3,8 @@ var view_index = 0;
 const feedReducer = (state = {
     picUrl: '', 
     errorData: null, 
-    index: 0
+    index: 0, 
+    deleted: null
 }, action) => {
     switch(action.type) {
 
@@ -12,7 +13,8 @@ const feedReducer = (state = {
             var newState = {
                 picUrl: '', 
                 errorData: action.payload, 
-                index: view_index 
+                index: view_index, 
+                deleted: null 
             }
             return newState; 
         }
@@ -20,7 +22,18 @@ const feedReducer = (state = {
             var newState = {
                 picUrl: '', 
                 errorData: null, 
-                index: view_index
+                index: view_index, 
+                deleted: null
+            }
+            return newState
+        }
+        case 'DELETE_POST_SUCCESS': {
+        
+            var newState = {
+                picUrl: '', 
+                errorData: null, 
+                index: view_index, 
+                deleted: true
             }
             return newState
         }
@@ -32,7 +45,8 @@ const feedReducer = (state = {
             var newState = {
                 picUrl: action.payload, 
                 errorData: null, 
-                index: view_index
+                index: view_index, 
+                deleted: null
             }
             return newState; 
        }
