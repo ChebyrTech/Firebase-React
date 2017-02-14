@@ -1,0 +1,15 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/node_modules/.bin
+/node_modules/.bin/acorn
+/node_modules/.bin/acorn
+/.vs/Firebase-React/v14
+/node_modules
+/bin
+/obj/Debug
+/Firebase-React.njsproj
+/Firebase-React.sln
+/npm-debug.log
+/build/bundle.js.map
