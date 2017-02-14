@@ -1,0 +1,12 @@
+﻿# IDE specific files
+/.idea/
+/.vs/
+/npm-debug.log
+/obj
+/bin
+/build
+
+/Firebase-React.njsproj
+/Firebase-React.sln
+
+/node_modules
